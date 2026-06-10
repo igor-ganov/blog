@@ -1,0 +1,200 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import ArticleAside from '@/components/ArticleAside.astro';
+import SeverityBadge from '@/components/SeverityBadge.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Article } from '@/lib/articles/article-types';
+import { articleHref } from '@/lib/articles/article-href';
+import { groupByCategory } from '@/lib/articles/group-by-category';
+import { loadArticles } from '@/lib/articles/load-articles';
+import { toArticle } from '@/lib/articles/to-article';
+import { categoryBySlug } from '@/lib/categories/categories';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const entries = await getCollection('kb', (entry) => entry.data.draft === false);
+  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+};
+
+interface Props {
+  readonly entry: CollectionEntry<'kb'>;
+}
+
+const { entry } = Astro.props;
+const article = toArticle(entry);
+const category = categoryBySlug(article.category);
+const { Content, headings } = await render(entry);
+
+const all = await loadArticles();
+const byId = new Map(all.map((item) => [item.id, item]));
+const relatedLinks = article.related
+  .map((id) => byId.get(id))
+  .filter((item): item is Article => Boolean(item))
+  .map((item) => ({ href: articleHref(item), title: item.title }));
+
+const siblings = groupByCategory(all).get(article.category) ?? [];
+const index = siblings.findIndex((item) => item.id === article.id);
+const prev = siblings[index - 1];
+const next = siblings[index + 1];
+const toc = headings.filter((heading) => heading.depth === 2);
+---
+
+<BaseLayout title={article.title} description={article.summary}>
+  <reading-progress></reading-progress>
+  <script>
+    import '@/components/islands/reading-progress';
+  </script>
+
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/kb">Browse</a> <span aria-hidden="true">/</span>
+    {category && <a href={`/c/${category.slug}`}>{category.title}</a>}
+  </nav>
+
+  <div class="layout">
+    <article class="article">
+      <header class="head">
+        <div class="badges">
+          <SeverityBadge severity={article.severity} />
+        </div>
+        <h1>{article.title}</h1>
+        <p class="summary">{article.summary}</p>
+        <p class="principle"><strong>Principle.</strong> {article.principle}</p>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <nav class="pager" aria-label="Within this category">
+        {
+          prev && (
+            <a class="prev" href={articleHref(prev)}>
+              <span class="dir">← Previous</span>
+              <span class="t">{prev.title}</span>
+            </a>
+          )
+        }
+        {
+          next && (
+            <a class="next" href={articleHref(next)}>
+              <span class="dir">Next →</span>
+              <span class="t">{next.title}</span>
+            </a>
+          )
+        }
+      </nav>
+    </article>
+
+    <div class="sidebar">
+      {
+        toc.length > 1 && (
+          <nav class="toc" aria-label="On this page">
+            <h2 class="h">On this page</h2>
+            <ul>
+              {toc.map((heading) => (
+                <li>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+      <ArticleAside sources={article.sources} related={relatedLinks} tags={article.tags} />
+    </div>
+  </div>
+
+  <style>
+    .crumbs {
+      padding-top: var(--space-6);
+      color: var(--text-faint);
+      font-size: var(--step--1);
+    }
+    .crumbs a {
+      color: var(--text-muted);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-8);
+      padding: var(--space-4) 0 var(--space-8);
+    }
+    @media (min-width: 60rem) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr) 16rem;
+        align-items: start;
+      }
+      .sidebar {
+        position: sticky;
+        top: 5rem;
+      }
+    }
+    .head {
+      max-width: var(--measure);
+    }
+    .summary {
+      font-size: var(--step-1);
+      color: var(--text-muted);
+    }
+    .principle {
+      border-left: 3px solid var(--accent);
+      background: var(--bg-sunken);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+    .toc .h {
+      font-family: var(--font-sans);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      margin: 0 0 var(--space-3);
+    }
+    .toc ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      font-size: var(--step--1);
+    }
+    .toc a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .toc a:hover {
+      color: var(--link);
+    }
+    .pager {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-top: var(--space-8);
+      border-top: 1px solid var(--border);
+      padding-top: var(--space-5);
+    }
+    .pager a {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      max-width: 48%;
+    }
+    .pager .next {
+      text-align: right;
+      margin-inline-start: auto;
+    }
+    .pager .dir {
+      font-size: var(--step--1);
+      color: var(--text-faint);
+    }
+    .pager .t {
+      color: var(--link);
+    }
+  </style>
+</BaseLayout>

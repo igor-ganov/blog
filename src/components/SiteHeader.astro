@@ -1,0 +1,103 @@
+---
+const nav = [
+  { href: '/kb', label: 'Browse' },
+  { href: '/skills', label: 'Skills' },
+  { href: '/about', label: 'About' },
+];
+const path = Astro.url.pathname;
+const isActive = (href: string): boolean => path === href || path.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="word">Engineering Practices</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <theme-toggle></theme-toggle>
+  </div>
+</header>
+
+<script>
+  import '@/components/islands/theme-toggle';
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: 4rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .mark {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 3px;
+    background: var(--accent);
+    transform: rotate(45deg);
+  }
+  .word {
+    font-family: var(--font-serif);
+    letter-spacing: 0.01em;
+  }
+  nav {
+    margin-inline-start: auto;
+  }
+  ul {
+    display: flex;
+    gap: var(--space-5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: var(--space-1) 0;
+    border-bottom: 2px solid transparent;
+  }
+  nav a:hover {
+    color: var(--text);
+  }
+  nav a[aria-current='page'] {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  @media (max-width: 32rem) {
+    .word {
+      display: none;
+    }
+    .bar {
+      gap: var(--space-4);
+    }
+  }
+</style>

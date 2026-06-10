@@ -1,0 +1,33 @@
+---
+const year = 2026;
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="lede">
+      A living knowledge base — engineering practices distilled from real project
+      decisions. Newer decisions override older ones; every claim carries its provenance.
+    </p>
+    <p class="meta">
+      Built with Astro&nbsp;5, Lit, strict TypeScript and Biome — the same stack and
+      rules it documents. © {year} Igor Ganov.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-12);
+    border-top: 1px solid var(--border);
+    background: var(--bg-sunken);
+    padding: var(--space-8) 0;
+  }
+  .lede {
+    color: var(--text-muted);
+    max-width: 60ch;
+  }
+  .meta {
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+</style>

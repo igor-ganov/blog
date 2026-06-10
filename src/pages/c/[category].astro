@@ -1,0 +1,87 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ArticleCard from '@/components/ArticleCard.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Article } from '@/lib/articles/article-types';
+import { groupByCategory } from '@/lib/articles/group-by-category';
+import { loadArticles } from '@/lib/articles/load-articles';
+import type { Category } from '@/lib/categories/categories';
+import { categories } from '@/lib/categories/categories';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const articles = await loadArticles();
+  const grouped = groupByCategory(articles);
+  return categories.map((category) => ({
+    params: { category: category.slug },
+    props: { category, items: grouped.get(category.slug) ?? [] },
+  }));
+};
+
+interface Props {
+  readonly category: Category;
+  readonly items: readonly Article[];
+}
+
+const { category, items } = Astro.props;
+---
+
+<BaseLayout title={category.title} description={category.description}>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/kb">Browse</a> <span aria-hidden="true">/</span>
+    <span>{category.title}</span>
+  </nav>
+  <header class="page-head">
+    <p class="num">{String(category.order).padStart(2, '0')}</p>
+    <h1>{category.title}</h1>
+    <p class="tagline">{category.tagline}</p>
+    <p class="lede">{category.description}</p>
+  </header>
+
+  {
+    items.length > 0 ? (
+      <div class="grid">
+        {items.map((article) => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+    ) : (
+      <p class="empty">No practices published in this category yet.</p>
+    )
+  }
+
+  <style>
+    .crumbs {
+      padding-top: var(--space-6);
+      color: var(--text-faint);
+      font-size: var(--step--1);
+    }
+    .crumbs a {
+      color: var(--text-muted);
+    }
+    .page-head {
+      padding: var(--space-4) 0 var(--space-6);
+      max-width: 62ch;
+    }
+    .num {
+      font-family: var(--font-mono);
+      color: var(--accent);
+      margin: 0;
+    }
+    .tagline {
+      font-size: var(--step-1);
+      color: var(--text);
+      margin: var(--space-2) 0;
+    }
+    .lede {
+      color: var(--text-muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+      gap: var(--space-4);
+    }
+    .empty {
+      color: var(--text-muted);
+    }
+  </style>
+</BaseLayout>

@@ -1,0 +1,7 @@
+# Normalise line endings: LF in the repo, regardless of OS (see the KB's
+# build-ci-deploy/crlf-lf-discipline practice). Prevents Windows-dev → Linux-CI churn.
+* text=auto eol=lf
+
+# Binary assets — never normalise.
+*.png binary
+*.svg text eol=lf

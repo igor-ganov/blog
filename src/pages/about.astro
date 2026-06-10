@@ -1,0 +1,111 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { loadArticles } from '@/lib/articles/load-articles';
+import { categories } from '@/lib/categories/categories';
+
+const articles = await loadArticles();
+const projects = new Set(articles.flatMap((a) => a.sources.map((s) => s.project)));
+const description =
+  'Why this knowledge base exists, how it was built from real project decisions, and how to read — or challenge — it.';
+---
+
+<BaseLayout title="About" description={description}>
+  <article class="prose page">
+    <h1>About this knowledge base</h1>
+    <p class="lede">
+      This is a written record of how I build software — the practices, conventions and
+      hard-won lessons that govern my code, architecture, testing, tooling and design
+      decisions. It exists to be read, used, and argued with.
+    </p>
+
+    <h2>Why it exists</h2>
+    <p>Four reasons, in order of how much they matter to me:</p>
+    <ol>
+      <li>
+        <strong>To make the knowledge current.</strong> Practices accumulate across
+        projects as scattered notes. Collecting them in one place, dated and sourced,
+        turns tacit habit into something I can review and keep honest.
+      </li>
+      <li>
+        <strong>To check that I build the way I intend.</strong> Writing each practice
+        down — with the incident that justifies it — makes it falsifiable. Where an
+        article is wrong or out of date, it can be corrected here, and the correction
+        flows back into how the work is actually done.
+      </li>
+      <li>
+        <strong>To sharpen the skill system.</strong> These articles are the raw material
+        for a more precise set of reusable skills. See <a href="/skills">Skills</a> for the
+        proposed shape.
+      </li>
+      <li>
+        <strong>To share it with other developers.</strong> Everything here is general
+        enough to be useful beyond the project it came from.
+      </li>
+    </ol>
+
+    <h2>How it was built</h2>
+    <p>
+      Every article is distilled from a real decision on a real project — not invented for
+      this site. The source material was a global conventions file, six coding-standard
+      skills, and roughly eighty dated notes captured while working across
+      {projects.size} projects. Those were grouped into {categories.length} categories and
+      {articles.length} deep-dive articles, each carrying its <em>provenance</em>: which
+      project it came from and when.
+    </p>
+
+    <h2>Newer decisions override older ones</h2>
+    <p>
+      A practice is only as good as its last revision. Where two decisions conflict, the
+      more recent one wins, and the article says so explicitly with both dates. For
+      example, one project removed Effect-TS during a move to a pure SPA on 2026-03-15,
+      then re-adopted it nine days later in a Grand Refactoring on 2026-03-24 — so the
+      standing practice is <a href="/kb/functional-architecture/errors-as-values-with-effect"
+        >errors as values with Effect</a
+      >, and the earlier note is recorded as superseded rather than deleted.
+    </p>
+
+    <h2>How strongly each practice is held</h2>
+    <p>Every article carries a severity badge:</p>
+    <ul>
+      <li><strong>Non-negotiable</strong> — never up for debate; violating it is a defect.</li>
+      <li><strong>Strong</strong> — the default; deviate only with an explicit, recorded reason.</li>
+      <li><strong>Preferred</strong> — the house style; reasonable exceptions exist.</li>
+      <li><strong>Contextual</strong> — situational guidance that depends on the project.</li>
+    </ul>
+
+    <h2>How to read it — and challenge it</h2>
+    <p>
+      Start with the <a href="/">non-negotiables</a> on the home page, then browse by
+      topic. If an article contradicts your experience, the provenance is there so you can
+      weigh the evidence: a practice backed by a two-day production outage is held more
+      firmly than one backed by a single preference. Disagreement that comes with a better
+      argument is exactly what keeps this current.
+    </p>
+
+    <h2>Built with what it documents</h2>
+    <p>
+      This site is its own proof. It is an Astro&nbsp;5 static site with Lit islands loaded
+      client-side (never SSR-rendered on the edge), strict TypeScript with no
+      <code>any</code>/<code>as</code>/<code>null</code>, a functional core of small pure
+      functions unit-tested with Vitest, event-driven Playwright E2E with no timeouts, and
+      Biome enforcing the rules in CI — every one of which is a practice documented inside it.
+    </p>
+  </article>
+
+  <style>
+    .page {
+      padding: var(--space-8) 0;
+    }
+    .lede {
+      font-size: var(--step-1);
+      color: var(--text-muted);
+    }
+    ol,
+    ul {
+      padding-inline-start: 1.2em;
+    }
+    li {
+      margin: var(--space-2) 0;
+    }
+  </style>
+</BaseLayout>

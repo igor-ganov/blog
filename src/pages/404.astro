@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Not found" description="That page does not exist.">
+  <section class="nf">
+    <p class="code">404</p>
+    <h1>That practice isn’t here.</h1>
+    <p class="lede">The page you asked for doesn’t exist — try browsing instead.</p>
+    <a class="cta" href="/kb">Browse every practice</a>
+  </section>
+
+  <style>
+    .nf {
+      padding: var(--space-12) 0;
+      text-align: center;
+    }
+    .code {
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-size: var(--step-2);
+      margin: 0;
+    }
+    .lede {
+      color: var(--text-muted);
+      margin-inline: auto;
+    }
+    .cta {
+      display: inline-block;
+      margin-top: var(--space-5);
+      background: var(--blue-700);
+      color: #fff;
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius);
+      text-decoration: none;
+    }
+  </style>
+</BaseLayout>

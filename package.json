@@ -1,0 +1,31 @@
+{
+  "name": "practices-knowledge-base",
+  "type": "module",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A living knowledge base of Igor Ganov's engineering best practices and preferences, distilled from real project decisions and rendered as a blog. Built with the very stack and rules it documents.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "biome ci .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:e2e": "playwright test --reporter=list",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "astro": "^5.6.1",
+    "lit": "^3.2.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@biomejs/biome": "^2.1.2",
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22",
+    "happy-dom": "^15.11.7",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
+  }
+}

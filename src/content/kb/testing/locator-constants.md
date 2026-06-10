@@ -1,0 +1,180 @@
+---
+title: 'Locator constants colocated with the component'
+category: testing
+summary: 'E2E locators live in a constants file next to the component and are referenced in both the component markup and the tests — never as duplicated string literals.'
+principle: 'E2E locators live in a constants file next to the component and are referenced both in the component (as test ids/attributes) and in the tests — never duplicated string selectors.'
+severity: strong
+tags: [testing, playwright, e2e, locators, components]
+sources:
+  - project: 'an engineering standard'
+    date: 2026-06-02
+    note: 'Use constants placed in a separate file next to the component; reference them in the component as well.'
+related:
+  - testing/aria-label-test-locator-hygiene
+  - web-components/lit-functional-core
+order: 3
+updated: 2026-06-02
+---
+
+A `data-testid="theme-toggle-button"` string in a component and the same string copied
+into a test are two independent facts that are supposed to describe one thing. When the
+component changes its test id, only one of the two strings breaks — silently, if it
+breaks the test at runtime, or invisibly if nobody updates the component. Either way,
+you find out in CI, not in your editor.
+
+The fix is mechanical: the string lives once, in a constants file next to the component,
+and both the component and the test import it. The string can never drift.
+
+## Why this matters
+
+The engineering standard (2026-06-02) states this directly: use constants placed in
+a separate file next to the component; reference them in the component as well.
+
+This blog applies that principle throughout its own Lit web component layer. The
+`theme-toggle` component and the `kb-filter` component both ship a `.locators.ts`
+sibling:
+
+```
+src/components/islands/
+  theme-toggle.ts              ← component
+  theme-toggle.locators.ts     ← constants exported as const
+  theme-toggle.styles.ts
+  kb-filter.ts
+  kb-filter.locators.ts
+  kb-filter.styles.ts
+```
+
+`theme-toggle.locators.ts` exports:
+
+```ts
+export const THEME_TOGGLE = {
+  tag: 'theme-toggle',
+  button: 'theme-toggle-button',
+} as const;
+```
+
+`kb-filter.locators.ts` exports:
+
+```ts
+export const KB_FILTER = {
+  tag: 'kb-filter',
+  input: 'kb-filter-input',
+  count: 'kb-filter-count',
+  empty: 'kb-filter-empty',
+  item: 'data-kb-item',
+  haystack: 'data-haystack',
+} as const;
+```
+
+The `theme-toggle.ts` component imports from its sibling and writes `THEME_TOGGLE.tag`
+as the custom element name and `THEME_TOGGLE.button` into `data-testid`. The test does
+the same import and calls `page.getByTestId(THEME_TOGGLE.button)`. If the constant
+changes, TypeScript surfaces every reference in the same compilation pass.
+
+## How to apply
+
+**1. Create `<name>.locators.ts` next to the component.**
+
+```ts
+// src/components/notifications/notifications-badge.locators.ts
+export const NOTIFICATIONS_BADGE = {
+  tag: 'notifications-badge',
+  indicator: 'notifications-badge-indicator',
+  count: 'notifications-badge-count',
+} as const;
+```
+
+Use `as const` so the values are narrowed to their literal types — this lets callers
+destructure or index without losing the string literal.
+
+**2. Import the constants into the component and use them in the template.**
+
+```ts
+// src/components/notifications/notifications-badge.ts
+import { html, LitElement } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
+import { NOTIFICATIONS_BADGE } from './notifications-badge.locators';
+
+@customElement(NOTIFICATIONS_BADGE.tag)
+export class NotificationsBadge extends LitElement {
+  @state() private count = 0;
+
+  protected override render(): unknown {
+    return html`
+      <button
+        type="button"
+        data-testid=${NOTIFICATIONS_BADGE.indicator}
+        aria-label="Notifications: ${this.count} unread"
+      >
+        <span data-testid=${NOTIFICATIONS_BADGE.count}>${this.count}</span>
+      </button>
+    `;
+  }
+}
+```
+
+**3. Import the same constants into the E2E test.**
+
+```ts
+// e2e/notifications.spec.ts
+import { test, expect } from '@playwright/test';
+import { NOTIFICATIONS_BADGE } from '../src/components/notifications/notifications-badge.locators';
+
+test('shows unread count', async ({ page }) => {
+  await page.goto('/');
+  await expect(
+    page.getByTestId(NOTIFICATIONS_BADGE.indicator),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId(NOTIFICATIONS_BADGE.count),
+  ).toHaveText('3');
+});
+```
+
+The test never contains the string `'notifications-badge-indicator'` as a literal. Only
+the constant file does. Renaming the id is a single-file change that the TypeScript
+compiler propagates and verifies across the whole project.
+
+## Anti-patterns
+
+```ts
+// ❌ Duplicated string literals — the component and the test are now out of sync
+//    the moment either changes independently.
+
+// In the component:
+html`<button data-testid="notif-indicator">`;
+
+// In the test:
+page.getByTestId('notif-indicator'); // copied from memory — will drift
+
+// ❌ Inline attribute strings with no shared source of truth
+page.locator('[data-testid="kb-filter-input"]'); // bypasses the constant entirely
+
+// ❌ Constants file placed far from the component — in a shared/test-ids.ts or similar.
+//    This breaks colocation. When a component moves, the constants do not follow.
+//    When a component is deleted, orphan constants accumulate.
+
+// ❌ Relying on role + text selectors for everything when a stable test id would
+//    be more precise.  Role locators are excellent for accessibility assertions but
+//    fragile as primary navigation anchors — the accessible name is user-visible copy
+//    that gets translated, revised, and A/B-tested.  See
+//    testing/aria-label-test-locator-hygiene for when aria-label matching is fine and
+//    when it is a trap.
+```
+
+The symptom of missing constants is test failures that look like typos: the locator
+finds zero elements, the assertion fails, and the cause is a string that was changed in
+one place and not the other. These failures are silent until runtime and hard to diff.
+
+## Enforcement
+
+TypeScript's own compiler is the primary enforcer. Because the constant is typed with
+`as const`, any reference to a non-existent key (`NOTIFICATIONS_BADGE.indicatr`) is a
+compile error, not a runtime surprise. The pattern also makes the search surface small:
+`grep -r 'data-testid=' src/` should return only component files, never test files.
+
+In code review, verify:
+
+- Every `data-testid` value in a component template comes from a constant import.
+- The corresponding `.locators.ts` file is in the same directory as the component.
+- Tests import locator constants; they do not contain string literals for `data-testid`.

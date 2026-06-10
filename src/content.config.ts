@@ -1,0 +1,52 @@
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+// How strongly a practice is held. Drives the badge on each article.
+const severity = z.enum(['non-negotiable', 'strong', 'preferred', 'context']);
+
+// YAML parses an unquoted `2026-05-09` into a Date, while a quoted one stays a
+// string. Accept either and normalise to a YYYY-MM-DD string for formatting.
+const isoDate = z
+  .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'), z.date()])
+  .transform((value) => (value instanceof Date ? value.toISOString().slice(0, 10) : value));
+
+// Provenance: which real project decision this practice was distilled from,
+// and when. Newer sources override older ones when they conflict.
+const source = z.object({
+  project: z.string(),
+  note: z.string().optional(),
+  date: isoDate,
+});
+
+const kb = defineCollection({
+  loader: glob({ pattern: ['**/*.md', '!**/README.md'], base: './src/content/kb' }),
+  schema: z.object({
+    title: z.string(),
+    category: z.enum([
+      'typescript',
+      'functional-architecture',
+      'angular',
+      'web-components',
+      'testing',
+      'error-handling',
+      'ddd',
+      'backend-events',
+      'build-ci-deploy',
+      'tooling-runtime',
+      'process',
+      'design-ux',
+      'platform',
+    ]),
+    summary: z.string(),
+    principle: z.string(),
+    severity,
+    tags: z.array(z.string()).default([]),
+    sources: z.array(source).default([]),
+    related: z.array(z.string()).default([]),
+    order: z.number().default(100),
+    updated: isoDate.optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { kb };

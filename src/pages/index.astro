@@ -1,0 +1,109 @@
+---
+import ArticleCard from '@/components/ArticleCard.astro';
+import CategoryCard from '@/components/CategoryCard.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { groupByCategory } from '@/lib/articles/group-by-category';
+import { loadArticles } from '@/lib/articles/load-articles';
+import { categories } from '@/lib/categories/categories';
+
+const articles = await loadArticles();
+const grouped = groupByCategory(articles);
+const nonNegotiables = articles.filter((article) => article.severity === 'non-negotiable');
+const description =
+  'A living knowledge base of engineering best practices and preferences, distilled from real project decisions and rendered with the very stack it documents.';
+---
+
+<BaseLayout title="Home" description={description}>
+  <section class="hero">
+    <p class="kicker">A living knowledge base</p>
+    <h1>How I build software — written down, with the receipts.</h1>
+    <p class="lede">
+      Every article below is a practice distilled from a real decision on a real
+      project: the rule, <em>why</em> it exists (with the incident that taught it),
+      how to apply it, and what to avoid. Newer decisions override older ones, and
+      each carries its provenance so you can trust — or challenge — it.
+    </p>
+    <dl class="stats">
+      <div><dt>Practices</dt><dd>{articles.length}</dd></div>
+      <div><dt>Categories</dt><dd>{categories.length}</dd></div>
+      <div><dt>Non-negotiable</dt><dd>{nonNegotiables.length}</dd></div>
+    </dl>
+  </section>
+
+  {
+    nonNegotiables.length > 0 && (
+      <section class="block">
+        <h2>Start with the non-negotiables</h2>
+        <p class="block-lede">The rules that are never up for debate.</p>
+        <div class="grid">
+          {nonNegotiables.slice(0, 6).map((article) => (
+            <ArticleCard article={article} showCategory />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="block">
+    <h2>Browse by topic</h2>
+    <p class="block-lede">Thirteen areas, from type safety to team topology.</p>
+    <div class="grid cats">
+      {
+        categories.map((category) => (
+          <CategoryCard category={category} count={(grouped.get(category.slug) ?? []).length} />
+        ))
+      }
+    </div>
+  </section>
+
+  <style>
+    .hero {
+      padding: var(--space-12) 0 var(--space-8);
+      max-width: 60ch;
+    }
+    .kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: var(--step--1);
+      color: var(--accent);
+      margin: 0 0 var(--space-3);
+    }
+    h1 {
+      font-size: var(--step-4);
+    }
+    .lede {
+      font-size: var(--step-1);
+      color: var(--text-muted);
+    }
+    .stats {
+      display: flex;
+      gap: var(--space-8);
+      margin: var(--space-6) 0 0;
+    }
+    .stats dt {
+      font-size: var(--step--1);
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .stats dd {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: var(--step-3);
+      color: var(--text);
+    }
+    .block {
+      padding: var(--space-6) 0;
+    }
+    .block-lede {
+      color: var(--text-muted);
+      margin-top: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
+  </style>
+</BaseLayout>

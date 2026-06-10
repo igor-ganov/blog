@@ -1,0 +1,96 @@
+/*
+ * Design tokens — a duotone (ink-blue + amber) on warm grays.
+ * Minimalist, schematic, no decoration. Light is default; dark via [data-theme].
+ * Contrast targets AAA for body text.
+ */
+:root {
+  /* Brand duotone */
+  --blue-900: #0f1d3a;
+  --blue-800: #16294f;
+  --blue-700: #1d3768;
+  --blue-600: #324a7d;
+  --blue-500: #4a5f86;
+  --blue-300: #8595b4;
+  --amber-600: #d99a00;
+  --amber-500: #f0b429;
+  --amber-300: #ffd666;
+
+  /* Neutrals */
+  --gray-0: #ffffff;
+  --gray-50: #f7f7f5;
+  --gray-100: #eeeeea;
+  --gray-200: #dcdcd6;
+  --gray-300: #c4c4bd;
+  --gray-500: #8a8a82;
+  --gray-700: #55554f;
+  --gray-800: #36362f;
+  --gray-900: #1d1d18;
+
+  /* Semantic — light theme */
+  --bg: var(--gray-50);
+  --bg-raised: var(--gray-0);
+  --bg-sunken: var(--gray-100);
+  --border: var(--gray-200);
+  --border-strong: var(--gray-300);
+  --text: var(--gray-900);
+  --text-muted: var(--gray-700);
+  --text-faint: var(--gray-500);
+  --link: var(--blue-700);
+  --link-hover: var(--blue-600);
+  --accent: var(--amber-600);
+  --accent-contrast: var(--blue-900);
+  --code-bg: #0d1117;
+  --code-text: #e6edf3;
+
+  /* Severity scale */
+  --sev-nonneg: #b4232a;
+  --sev-strong: var(--blue-700);
+  --sev-preferred: var(--amber-600);
+  --sev-context: var(--gray-500);
+
+  /* Type */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', roboto, helvetica, arial, sans-serif;
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', palatino, georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', consolas, 'Liberation Mono', monospace;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.08rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.45rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --step-3: clamp(1.95rem, 1.6rem + 1.8vw, 2.9rem);
+  --step-4: clamp(2.4rem, 1.9rem + 2.6vw, 3.8rem);
+
+  /* Space + shape */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-12: 5rem;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --measure: 72ch;
+  --shadow: 0 1px 2px rgba(15, 29, 58, 0.06), 0 8px 24px rgba(15, 29, 58, 0.06);
+}
+
+[data-theme='dark'] {
+  --bg: #11131a;
+  --bg-raised: #181b24;
+  --bg-sunken: #0c0e14;
+  --border: #262a36;
+  --border-strong: #353b4b;
+  --text: #e9eaf0;
+  --text-muted: #b3b6c2;
+  --text-faint: #80838f;
+  --link: var(--amber-500);
+  --link-hover: var(--amber-300);
+  --accent: var(--amber-500);
+  --accent-contrast: #11131a;
+  --sev-nonneg: #ff6b72;
+  --sev-strong: var(--blue-300);
+  --sev-preferred: var(--amber-500);
+  --sev-context: var(--gray-500);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+}

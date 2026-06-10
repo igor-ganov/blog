@@ -1,0 +1,142 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { groupByCategory } from '@/lib/articles/group-by-category';
+import { loadArticles } from '@/lib/articles/load-articles';
+import { categoryBySlug } from '@/lib/categories/categories';
+import { proposedSkills } from '@/lib/skills/proposed-skills';
+import { skillStatusMeta } from '@/lib/skills/skill-status-meta';
+
+const articles = await loadArticles();
+const grouped = groupByCategory(articles);
+const countFor = (skill: (typeof proposedSkills)[number]): number =>
+  skill.categories.reduce((sum, slug) => sum + (grouped.get(slug) ?? []).length, 0);
+const description =
+  'A proposed skill system derived from the knowledge base — which skills exist, which to refine, and which to add.';
+---
+
+<BaseLayout title="Skills" description={description}>
+  <header class="page-head">
+    <h1>From practices to a skill system</h1>
+    <p class="lede">
+      The knowledge base is the raw material; a skill system is the operational form. Each
+      skill below is a focused bundle of practices the assistant loads on demand. Some
+      already exist, some should absorb more of the KB, and some are proposed.
+    </p>
+    <ul class="legend">
+      <li><span class="dot" style="--c: var(--sev-strong)"></span> Exists today</li>
+      <li><span class="dot" style="--c: var(--sev-preferred)"></span> Refine an existing skill</li>
+      <li><span class="dot" style="--c: var(--sev-nonneg)"></span> Proposed new skill</li>
+    </ul>
+  </header>
+
+  <ul class="skills">
+    {
+      proposedSkills.map((skill) => {
+        const meta = skillStatusMeta(skill.status);
+        return (
+          <li class="skill">
+            <div class="row">
+              <code class="name">{skill.name}</code>
+              <span class="status" style={`--c: var(${meta.cssVar})`}>{meta.label}</span>
+            </div>
+            <p class="scope">{skill.scope}</p>
+            <p class="trigger"><strong>Use when:</strong> {skill.trigger}</p>
+            <p class="draws">
+              Draws from{' '}
+              {skill.categories.map((slug, i) => {
+                const category = categoryBySlug(slug);
+                return (
+                  <>
+                    {i > 0 ? ', ' : ''}
+                    {category && <a href={`/c/${category.slug}`}>{category.title}</a>}
+                  </>
+                );
+              })}{' '}
+              · {countFor(skill)} practices
+            </p>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <style>
+    .page-head {
+      padding: var(--space-8) 0 var(--space-5);
+      max-width: 65ch;
+    }
+    .lede {
+      font-size: var(--step-1);
+      color: var(--text-muted);
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-5);
+      list-style: none;
+      padding: 0;
+      margin: var(--space-4) 0 0;
+      font-size: var(--step--1);
+      color: var(--text-muted);
+    }
+    .dot {
+      display: inline-block;
+      width: 0.7em;
+      height: 0.7em;
+      border-radius: 50%;
+      background: var(--c);
+      margin-inline-end: 0.4em;
+    }
+    .skills {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+      gap: var(--space-4);
+      list-style: none;
+      padding: 0;
+    }
+    .skill {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-5);
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .name {
+      font-size: var(--step-0);
+      color: var(--text);
+      background: var(--bg-sunken);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.1em 0.5em;
+    }
+    .status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--c);
+      border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+      background: color-mix(in srgb, var(--c) 10%, transparent);
+      border-radius: 999px;
+      padding: 0.2em 0.6em;
+      white-space: nowrap;
+    }
+    .scope {
+      color: var(--text-muted);
+      margin: var(--space-3) 0;
+    }
+    .trigger {
+      margin: 0;
+    }
+    .draws {
+      margin: var(--space-2) 0 0;
+      font-size: var(--step--1);
+      color: var(--text-faint);
+    }
+  </style>
+</BaseLayout>

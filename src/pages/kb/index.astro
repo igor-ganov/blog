@@ -1,0 +1,47 @@
+---
+import ArticleCard from '@/components/ArticleCard.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { groupByCategory } from '@/lib/articles/group-by-category';
+import { loadArticles } from '@/lib/articles/load-articles';
+import { categories } from '@/lib/categories/categories';
+
+const articles = await loadArticles();
+const grouped = groupByCategory(articles);
+const ordered = categories.flatMap((category) => grouped.get(category.slug) ?? []);
+const description = 'Browse and filter every engineering practice in the knowledge base.';
+---
+
+<BaseLayout title="Browse" description={description}>
+  <header class="page-head">
+    <h1>Every practice</h1>
+    <p class="lede">
+      {articles.length} practices across {categories.length} categories. Filter by any
+      word — title, summary, principle or tag.
+    </p>
+  </header>
+
+  <kb-filter>
+    <div class="grid">
+      {ordered.map((article) => <ArticleCard article={article} showCategory />)}
+    </div>
+  </kb-filter>
+
+  <script>
+    import '@/components/islands/kb-filter';
+  </script>
+
+  <style>
+    .page-head {
+      padding: var(--space-8) 0 var(--space-5);
+    }
+    .lede {
+      color: var(--text-muted);
+      max-width: 60ch;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+      gap: var(--space-4);
+    }
+  </style>
+</BaseLayout>

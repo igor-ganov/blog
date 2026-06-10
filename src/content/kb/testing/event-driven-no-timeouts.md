@@ -1,0 +1,116 @@
+---
+title: 'Event-driven waits — no timeouts, ever'
+category: testing
+summary: 'Tests wait on real DOM and network events, never on arbitrary time. A timeout is a crutch that hides broken code.'
+principle: 'Never use timeouts to synchronise a test. Wait on the actual DOM or network event; if you cannot, the application is the problem.'
+severity: non-negotiable
+tags: [testing, playwright, e2e, determinism, performance]
+sources:
+  - project: 'a desktop UI tool'
+    date: 2026-03-12
+    note: 'App must respond under 1s; no idle timeouts, no retries; run tests 3× and any failure means the code is broken.'
+  - project: 'a content-admin SPA'
+    date: 2026-04-30
+    note: 'E2E beforeEach must wait for SW activation to settle via networkidle + a stable-anchor element, not a timeout.'
+related:
+  - testing/no-retries-no-flakes
+  - testing/locator-constants
+  - testing/wait-for-service-worker-settle
+order: 1
+updated: 2026-04-30
+---
+
+A `waitForTimeout(500)` in a test says one of two things: "I do not know what I am
+waiting for," or "the app is not fast or deterministic enough to wait for the real
+signal." Both are bugs. The first is a bug in the test; the second is a bug in the
+application. A timeout papers over whichever one you have, turns green into
+probably-green, and guarantees a flake on the slowest CI run.
+
+The rule: **tests synchronise on events — DOM events and network events — and nothing
+else.** Event-wait timeouts (the maximum a wait will block before failing) stay
+minimal, because a correct app fires the event promptly. If it does not, you fix the
+app, not the wait.
+
+## Why this matters
+
+The standard for this is uncompromising and predates the test suite: **the app must
+open and respond in under one second, no exceptions** (a desktop UI tool, 2026-03-12). From
+that follows everything else — no idle timeouts as a completion signal, no test
+retries, and the acceptance bar that you **run the tests three times and if any run
+fails, the code is broken and gets rewritten.** Timeouts and retries are explicitly
+called crutches that mask broken code.
+
+The concrete failure mode that taught the discipline: on the admin panel, a fresh test
+`BrowserContext` races the service worker's install → activate → `controllerchange` →
+`location.reload()` cycle. A test that waited a fixed time, or just `domcontentloaded`,
+would click an element on the about-to-be-discarded DOM, the reload would navigate, and
+the click timed out with "navigated to /". Intermittent, platform-dependent, and
+invisible until CI. The fix was not a longer timeout — it was waiting on the real
+settle signal (`networkidle` plus a stable anchor element). See
+[wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+
+## How to apply
+
+Wait for the thing that actually indicates readiness.
+
+```ts
+// ❌ Guessing how long the request takes.
+await page.click('[data-testid="save"]');
+await page.waitForTimeout(1000);
+await expect(page.getByText('Saved')).toBeVisible();
+
+// ✅ Wait on the network response and the DOM that proves it landed.
+const saved = page.waitForResponse(
+  (res) => res.url().endsWith('/tickets') && res.request().method() === 'POST',
+);
+await page.getByTestId(SAVE_BUTTON).click();
+await saved;
+await expect(page.getByTestId(SAVE_CONFIRMATION)).toBeVisible();
+```
+
+For app state that resolves through several async steps, wait on the user-visible
+consequence — a status region flipping to "idle", a row appearing — using Playwright's
+auto-retrying assertions (`toBeVisible`, `toHaveText`). These poll the DOM and resolve
+the instant the condition is true; they are event-shaped, not time-shaped.
+
+When a test is genuinely flaky, the playbook is investigative, not cosmetic:
+
+1. Run the server, drive it with the Chrome DevTools / Playwright MCP, reproduce the
+   action manually, and watch the console and network. Enable throttling.
+2. If it works under throttling and you cannot reproduce the failure, the test waited on
+   the wrong event — rewrite it to trigger on a different, correct DOM event. **Not a
+   timeout.**
+3. If it is genuinely unstable under some scenarios, the application has a race. Fix the
+   root cause. If the architecture cannot guarantee deterministic behaviour, the
+   architecture is wrong — refactor it.
+
+## Anti-patterns
+
+```ts
+// ❌ Idle timeout as a completion mechanism. Sentinel detection must be instant
+//    and deterministic, not "probably done after 800ms".
+await sleep(800);
+
+// ❌ Retrying until it passes. A test that needs retries is reporting a real race;
+//    retries hide it.
+test.describe.configure({ retries: 3 });
+
+// ❌ Browser-specific timing hacks. If a test needs a hack for WebKit, the app
+//    behaves differently on WebKit and that is the bug.
+if (browserName === 'webkit') await page.waitForTimeout(300);
+```
+
+## Enforcement
+
+Run suites with `--reporter=list` during development and `--reporter=json` to read
+traces when something is unstable. Programmatic test exclusion is forbidden — you may
+run a subset while developing, but the only definition of green is a **full, stable
+pass with zero retries, three runs in a row.** A flaky or skipped test is a failing
+test.
+
+## See also
+
+This is the testing face of a single belief: deterministic systems over probabilistic
+hacks. The same standard — sub-second response, no idle timeouts, no retries, run it
+three times — is what [no retries, no flakes](/kb/testing/no-retries-no-flakes) makes
+explicit.

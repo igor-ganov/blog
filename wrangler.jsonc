@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers static-assets deploy for the built site.
+  // Run `bun run build` first; `bun run deploy` uploads `dist/`.
+  // Auth: set CLOUDFLARE_API_TOKEN (a scoped Workers token), not a Global API Key.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "engineering-practices",
+  "compatibility_date": "2025-05-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}

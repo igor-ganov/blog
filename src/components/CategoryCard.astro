@@ -1,0 +1,62 @@
+---
+import type { Category } from '@/lib/categories/categories';
+
+interface Props {
+  readonly category: Category;
+  readonly count: number;
+}
+
+const { category, count } = Astro.props;
+const label = count === 1 ? '1 practice' : `${count} practices`;
+---
+
+<a class="cat-card" href={`/c/${category.slug}`}>
+  <div class="head">
+    <span class="num">{String(category.order).padStart(2, '0')}</span>
+    <span class="count">{label}</span>
+  </div>
+  <h3 class="title">{category.title}</h3>
+  <p class="tagline">{category.tagline}</p>
+</a>
+
+<style>
+  .cat-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-5);
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .cat-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .num {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: var(--step--1);
+  }
+  .count {
+    font-size: var(--step--1);
+    color: var(--text-faint);
+  }
+  .title {
+    margin: var(--space-1) 0 0;
+    font-size: var(--step-1);
+  }
+  .tagline {
+    margin: 0;
+    color: var(--text-muted);
+  }
+</style>
