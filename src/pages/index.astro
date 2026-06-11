@@ -1,14 +1,22 @@
 ---
+import { getCollection } from 'astro:content';
 import ArticleCard from '@/components/ArticleCard.astro';
 import CategoryCard from '@/components/CategoryCard.astro';
+import EssayCard from '@/components/EssayCard.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
+import { sortEssays } from '@/lib/essays/sort-essays';
+import { withBase } from '@/lib/url/with-base';
 import { categories } from '@/lib/categories/categories';
 
 const articles = await loadArticles();
 const grouped = groupByCategory(articles);
 const nonNegotiables = articles.filter((article) => article.severity === 'non-negotiable');
+const latestPosts = sortEssays(await getCollection('blog', (entry) => entry.data.draft === false)).slice(
+  0,
+  5,
+);
 const description =
   'A living knowledge base of engineering best practices and preferences, distilled from real project decisions and rendered with the very stack it documents.';
 ---
@@ -29,6 +37,25 @@ const description =
       <div><dt>Non-negotiable</dt><dd>{nonNegotiables.length}</dd></div>
     </dl>
   </section>
+
+  {
+    latestPosts.length > 0 && (
+      <section class="block">
+        <div class="block-head">
+          <h2>From the blog</h2>
+          <a class="more" href={withBase('/essays')}>
+            All essays <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <p class="block-lede">Essays that aggregate and explain the principles.</p>
+        <ul class="essays">
+          {latestPosts.map((post) => (
+            <EssayCard post={post} headingLevel={3} />
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
   {
     nonNegotiables.length > 0 && (
@@ -95,9 +122,36 @@ const description =
     .block {
       padding: var(--space-6) 0;
     }
+    .block-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-4);
+    }
+    .block-head h2 {
+      margin: var(--space-8) 0 var(--space-3);
+    }
+    .more {
+      flex: none;
+      font-size: var(--step--1);
+      color: var(--link);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .more:hover {
+      color: var(--link-hover);
+    }
     .block-lede {
       color: var(--text-muted);
       margin-top: 0;
+    }
+    .essays {
+      list-style: none;
+      margin: var(--space-5) 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
     }
     .grid {
       display: grid;

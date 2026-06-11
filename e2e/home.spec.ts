@@ -18,6 +18,19 @@ test.describe('home', () => {
     ).toBeVisible();
   });
 
+  test('surfaces the latest blog essays as the first section after the intro', async ({ page }) => {
+    await page.goto(`${BASE}/`);
+
+    await expect(page.getByRole('heading', { name: 'From the blog' })).toBeVisible();
+
+    const essayLinks = page.locator(`a[href^="${BASE}/essays/"]`);
+    const count = await essayLinks.count();
+    expect(count).toBeGreaterThan(0);
+    expect(count).toBeLessThanOrEqual(5);
+
+    await expect(page.getByRole('link', { name: /all essays/i })).toBeVisible();
+  });
+
   test('navigates from a category card to its page', async ({ page }) => {
     await page.goto(`${BASE}/`);
     await page.locator(`a[href="${BASE}/c/testing"]`).first().click();
