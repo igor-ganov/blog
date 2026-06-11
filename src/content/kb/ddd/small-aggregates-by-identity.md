@@ -3,7 +3,7 @@ title: 'Small aggregates, referenced by identity, eventually consistent'
 category: ddd
 summary: "Vernon's four aggregate rules are not guidelines — they are the load-bearing constraints that keep a domain model operationally safe and evolvable."
 principle: 'Model true invariants in consistency boundaries, keep aggregates small, reference other aggregates by identity, and use eventual consistency across boundaries.'
-severity: strong
+severity: context
 tags: [ddd, aggregate, tactical-design, eventual-consistency, domain-events]
 sources:
   - project: 'Vernon, Implementing DDD'
@@ -13,10 +13,12 @@ related:
   - backend-events/transactional-outbox-idempotent-consumer
   - ddd/bounded-contexts-not-crud-features
 order: 5
-updated: 2026-06-10
+updated: 2026-06-11
 ---
 
 ## Why this matters
+
+**When this earns its keep.** This is tactical DDD, and it presupposes you are modelling aggregates at all — which is justified only on a large system with genuinely complex, invariant-rich domain logic. On a small or simple project, formal aggregate boundaries and eventual-consistency plumbing are overhead: a plain table with a transaction does the job, and the ceremony costs more than it returns. Apply the rules below once the domain is complex enough that consistency boundaries are a real design question. Feature-based structure and layer separation, by contrast, hold at every size (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
 
 Vaughn Vernon codified four rules for aggregate design in Implementing DDD (Vernon, 2013, ISBN 978-0321834577). They are stated in order of precedence, and the ordering matters:
 

@@ -1,22 +1,28 @@
 ---
-title: 'Errors as values: Effect-TS pipelines, not throws'
+title: 'Errors as values — Effect only when you pay for its runtime'
 category: functional-architecture
-summary: 'Model fallible and async logic with Effect pipelines; errors are typed values composed with pipe/Effect.gen; the imperative shell runs the pipeline at the edge.'
-principle: 'Model fallible/async/effectful logic with Effect (effect package); errors and absence are values in the type, composed with pipe/Effect.gen and Option/Either; the imperative shell runs the pipeline at the edge.'
-severity: strong
-tags: [functional-architecture, effect, error-handling, async, pipeline]
+summary: 'Errors and absence are always values in the type, never throws. Reach for Effect when the project already exercises its runtime (concurrency, scope, DI); for plain error-values a hand-rolled Result is ~200× smaller in the bundle.'
+principle: 'Model errors and absence as values in the type, composed in pipelines, never thrown. Use Effect when you already use its runtime (structured concurrency, interruption, scope/resource-safety, Layer/DI); if you only need error-as-value, a custom discriminated-union Result is the lighter choice.'
+severity: context
+tags: [functional-architecture, effect, error-handling, async, pipeline, bundle-size]
 sources:
   - project: 'a content-admin SPA'
     date: 2026-03-24
-    note: 'A major refactoring: Effect.js SW core (Match, Effect.gen, Effect.tryPromise, Effect.forEach); Effect.js client (useAuth, useSWBridge).'
+    note: 'A major refactoring adopted Effect at scale: Effect.gen, Effect.tryPromise, Effect.forEach, Match in the SW core; useAuth/useSWBridge on the client. Bundle cost accepted because the runtime was used.'
   - project: 'an engineering standard'
     date: 2026-06-07
     note: 'Errors as values; pipe/gen; Schema at boundary; runSync/runPromise at the edge.'
+  - project: 'a frontend app'
+    date: 2026-06-10
+    note: 'Went without Effect, on custom result functions, over bundle-size concerns when only error-as-value was needed.'
+  - project: 'bundle measurement'
+    date: 2026-06-11
+    note: 'bun build --minify, gzip: custom Result 286 B; Effect Either-only 4.2 KB; full Effect (gen+runPromise) 62 KB. Tree-shaking removes unreachable modules but cannot prune the reachable fiber runtime.'
 related:
   - error-handling/never-swallow-errors
   - typescript/validate-at-the-boundary
 order: 4
-updated: 2026-06-10
+updated: 2026-06-11
 ---
 
 `throw` is a goto. It exits the current call stack and transfers control to whatever
@@ -34,31 +40,89 @@ error paths are handled before the pipeline is complete.
 
 ## Why this matters
 
-**Two decisions, two dates — the later one wins.**
+The invariant — the part that is **never** up for debate — is that errors and absence
+are *values in the type*, composed in pipelines, not thrown. `throw` erases the error
+from the signature; a `Result`/`Either`/`Effect` puts it back. That much is settled.
 
-On 2026-03-15, a project removed Effect from a service worker context,
-citing bundle-size concerns in a focused auth flow. That decision was project-specific
-and time-bounded.
+What *is* a judgement call is **the vehicle**, and the axis that decides it is the
+bundle. Effect is not an error-handling library; it is a runtime — a fiber scheduler,
+an interpreter loop, interruption, scope/resource-safety, and a `Layer` dependency
+graph. When you run an `Effect`, you pay for that runtime whether or not you use it.
 
-On 2026-03-24, a major refactoring of a content-admin SPA re-added Effect as a
-first-class dependency — explicitly and at scale:
+**Measured (`bun build --minify`, gzipped):**
 
-- **SW core**: `Effect.gen`, `Effect.tryPromise`, `Effect.forEach`, `Match` throughout
-  the service-worker message pipeline.
-- **Client layer**: `useAuth` and `useSWBridge` hooks built on `Effect.js`.
-- Bundle impact accepted and measured: vendor ~233 KB, service-worker entry ~473 KB.
+| Approach | min+gzip | vs custom |
+| --- | --- | --- |
+| Custom `Result` (discriminated union + `map`/`flatMap`/`match`) | **286 B** | 1× |
+| Effect `Either` module only (no runtime) | **4.2 KB** | ~15× |
+| Full Effect (`Effect.gen` + `runPromise`) | **62 KB** | ~217× |
 
-The major refactoring was the larger, later, and more deliberate decision. It supersedes
-the earlier removal. The correct posture is: **use Effect**; the bundle cost is
-accepted as part of the architecture.
+Each case runs the *same* trivial parse-double-validate program. The 62 KB in the last
+row is a floor, not a function of program size — it is the fiber runtime, pulled in the
+moment you call `runPromise`.
 
-The engineering standard (2026-06-07) generalised the rule: compose with
-`pipe`/`Effect.gen`; validate at boundaries with `Schema`; run with `runSync` or
-`runPromise` at the edge only. One pragmatic exception applies: in a tiny published
-library where Effect's ~233 KB bundle cost would dominate the entire package, raise the
-concern once, then follow the call. This exception does not apply to application code.
+**Why tree-shaking does not rescue the runtime.** Tree-shaking is reachability-based
+dead-code elimination: it drops exports nothing references. It works — the middle row
+proves it: using only `Either` keeps the runtime out and stays at 4.2 KB. But in the
+full-Effect case the runtime is *reachable*. Effect is an interpreter, and Effect values
+are data, not a static call graph — which fiber features fire is decided at run time by
+the node tags, so the bundler cannot prove you never interrupt, fork, or open a scope.
+The whole interpreter stays. You tree-shake the leaves (`Effect.map`, `Either.*`); you
+cannot tree-shake the trunk.
+
+**The decision, with dates.** A 2026-03-24 content-admin SPA adopted Effect at scale —
+`Effect.gen`/`tryPromise`/`forEach`/`Match` across the service-worker core, `useAuth`/
+`useSWBridge` on the client. There the runtime was *used*, so the bundle cost bought
+something and was correctly accepted. A later 2026-06-10 frontend app went the other way:
+it needed only error-as-value, so it shipped custom result functions and skipped the
+62 KB. **Both are right, because the rule is conditional, not absolute:**
+
+- Using Effect's runtime — structured concurrency, interruption, retries/scheduling,
+  scope/resource-safety, `Layer`/DI? **Use Effect.** A hand-rolled equivalent would be a
+  worse, unsafe re-implementation of the same runtime. Bundle size is the wrong axis.
+- Need only "errors and absence are values"? **Use a custom `Result`.** Effect's runtime
+  is then dead weight you cannot tree-shake away, and 286 B does the job.
+
+The earlier "always use Effect" framing was too strong: it generalised one project where
+the runtime happened to be used into a universal default. The corrected rule is the
+conditional above — which is why this article is `context`, not `strong`.
 
 ## How to apply
+
+**The lightweight path — a custom `Result` (use this when you only need error-as-value).**
+
+A discriminated union plus three pure functions covers map/chain/fold. It is fully
+tree-shakeable, has no runtime, and costs a few hundred bytes:
+
+```ts
+// result.ts — the whole "errors as values" toolkit, ~30 lines, no dependency.
+type Result<E, A> =
+  | { readonly _tag: 'Err'; readonly error: E }
+  | { readonly _tag: 'Ok'; readonly value: A };
+
+const ok = <A>(value: A): Result<never, A> => ({ _tag: 'Ok', value });
+const err = <E>(error: E): Result<E, never> => ({ _tag: 'Err', error });
+
+const map =
+  <A, B>(f: (a: A) => B) =>
+  <E>(r: Result<E, A>): Result<E, B> =>
+    r._tag === 'Ok' ? ok(f(r.value)) : r;
+
+const flatMap =
+  <A, F, B>(f: (a: A) => Result<F, B>) =>
+  <E>(r: Result<E, A>): Result<E | F, B> =>
+    r._tag === 'Ok' ? f(r.value) : r;
+
+const match =
+  <E, A, B>(onErr: (e: E) => B, onOk: (a: A) => B) =>
+  (r: Result<E, A>): B =>
+    r._tag === 'Ok' ? onOk(r.value) : onErr(r.error);
+```
+
+The error type is still in the signature, the caller still cannot ignore the failure
+path, and `match` still forces both branches. You get the invariant — errors as values —
+without the 62 KB runtime. This is the default for plain fallible logic. Reach for Effect
+below only when the project already uses its runtime.
 
 **Effect pipeline vs try/catch.**
 

@@ -3,7 +3,7 @@ title: 'A CRUD feature is not a bounded context'
 category: ddd
 summary: 'Entity clusters and CRUD screens are necessary starting points but they are not bounded contexts until a formalized Ubiquitous Language and explicit inter-context contracts exist.'
 principle: 'Entity clusters and CRUD features are not bounded contexts until they have a formalized Ubiquitous Language and explicit contracts between them; consolidate many CRUD features into a few bounded contexts and treat client/read apps as projections.'
-severity: strong
+severity: context
 tags: [ddd, bounded-context, strategic-design, ubiquitous-language]
 sources:
   - project: 'a multi-product company (DDD case study)'
@@ -14,10 +14,12 @@ related:
   - ddd/conway-and-team-topologies
   - ddd/strategic-ddd-core-supporting-generic
 order: 1
-updated: 2026-06-10
+updated: 2026-06-11
 ---
 
 ## Why this matters
+
+**When this earns its keep.** Domain-Driven Design is a response to scale and complexity, not a default posture. Drawing bounded contexts and context maps pays off on a large system with genuinely complex domain logic and more than one team; on a small or simple project it is overhead — boundaries and contracts that cost more than they return, where a plain CRUD-per-entity split would have shipped the feature. What is *not* size-dependent is organizing the codebase by feature and separating its layers — that is house style at every scale (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)). Everything below assumes a domain large enough to justify the apparatus.
 
 Eric Evans defines a Bounded Context as "a defined part of software where particular terms, definitions and rules apply in a consistent way" (Evans, DDD Europe 2019). The boundary is not drawn around a database table or an admin screen — it is drawn around a coherent vocabulary and a set of business rules that only make sense as a unit. Martin Fowler reinforces this: "Total unification of the domain model for a large system will not be feasible or cost-effective" (Fowler, https://martinfowler.com/bliki/BoundedContext.html). The corollary is that breaking a system into arbitrarily small pieces — one feature per entity — creates just as many problems as the big-ball-of-mud at the other extreme.
 

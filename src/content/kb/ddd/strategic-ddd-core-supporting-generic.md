@@ -3,7 +3,7 @@ title: 'Invest where you differentiate: Core, Supporting, Generic'
 category: ddd
 summary: 'Not every part of your domain deserves custom engineering; classify subdomains as Core, Supporting, or Generic and concentrate scarce effort on the Core.'
 principle: 'Classify subdomains as Core / Supporting / Generic and concentrate scarce engineering on the Core; buy or adopt Generic.'
-severity: strong
+severity: context
 tags: [ddd, strategic-design, core-domain, subdomain, investment]
 sources:
   - project: 'Evans / DDD Crew Core Domain Charts'
@@ -13,10 +13,12 @@ related:
   - ddd/bounded-contexts-not-crud-features
   - ddd/conway-and-team-topologies
 order: 3
-updated: 2026-06-10
+updated: 2026-06-11
 ---
 
 ## Why this matters
+
+**When this earns its keep.** Classifying subdomains is an investment-allocation tool, and it only pays back when there is enough domain — and enough engineering scarcity — to allocate. On a large system with complex logic and competing priorities, the Core/Supporting/Generic split tells you where to concentrate your best people; on a small or simple project the whole domain is small enough that the exercise is ceremony. Apply it when the domain is big enough that "where do we *not* invest" is a real question. Independently of size, structure by feature and separate layers (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
 
 Evans introduced the subdomain classification as the primary tool for engineering investment decisions (Evans, Domain-Driven Design, 2003, Addison-Wesley, ISBN 978-0321125217; DDD Reference, https://www.domainlanguage.com/ddd/reference/). The classification has three tiers:
 

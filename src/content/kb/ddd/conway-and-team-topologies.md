@@ -3,7 +3,7 @@ title: "Conway's Law and the Inverse Conway Maneuver"
 category: ddd
 summary: "Architecture mirrors org communication structure; to get the architecture you want, reshape the teams to match it first."
 principle: "Architecture mirrors org communication structure (Conway 1968); to get the architecture you want, restructure teams to match it (Inverse Conway), aligning stream-aligned teams to business flows with platform and enabling teams as support."
-severity: strong
+severity: context
 tags: [ddd, conway, team-topologies, organizational-design, inverse-conway]
 sources:
   - project: 'Conway 1968 / Team Topologies'
@@ -16,10 +16,12 @@ related:
   - ddd/bounded-contexts-not-crud-features
   - process/cite-sources-no-improvisation
 order: 4
-updated: 2026-06-10
+updated: 2026-06-11
 ---
 
 ## Why this matters
+
+**When this earns its keep.** This is a multi-team concern. Conway's Law operates at any size, but deliberately *mapping teams to bounded contexts* via the Inverse Conway Maneuver only becomes a tool once you have several teams and contexts to align; on a single small team it is a non-question — there is one team and one communication structure. Apply this when the organization is large enough that team boundaries and context boundaries can drift apart. The size-independent constant remains feature-based structure and layer separation (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
 
 In 1968 Melvin Conway published the observation that has become axiomatic in software architecture: "Any organization that designs a system (defined broadly) will produce a design whose structure is a copy of the organization's communication structure" (Conway, "How Do Committees Invent?", Datamation, April 1968, https://www.melconway.com/Home/Conways_Law.html). The claim is empirical, not prescriptive. Conway was describing what organizations inevitably produce, not what they should produce. The practical implication, noted by Martin Fowler, is that you cannot architect your way out of an organizational structure: "If the architecture of the system and the architecture of the organization are at odds, the architecture of the organization wins" (Fowler, https://martinfowler.com/bliki/ConwaysLaw.html).
 
