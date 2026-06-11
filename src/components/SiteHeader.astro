@@ -1,16 +1,18 @@
 ---
+import { withBase } from '@/lib/url/with-base';
+
 const nav = [
-  { href: '/kb', label: 'Browse' },
-  { href: '/skills', label: 'Skills' },
-  { href: '/about', label: 'About' },
+  { href: withBase('/kb'), label: 'Browse' },
+  { href: withBase('/skills'), label: 'Skills' },
+  { href: withBase('/about'), label: 'About' },
 ];
-const path = Astro.url.pathname;
+const path = Astro.url.pathname.replace(/\/$/, '');
 const isActive = (href: string): boolean => path === href || path.startsWith(`${href}/`);
 ---
 
 <header class="site-header">
   <div class="wrap bar">
-    <a class="brand" href="/">
+    <a class="brand" href={withBase('/')}>
       <span class="mark" aria-hidden="true"></span>
       <span class="word">Engineering Practices</span>
     </a>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { withBase } from '@/lib/url/with-base';
 ---
 
 <BaseLayout title="Not found" description="That page does not exist.">
@@ -7,7 +8,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     <p class="code">404</p>
     <h1>That practice isn’t here.</h1>
     <p class="lede">The page you asked for doesn’t exist — try browsing instead.</p>
-    <a class="cta" href="/kb">Browse every practice</a>
+    <a class="cta" href={withBase('/kb')}>Browse every practice</a>
   </section>
 
   <style>

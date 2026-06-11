@@ -18,7 +18,8 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: `bun run build && bunx astro preview --port ${PORT}`,
-    url: `http://localhost:${PORT}`,
+    // The site is served under the /blog base — poll there for readiness.
+    url: `http://localhost:${PORT}/blog`,
     reuseExistingServer: !inCI,
     timeout: 120_000,
   },

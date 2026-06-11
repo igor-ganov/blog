@@ -7,6 +7,7 @@ import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import type { Category } from '@/lib/categories/categories';
 import { categories } from '@/lib/categories/categories';
+import { withBase } from '@/lib/url/with-base';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const articles = await loadArticles();
@@ -27,7 +28,7 @@ const { category, items } = Astro.props;
 
 <BaseLayout title={category.title} description={category.description}>
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="/kb">Browse</a> <span aria-hidden="true">/</span>
+    <a href={withBase('/kb')}>Browse</a> <span aria-hidden="true">/</span>
     <span>{category.title}</span>
   </nav>
   <header class="page-head">

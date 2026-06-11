@@ -74,8 +74,18 @@ docs/                             # ARTICLE-TEMPLATE.md, SKILLS-PROPOSAL.md
 
 ## Deploy
 
-Static output, so any static host works. A Cloudflare Workers static-assets config is
-provided ([`wrangler.jsonc`](wrangler.jsonc)):
+Live on **GitHub Pages**: https://igor-ganov.github.io/blog/
+
+It deploys automatically on every push to `main` via
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (build with bun → upload →
+`actions/deploy-pages`). Because Pages serves the site from the `/blog` subpath, the build
+sets `base: '/blog'` in [`astro.config.mjs`](astro.config.mjs); internal links go through
+`withBase` (`src/lib/url/with-base.ts`) and a build-time [`rehype-base.mjs`](rehype-base.mjs)
+plugin that prefixes in-prose `/kb/...` links. For a custom domain, change `site`/`base` to
+the root and the prefixing becomes a no-op.
+
+Static output, so any static host works too. A Cloudflare Workers static-assets config is
+also provided ([`wrangler.jsonc`](wrangler.jsonc)):
 
 ```bash
 bun run build

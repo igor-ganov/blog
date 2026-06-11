@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import { categoryBySlug } from '@/lib/categories/categories';
+import { withBase } from '@/lib/url/with-base';
 import { proposedSkills } from '@/lib/skills/proposed-skills';
 import { skillStatusMeta } from '@/lib/skills/skill-status-meta';
 
@@ -48,7 +49,7 @@ const description =
                 return (
                   <>
                     {i > 0 ? ', ' : ''}
-                    {category && <a href={`/c/${category.slug}`}>{category.title}</a>}
+                    {category && <a href={withBase(`/c/${category.slug}`)}>{category.title}</a>}
                   </>
                 );
               })}{' '}

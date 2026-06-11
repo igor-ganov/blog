@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { KB_FILTER } from '../src/components/islands/kb-filter.locators';
+import { BASE } from './base';
 
 test.describe('kb-filter island', () => {
   test('narrows the list to matching practices and clears again', async ({ page }) => {
-    await page.goto('/kb');
+    await page.goto(`${BASE}/kb`);
 
     const filter = page.locator(KB_FILTER.tag);
     const input = filter.getByTestId(KB_FILTER.input);
@@ -23,7 +24,7 @@ test.describe('kb-filter island', () => {
   });
 
   test('shows an empty state when nothing matches', async ({ page }) => {
-    await page.goto('/kb');
+    await page.goto(`${BASE}/kb`);
     const filter = page.locator(KB_FILTER.tag);
     const input = filter.getByTestId(KB_FILTER.input);
 

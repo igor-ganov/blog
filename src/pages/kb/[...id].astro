@@ -9,6 +9,7 @@ import { articleHref } from '@/lib/articles/article-href';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import { toArticle } from '@/lib/articles/to-article';
+import { withBase } from '@/lib/url/with-base';
 import { categoryBySlug } from '@/lib/categories/categories';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -46,8 +47,8 @@ const toc = headings.filter((heading) => heading.depth === 2);
   </script>
 
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="/kb">Browse</a> <span aria-hidden="true">/</span>
-    {category && <a href={`/c/${category.slug}`}>{category.title}</a>}
+    <a href={withBase('/kb')}>Browse</a> <span aria-hidden="true">/</span>
+    {category && <a href={withBase(`/c/${category.slug}`)}>{category.title}</a>}
   </nav>
 
   <div class="layout">

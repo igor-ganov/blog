@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { BASE } from './base';
 
 test.describe('article page', () => {
   test('renders the principle, body sections and provenance', async ({ page }) => {
-    await page.goto('/kb/error-handling/never-swallow-errors');
+    await page.goto(`${BASE}/kb/error-handling/never-swallow-errors`);
 
     await expect(page.getByRole('heading', { level: 1, name: /never swallow/i })).toBeVisible();
     await expect(page.getByText(/Principle\./)).toBeVisible();
@@ -14,7 +15,7 @@ test.describe('article page', () => {
   });
 
   test('links to a related practice', async ({ page }) => {
-    await page.goto('/kb/error-handling/never-swallow-errors');
+    await page.goto(`${BASE}/kb/error-handling/never-swallow-errors`);
     const related = page.getByRole('link', { name: /always check res\.ok/i }).first();
     await expect(related).toBeVisible();
     await related.click();
