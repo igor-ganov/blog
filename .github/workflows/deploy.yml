@@ -1,8 +1,9 @@
-name: Deploy to GitHub Pages
+name: CI & Deploy
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 # Least-privilege token: read the repo, write the Pages deployment via OIDC.
@@ -11,13 +12,32 @@ permissions:
   pages: write
   id-token: write
 
-# One live deployment at a time; let a newer push supersede an in-flight run.
+# One run per ref; let a newer push supersede an in-flight one.
 concurrency:
-  group: pages
+  group: ci-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Quality gate — runs on every push and PR. Deploy depends on it, so a red
+  # gate blocks the release. Mirrors the local definition of green: Biome clean,
+  # unit tests pass, and a full stable Playwright pass (built + previewed).
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run test
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:e2e
+
   build:
+    needs: verify
+    # Only produce the Pages artifact for the live branch, not for PRs.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +52,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
