@@ -13,7 +13,11 @@ interface Props {
 
 const { article, showCategory = false } = Astro.props;
 const category = categoryBySlug(article.category);
-const attrs = { [KB_FILTER.item]: '', [KB_FILTER.haystack]: articleHaystack(article) };
+const attrs = {
+  [KB_FILTER.item]: '',
+  [KB_FILTER.haystack]: articleHaystack(article),
+  [KB_FILTER.itemTags]: article.tags.join(','),
+};
 ---
 
 <article class="card" {...attrs}>

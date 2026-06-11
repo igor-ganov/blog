@@ -44,6 +44,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
   <reading-progress></reading-progress>
   <script>
     import '@/components/islands/reading-progress';
+    import '@/components/islands/toc-drawer';
   </script>
 
   <nav class="crumbs" aria-label="Breadcrumb">
@@ -89,16 +90,9 @@ const toc = headings.filter((heading) => heading.depth === 2);
     <div class="sidebar">
       {
         toc.length > 1 && (
-          <nav class="toc" aria-label="On this page">
-            <h2 class="h">On this page</h2>
-            <ul>
-              {toc.map((heading) => (
-                <li>
-                  <a href={`#${heading.slug}`}>{heading.text}</a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <toc-drawer
+            headings={JSON.stringify(toc.map((heading) => ({ id: heading.slug, text: heading.text })))}
+          />
         )
       }
       <ArticleAside sources={article.sources} related={relatedLinks} tags={article.tags} />
@@ -147,30 +141,6 @@ const toc = headings.filter((heading) => heading.depth === 2);
       display: flex;
       flex-direction: column;
       gap: var(--space-6);
-    }
-    .toc .h {
-      font-family: var(--font-sans);
-      font-size: 0.74rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-faint);
-      margin: 0 0 var(--space-3);
-    }
-    .toc ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      font-size: var(--step--1);
-    }
-    .toc a {
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-    .toc a:hover {
-      color: var(--link);
     }
     .pager {
       display: flex;

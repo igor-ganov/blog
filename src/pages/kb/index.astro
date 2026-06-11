@@ -3,11 +3,15 @@ import ArticleCard from '@/components/ArticleCard.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
+import { topTags } from '@/lib/tags/top-tags';
 import { categories } from '@/lib/categories/categories';
 
 const articles = await loadArticles();
 const grouped = groupByCategory(articles);
 const ordered = categories.flatMap((category) => grouped.get(category.slug) ?? []);
+const chipTags = topTags(articles, 14)
+  .map((entry) => entry.tag)
+  .join(',');
 const description = 'Browse and filter every engineering practice in the knowledge base.';
 ---
 
@@ -16,11 +20,11 @@ const description = 'Browse and filter every engineering practice in the knowled
     <h1>Every practice</h1>
     <p class="lede">
       {articles.length} practices across {categories.length} categories. Filter by any
-      word — title, summary, principle or tag.
+      word — title, summary, principle or tag — or tap a tag for a quick filter.
     </p>
   </header>
 
-  <kb-filter>
+  <kb-filter tags={chipTags}>
     <div class="grid">
       {ordered.map((article) => <ArticleCard article={article} showCategory />)}
     </div>
