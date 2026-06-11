@@ -115,4 +115,12 @@ export const proposedSkills: readonly ProposedSkill[] = [
     categories: ['platform'],
     trigger: 'Persisting state, or building auth across origins.',
   },
+  {
+    name: 'security-hardening',
+    status: 'existing',
+    scope:
+      'Proxies pin hosts/paths/origins, sanitize before v-html, privileged handlers re-check the caller (no confused deputies), OAuth state + targeted postMessage, GET never mutates, least-privilege CI with SHA-pinned actions.',
+    categories: ['platform', 'build-ci-deploy', 'error-handling'],
+    trigger: 'Auth flows, proxies, HTML injection points, privileged endpoints, or a security review.',
+  },
 ];
