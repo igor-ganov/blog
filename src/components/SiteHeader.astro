@@ -13,7 +13,13 @@ const isActive = (href: string): boolean => path === href || path.startsWith(`${
 <header class="site-header">
   <div class="wrap bar">
     <a class="brand" href={withBase('/')}>
-      <span class="mark" aria-hidden="true"></span>
+      <svg class="mark" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="var(--bg-sunken)" />
+        <rect x="7" y="8" width="3" height="16" rx="1.5" fill="var(--accent)" />
+        <rect x="13" y="9" width="12" height="3" rx="1.5" fill="var(--text)" />
+        <rect x="13" y="15" width="12" height="3" rx="1.5" fill="var(--text-muted)" />
+        <rect x="13" y="21" width="8" height="3" rx="1.5" fill="var(--text-muted)" />
+      </svg>
       <span class="word">Engineering Practices</span>
     </a>
     <nav aria-label="Primary">
@@ -61,11 +67,9 @@ const isActive = (href: string): boolean => path === href || path.startsWith(`${
     text-decoration: none;
   }
   .mark {
-    width: 1.1rem;
-    height: 1.1rem;
-    border-radius: 3px;
-    background: var(--accent);
-    transform: rotate(45deg);
+    flex: none;
+    display: block;
+    border-radius: 6px;
   }
   .word {
     font-family: var(--font-serif);
