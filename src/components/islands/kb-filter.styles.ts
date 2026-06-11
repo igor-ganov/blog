@@ -3,6 +3,7 @@ import { css } from 'lit';
 export const kbFilterStyles = css`
   :host {
     display: block;
+    -webkit-tap-highlight-color: transparent;
   }
   .bar {
     display: flex;
@@ -55,6 +56,9 @@ export const kbFilterStyles = css`
   .chip:focus-visible {
     outline: 3px solid var(--accent);
     outline-offset: 2px;
+  }
+  .chip:active {
+    border-color: var(--border-strong);
   }
   .chip[aria-pressed='true'] {
     color: var(--accent-contrast);

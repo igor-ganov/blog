@@ -6,7 +6,9 @@ practices, disagree with them, and extend it.
 ## How to read it
 
 - Start with the **non-negotiables** on the home page — the rules that are never up for debate.
-- Browse by topic, or filter every practice from `/kb`.
+- Open **Principles** (`/kb`) to browse by topic, filter by text, or tap a tag chip.
+- Read the **Blog** for essays that aggregate and explain the principles, starting with
+  why this site exists.
 - Each article carries **provenance**: the project and date it came from. Weigh a practice
   by its evidence — one backed by a two-day production outage is held more firmly than one
   backed by a single preference.

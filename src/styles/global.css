@@ -9,6 +9,10 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Kill the blue/grey flash mobile WebKit paints on tap. Inherited, so it
+     reaches shadow-DOM islands too. Keyboard :focus-visible stays intact;
+     touch feedback is the element's own :active state. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -6,6 +6,7 @@ import { css } from 'lit';
 export const tocDrawerStyles = css`
   :host {
     display: block;
+    -webkit-tap-highlight-color: transparent;
   }
   .toggle,
   .backdrop,
@@ -69,6 +70,9 @@ export const tocDrawerStyles = css`
     .toggle:focus-visible {
       outline: 3px solid var(--text);
       outline-offset: 2px;
+    }
+    .toggle:active {
+      transform: scale(0.97);
     }
     .toggle-icon {
       display: inline-flex;

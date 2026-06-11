@@ -12,12 +12,12 @@ const ordered = categories.flatMap((category) => grouped.get(category.slug) ?? [
 const chipTags = topTags(articles, 14)
   .map((entry) => entry.tag)
   .join(',');
-const description = 'Browse and filter every engineering practice in the knowledge base.';
+const description = 'Browse and filter every engineering principle in the knowledge base.';
 ---
 
-<BaseLayout title="Browse" description={description}>
+<BaseLayout title="Principles" description={description}>
   <header class="page-head">
-    <h1>Every practice</h1>
+    <h1>Principles</h1>
     <p class="lede">
       {articles.length} practices across {categories.length} categories. Filter by any
       word — title, summary, principle or tag — or tap a tag for a quick filter.

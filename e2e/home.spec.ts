@@ -6,8 +6,7 @@ test.describe('home', () => {
     await page.goto(`${BASE}/`);
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    // exact match: "Browse" is a substring of the "Browser Platform" category card.
-    await expect(page.getByRole('link', { name: 'Browse', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Principles', exact: true })).toBeVisible();
 
     // Thirteen category cards link into /c/<slug>.
     const categoryLinks = page.locator(`a[href^="${BASE}/c/"]`);

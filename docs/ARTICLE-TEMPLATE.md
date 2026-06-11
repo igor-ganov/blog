@@ -68,5 +68,5 @@ Use these exact ids so cross-links resolve. Three are already written
 - **build-ci-deploy/**: build-time-env-is-baked · content-hashed-immutable-assets · standalone-submodule-ci · crlf-lf-discipline · restore-prod-first-incident-order · dependabot-codeql-automerge
 - **tooling-runtime/**: bun-by-default · never-kill-all-node · drive-the-real-browser-over-mcp · cloudflare-credential-types · windows-winnat-reserved-ports · prefer-http-oauth-mcp-flow
 - **process/**: spec-driven-ears-not-user-stories · traceability-and-phase-reviews · desktop-target-first · prove-with-production-screenshots · incremental-epics-stay-green · spike-riskiest-first · cite-sources-no-improvisation · dev-cycle-branch-commit-pr
-- **design-ux/**: design-phase-is-not-code-phase · distinct-designs-vary-many-axes · minimalism-no-emoji-schematic · mobile-proof-real-devices · penpot-is-the-design-tool
+- **design-ux/**: design-phase-is-not-code-phase · distinct-designs-vary-many-axes · minimalism-no-emoji-schematic · mobile-proof-real-devices · penpot-is-the-design-tool · suppress-tap-highlight
 - **platform/**: idb-structured-clone-boundary · cross-origin-auth-survives-cookie-blocking · tokens-dont-fit-in-cookies · origin-scoped-storage-privacy

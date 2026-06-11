@@ -3,6 +3,7 @@ import { css } from 'lit';
 export const themeToggleStyles = css`
   :host {
     display: inline-flex;
+    -webkit-tap-highlight-color: transparent;
   }
   button {
     width: 2.4rem;
@@ -19,6 +20,9 @@ export const themeToggleStyles = css`
   }
   button:hover {
     border-color: var(--border-strong);
+    background: var(--bg-sunken);
+  }
+  button:active {
     background: var(--bg-sunken);
   }
   button:focus-visible {

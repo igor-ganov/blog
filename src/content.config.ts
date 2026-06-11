@@ -49,4 +49,18 @@ const kb = defineCollection({
   }),
 });
 
-export const collections = { kb };
+// Essays that aggregate and explain the principles — narrative, not reference.
+// Separate from `kb`: no severity or provenance, just a date and ordering.
+const blog = defineCollection({
+  loader: glob({ pattern: ['**/*.md', '!**/README.md'], base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: isoDate,
+    tags: z.array(z.string()).default([]),
+    order: z.number().default(100),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { kb, blog };
