@@ -46,7 +46,8 @@ export const proposedSkills: readonly ProposedSkill[] = [
   {
     name: 'playwright-testing',
     status: 'existing',
-    scope: 'Event-driven waits, no timeouts, no retries, locator constants, full stable pass.',
+    scope:
+      'Event-driven waits (networkidle counts as a timeout), parallel workers as a race detector, one env knob for wait ceilings, DOM identity signals for out-of-band transports, locator constants, full stable pass.',
     categories: ['testing'],
     trigger: 'Writing, running or stabilising E2E tests.',
   },

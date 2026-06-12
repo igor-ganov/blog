@@ -11,13 +11,17 @@ sources:
     note: 'App must respond under 1s; no idle timeouts, no retries; run tests 3× and any failure means the code is broken.'
   - project: 'a content-admin SPA'
     date: 2026-04-30
-    note: 'E2E beforeEach must wait for SW activation to settle via networkidle + a stable-anchor element, not a timeout.'
+    note: 'E2E beforeEach must wait for SW activation to settle via a stable-anchor element, not a timeout.'
+  - project: 'a content-admin SPA'
+    date: 2026-06-12
+    note: 'networkidle is itself a time-shaped wait — a hidden >=500ms sleep per visit. Replaced with a lifecycle predicate; suite-wide visit cost dropped accordingly.'
 related:
   - testing/no-retries-no-flakes
   - testing/locator-constants
   - testing/wait-for-service-worker-settle
+  - testing/parallel-workers-surface-races
 order: 1
-updated: 2026-04-30
+updated: 2026-06-12
 ---
 
 A `waitForTimeout(500)` in a test says one of two things: "I do not know what I am
@@ -46,8 +50,14 @@ The concrete failure mode that taught the discipline: on the admin panel, a fres
 would click an element on the about-to-be-discarded DOM, the reload would navigate, and
 the click timed out with "navigated to /". Intermittent, platform-dependent, and
 invisible until CI. The fix was not a longer timeout — it was waiting on the real
-settle signal (`networkidle` plus a stable anchor element). See
-[wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+settle signal: a predicate over the SW lifecycle state plus a stable anchor element.
+See [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+
+A second-order trap discovered later (2026-06-12): **`networkidle` is a timeout in
+disguise.** It resolves after 500ms of network silence, so every call pays a fixed
+half-second even when the page settled instantly — and a page can be network-idle
+while the thing you care about is still mid-flight. The same goes for any "idle"
+load state used as a completion signal. Wait on the state itself, not on silence.
 
 ## How to apply
 
