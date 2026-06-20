@@ -1,106 +1,91 @@
 ---
 title: 'Delegation, not deskilling'
-description: 'A note from someone who started using LLMs heavily right as he shifted from writing code to owning product and architecture. The move from coder to operator of an agentic team is not the loss of a craft — it is the same step up the abstraction ladder our profession has taken many times before.'
+description: 'A note from someone who started leaning on LLMs heavily around the same time he moved from writing code to owning product and architecture. Going from coder to operator of an agentic team is not losing a craft. It is the same step up the abstraction ladder our field has taken several times before.'
 date: 2026-06-20
 tags: [process, meta, opinion]
 order: 9
 ---
 
-A podcast I listen to spent its 529th episode on LLMs, so let me stir the pot. This is
-one thought, from someone who started using these tools heavily at roughly the same time
-he started spending more of his week on product and architecture than on writing code.
+A podcast I follow spent its 529th episode on LLMs, so I want to throw in my two cents.
+It is really one observation, from someone who started leaning on these tools heavily
+around the same time he began spending more of his week on product and architecture than
+on writing code.
 
-## I made myself stop reviewing every letter
+## Why I stopped reading every line
 
-At some point I pulled myself away — on purpose, by force — from reviewing every character
-an LLM produced. What pushed me there was a single idea: **delegation**.
+At some point I deliberately made myself stop reviewing every character the model
+produced. What let me do that was delegation.
 
-As a specialist I now have a wider view of the product I build. I can shape its
-architecture, set the concepts of clean code it has to follow, wire the pipelines, and
-make tests mandatory. The act of writing the code I can hand to an AI — the same way I
-would hand it to a team. That frees me to think about the product I ship rather than the
-implementation of each function. I become a small product owner, a small manager, of my
-own (or the company's) product.
+I have a broader view of the product now than I used to. I can decide its architecture,
+lay down the clean-code rules it should follow, set up the pipelines, require tests. The
+actual typing of the code I can hand off to an AI, the way I would hand it to a developer
+on my team. That leaves me free to think about the product I am building instead of the
+implementation of every function. In practice I have turned into a small product owner, a
+small manager of my own product, or the company's.
 
-And a manager who cannot delegate is a bad manager. The one who, instead of setting up a
-process and a framework, drifts into micromanagement and inspects what the subordinate
-wrote in every commit — that person has stopped managing.
+And a manager who cannot delegate is not much of a manager. If, instead of setting up a
+process and a framework, you spend your time looking over shoulders and checking what your
+report wrote in each commit, you have stopped doing the job.
 
-## "But am I getting dumber?"
+## The deskilling worry
 
-The episode raised the deskilling worry, and it deserves a straight answer. Does this
-shift make me a weaker developer? A duller one?
+A good chunk of the episode was about deskilling, and it is a fair thing to raise. Am I
+becoming a worse developer because of this shift, slower and duller?
 
-There is nothing new in the worry or in the process underneath it. Every time a
-technological step appears and a new kind of specialist starts working one layer of
-abstraction higher, with far more output per hour, exactly this happens: some of the
-knowledge a workshop hand needed to cut metal by hand is no longer needed by the operator
-of a CNC machine.
+I do not think there is anything new here, in the worry or in what is actually going on.
+This happens every time technology takes a step and a new kind of specialist appears who
+works one level of abstraction higher and gets more done per hour. Some of what the man
+cutting sheet metal by hand had to know is simply not needed by the person running the CNC
+machine.
 
-Yes — a master joiner, the kind whose trade is handed down, can carve a miniature figure
-more precise than any mill will manage. But the mill turns out a hundred of the parts the
-market actually wants, at a level of complexity that would take the joiner a lifetime to
-match by hand. One keeps a rare craft alive; the other feeds a factory. Both are real.
-They are not the same job.
+A good carpenter, the kind who inherited the trade, can cut a tiny figurine more precisely
+than the mill ever will. But the mill turns out a hundred of the parts people actually
+order in an hour, at a complexity the carpenter could not finish in a lifetime. Those are
+different jobs, and there is room for both.
 
-## We have done this several times already
+## We have been here before
 
-Our own profession has run this loop before, more than once.
+Our field has gone through this several times already. The first programs were punched onto
+cards by mathematicians and physicists, and the program was more or less welded to the
+machine it ran on. Then the work moved up a level of abstraction, and at each step some
+knowledge stopped mattering while new knowledge appeared, and the programs themselves lost
+a few things and gained a great deal more.
 
-The first programs were punched on cards by physicists and mathematicians, and the program
-was inseparable from the body of the machine it ran on. Then progress moved development up
-a layer, and with every step some knowledge stopped being needed while new knowledge — and
-new kinds of programs — appeared. Each move lost something and gained more.
+Assembly was not as portable or as reliable as C. C++ arrived with concepts that bloated
+the programs but made them maintainable at a size assembly could never reach. When Java
+showed up, the C++ crowd had a whole genre of memes about Java developers who did not
+understand memory and let the VM eat all of it. And it was exactly those developers, and
+that JVM that would run your code on a flat-iron if you asked it to, who gave us the
+enterprise boom and Android.
 
-- Programs in assembly were not as portable or as reliable as programs in C.
-- C++ brought concepts that bloated the code but made it maintainable at a size assembly
-  could never reach.
-- The C++ crowd, at the dawn of Java, made memes about how Java developers, ignorant of
-  how memory works, let their virtual machine eat all of it. And it was precisely those
-  developers and that JVM — the one that would run code on anything down to a flat-iron —
-  who gave us the enterprise boom and Android.
-
-Every generation flamed the next one for the skills it was about to lose. And every next
-generation pushed development to a new level, producing a jump in quantity and — once the
-processes, the standards, and the school of skills had settled — in the quality of what
-got built.
+Every generation grumbled that the next one was losing the skills. Every next generation
+pushed the work onto a new level anyway, with a big jump in volume and, once the processes
+and the standards and the training had caught up, in quality too.
 
 ## Coders and operators
 
-We are in one of those transitional times right now. There are joiners and there are CNC
-operators. There are coders and there are operators of LLMs.
+That is where we are now. There are carpenters and there are CNC operators. There are
+coders and there are LLM operators.
 
-So this is delegation of routine and a step onto a new layer of abstraction — new
-knowledge that raises output per hour. Call it that, not deskilling and not going soft.
-For now it comes with caveats, because the transition is unfinished, but the direction is
-not in doubt.
+So I would not call it deskilling, and I would not call it going soft. It is handing off
+the routine and moving up a level of abstraction, picking up new skills that get more done.
+It comes with caveats for now, because we are in the middle of the transition, but the
+trend is fairly clear.
 
-You can sit and wish for the AI bubble to pop, the way some once wished for a crisis that
-would send the city worker back to the village. But if we are talking about the progress of
-a species that does not, barring catastrophe, roll back a rung — then this is the
-direction of travel.
+You can sit and hope the AI bubble bursts, the same way people once hoped for a crisis that
+would push the worker out of the city and back to the village. But if we are talking about
+the kind of progress that does not, short of a catastrophe, roll back a step, then this is
+where things are heading.
 
-## The code I still can't let pass
+## I still like writing nice code
 
-None of this cancels the fact that I may *enjoy* writing beautiful code. Like the two hosts
-of that podcast, I have code I cannot let through untouched. Often it has nothing to do with
-the quality of the product; often it is just a preference rooted in my professional
-deformation — the warp the trade leaves in you. It is geekiness. My hobby, my sense of what
-is beautiful.
+None of this means I stopped enjoying good code. Like the two hosts said about themselves, I
+have code I cannot quite bring myself to leave alone. Often that has nothing to do with the
+quality of the product. It is a preference, the professional deformation you pick up over
+the years, a bit of geekery, my own taste. But if I cannot get past it during actual work,
+if I cannot automate everything except what the product genuinely requires for a real
+reason, then I am doing crochet on the clock. If I can afford that, good. On average it is
+not what production needs from me, it is a hobby.
 
-But if, inside a working process, I cannot get past it — if I cannot automate everything
-except what a rational product requirement actually demands — then I am knitting on company
-time. If I can afford that, fine. On average, though, it is not what production needs; it is
-my hobby wearing a work badge.
-
-What the factory and the progress behind it increasingly need are managers of agentic
-teams with the skill of a professional LLM operator — and fewer free artists working in
-JavaScript by hand.
-
----
-
-*A footnote in keeping with this site: an essay arguing that the operator's craft is real
-should show it. This one was drafted by hand and then run through the repository's
-[LLM-smell linter](/essays/why-this-site) — the same gate every article here passes —
-so that a piece about delegating to machines does not itself read like a machine wrote it.
-That is the operator's job: set the standard, then make the work meet it.*
+What the factory and the progress behind it want more and more of is people who can run a
+team of agents and operate an LLM well, and fewer lone artists hand-writing JavaScript.

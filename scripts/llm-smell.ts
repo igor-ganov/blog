@@ -82,6 +82,14 @@ const rules: readonly Rule[] = [
   { id: 'comprehensive', re: /\bcomprehensive\b/i, hint: 'Often filler — cut or be specific.', severity: 'warn' },
   { id: 'holistic', re: /\bholistic\b/i, hint: 'Vague — name the parts.', severity: 'warn' },
 
+  // — Cadence / structural tells (heuristic; warn only). A regex cannot police
+  // rhythm in general — triads, balanced antithesis, and em-dash-heavy prose are
+  // the house style of this very site — so these catch only the few high-precision
+  // shapes that genuine articles here never use. The real cadence gate is the
+  // `llm-smells` skill plus a human (or LLM-judge) read.
+  { id: 'dramatic-opener', re: /(?:^|[.!?]\s+)(yes|no|and|but|so|now|here|sure|look|again|right)\s+[—–]/i, hint: 'Dramatic "Yes —" / "But —" opener; rephrase plainly.', severity: 'warn' },
+  { id: 'question-heading', re: /^#{2,}\s+.*\?\s*$/, hint: 'Rhetorical question heading reads as AI; make it a statement.', severity: 'warn' },
+
   // — No emoji (house rule) — but allow the dingbat check/cross marks
   // (U+2713–2718) that articles use as plain yes/no markers in tables and
   // quoted CLI output.
