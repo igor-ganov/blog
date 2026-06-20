@@ -18,12 +18,17 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 
 type Severity = 'error' | 'warn';
+type Lang = 'all' | 'en' | 'it' | 'ru';
 
 interface Rule {
   readonly id: string;
   readonly re: RegExp;
   readonly hint: string;
   readonly severity: Severity;
+  // Which language a rule applies to, matched against the file's locale (derived
+  // from its src/content/<kind>/<locale>/ path). Omitted = English. 'all' = every
+  // language (emoji, markdown-structural tells).
+  readonly lang?: Lang;
 }
 
 // The catalogue. `error` rules are near-certain AI tells that genuine technical
@@ -88,13 +93,55 @@ const rules: readonly Rule[] = [
   // shapes that genuine articles here never use. The real cadence gate is the
   // `llm-smells` skill plus a human (or LLM-judge) read.
   { id: 'dramatic-opener', re: /(?:^|[.!?]\s+)(yes|no|and|but|so|now|here|sure|look|again|right)\s+[—–]/i, hint: 'Dramatic "Yes —" / "But —" opener; rephrase plainly.', severity: 'warn' },
-  { id: 'question-heading', re: /^#{2,}\s+.*\?\s*$/, hint: 'Rhetorical question heading reads as AI; make it a statement.', severity: 'warn' },
+  { id: 'question-heading', re: /^#{2,}\s+.*\?\s*$/, hint: 'Rhetorical question heading reads as AI; make it a statement.', severity: 'warn', lang: 'all' },
+
+  // — Russian AI tells (apply to ru/ files). Cyrillic is not a JS \w/\b class,
+  // so these use explicit Cyrillic letter classes instead of word boundaries.
+  { id: 'ru-pogruzimsya', re: /(давайте\s+)?погруз(имся|иться|итесь)/i, hint: 'Канцелярит ИИ: «разберём» / «посмотрим».', severity: 'error', lang: 'ru' },
+  { id: 'ru-v-sovremennom-mire', re: /в\s+(современном|сегодняшнем|цифровом|динамичном)\s+мире/i, hint: 'Уберите «в современном мире».', severity: 'error', lang: 'ru' },
+  { id: 'ru-stoit-otmetit', re: /(стоит|следует|важно)\s+(отметить|упомянуть|заметить|подчеркнуть)/i, hint: 'Скажите по сути.', severity: 'error', lang: 'ru' },
+  { id: 'ru-kogda-delo', re: /когда\s+дело\s+(доходит|касается)/i, hint: 'Скажите «для» / «с».', severity: 'error', lang: 'ru' },
+  { id: 'ru-raskryt-potencial', re: /раскры(ть|вает|вая)\s+(весь\s+)?потенциал/i, hint: 'Маркетинг — уберите.', severity: 'error', lang: 'ru' },
+  { id: 'ru-novyj-uroven', re: /(вывести\s+на|поднять\s+на|на)\s+новый\s+уровень/i, hint: 'Уберите штамп.', severity: 'error', lang: 'ru' },
+  { id: 'ru-besshovno', re: /(бесшовн[а-яё]*|беспрепятственн[а-яё]*)/i, hint: 'Не «бесшовно» — покажите.', severity: 'error', lang: 'ru' },
+  { id: 'ru-revolucionnyj', re: /(революционн[а-яё]*|инновационн[а-яё]*)/i, hint: 'Перебор — уберите.', severity: 'error', lang: 'ru' },
+  { id: 'ru-shirokij-spektr', re: /(широк[а-яё]+\s+спектр|целый\s+ряд|богат[а-яё]+\s+опыт)/i, hint: 'Назовите конкретику.', severity: 'error', lang: 'ru' },
+  { id: 'ru-igraet-rol', re: /(играет|является)\s+(ключев[а-яё]+|важн[а-яё]+|критическ[а-яё]+)\s+(роль|элемент[а-яё]*|фактор[а-яё]*)/i, hint: 'Скажите, что делает.', severity: 'error', lang: 'ru' },
+  { id: 'ru-v-zaklyuchenie', re: /(в\s+заключение|подводя\s+итог|подытоживая)/i, hint: 'Завершайте мыслью, не ярлыком.', severity: 'error', lang: 'ru' },
+  { id: 'ru-v-etoj-state', re: /в\s+(этой|данной)\s+стат(ье|ьи)\s+мы/i, hint: 'Не анонсируйте — пишите по делу.', severity: 'error', lang: 'ru' },
+  { id: 'ru-pervostepennoe', re: /(первостепенн[а-яё]+\s+значени[а-яё]+|крайне\s+важн[а-яё]+|чрезвычайно\s+важн[а-яё]+)/i, hint: 'Без пафоса.', severity: 'warn', lang: 'ru' },
+  { id: 'ru-transition', re: /^\s*(более\s+того|кроме\s+того|таким\s+образом|следовательно),/i, hint: 'Связка в начале — обычно лишняя.', severity: 'warn', lang: 'ru' },
+
+  // — Italian AI tells (apply to it/ files) —
+  { id: 'it-immergiamoci', re: /\b(immergiamoci|immergiti|addentriamoci|approfondiamo)\b/i, hint: 'Tell da IA: dì «vediamo» / «guardiamo».', severity: 'error', lang: 'it' },
+  { id: 'it-nel-mondo-di', re: /\bnel\s+mondo\s+(di|della|dello|delle)\b/i, hint: 'Togli «nel mondo di».', severity: 'error', lang: 'it' },
+  { id: 'it-era-digitale', re: /\bnell['’]era\s+(digitale|moderna)\b|\bnel\s+panorama\b/i, hint: 'Togli la scenografia.', severity: 'error', lang: 'it' },
+  { id: 'it-vale-la-pena', re: /\bvale\s+la\s+pena\s+(di\s+)?(notare|sottolineare|menzionare)\b/i, hint: 'Dillo e basta.', severity: 'error', lang: 'it' },
+  { id: 'it-importante-notare', re: /è\s+importante\s+(notare|sottolineare|ricordare)/i, hint: 'Vai dritto al punto.', severity: 'error', lang: 'it' },
+  { id: 'it-quando-si-tratta', re: /\bquando\s+si\s+tratta\s+di\b/i, hint: 'Dì «per» / «con».', severity: 'error', lang: 'it' },
+  { id: 'it-sfruttare-potenza', re: /\bsfrutta(re|ndo)\s+(appieno\s+)?(la\s+potenza|il\s+potenziale)\b/i, hint: 'Dì «usa».', severity: 'error', lang: 'it' },
+  { id: 'it-sbloccare', re: /\bsblocca(re|ndo)\s+(il\s+)?(potenziale|valore)\b/i, hint: 'Togli.', severity: 'error', lang: 'it' },
+  { id: 'it-livello-successivo', re: /\bal\s+livello\s+successivo\b/i, hint: 'Togli il cliché.', severity: 'error', lang: 'it' },
+  { id: 'it-rivoluzionario', re: /\b(rivoluzionari\w+|all['’]avanguardia|di\s+ultima\s+generazione)\b/i, hint: 'Esagerato — togli.', severity: 'error', lang: 'it' },
+  { id: 'it-senza-soluzione', re: /\bsenza\s+soluzione\s+di\s+continuità\b|\bsenza\s+sforzo\b/i, hint: 'Non dichiarare «seamless» — dimostralo.', severity: 'error', lang: 'it' },
+  { id: 'it-miriade', re: /\b(una\s+miriade\s+di|un['’]ampia\s+gamma\s+di|una\s+vasta\s+gamma\s+di)\b/i, hint: 'Dì un numero o «molti».', severity: 'error', lang: 'it' },
+  { id: 'it-in-conclusione', re: /\b(in\s+conclusione|per\s+riassumere|in\s+sintesi|riassumendo)\b/i, hint: 'Chiudi sul punto, non con un’etichetta.', severity: 'error', lang: 'it' },
+  { id: 'it-gioca-ruolo', re: /\b(gioca|svolge)\s+un\s+ruolo\s+(cruciale|fondamentale|chiave)\b/i, hint: 'Dì cosa fa, concretamente.', severity: 'error', lang: 'it' },
+  { id: 'it-in-questo-articolo', re: /\bin\s+questo\s+articolo\s+(esploreremo|vedremo|analizzeremo)\b/i, hint: 'Non annunciare l’articolo — scrivilo.', severity: 'error', lang: 'it' },
+  { id: 'it-fondamentale', re: /(è\s+fondamentale|di\s+fondamentale\s+importanza)/i, hint: 'Senza enfasi.', severity: 'warn', lang: 'it' },
 
   // — No emoji (house rule) — but allow the dingbat check/cross marks
   // (U+2713–2718) that articles use as plain yes/no markers in tables and
   // quoted CLI output.
-  { id: 'emoji', re: /[\u{1F000}-\u{1FAFF}\u{2600}-\u{2712}\u{2719}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u, hint: 'No emoji in articles.', severity: 'error' },
+  { id: 'emoji', re: /[\u{1F000}-\u{1FAFF}\u{2600}-\u{2712}\u{2719}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u, hint: 'No emoji in articles.', severity: 'error', lang: 'all' },
 ];
+
+// Derive the file's locale from its src/content/<kind>/<locale>/ path; default
+// to English for anything outside that layout.
+const localeOfFile = (file: string): Lang => {
+  const match = file.replace(/\\/g, '/').match(/\/content\/(?:kb|blog)\/(en|it|ru)\//);
+  return match?.[1] === 'it' ? 'it' : match?.[1] === 'ru' ? 'ru' : 'en';
+};
 
 interface Finding {
   readonly file: string;
@@ -130,6 +177,11 @@ const suppressedFor = (lines: readonly string[], index: number, ruleId: string):
 const scanFile = async (file: string): Promise<readonly Finding[]> => {
   const raw = await readFile(file, 'utf8');
   const lines = raw.split(/\r?\n/);
+  const fileLocale = localeOfFile(file);
+  const active = rules.filter((rule) => {
+    const lang = rule.lang ?? 'en';
+    return lang === 'all' || lang === fileLocale;
+  });
   const findings: Finding[] = [];
   let inFence = false;
   let inFrontmatter = lines[0]?.trim() === '---';
@@ -146,7 +198,7 @@ const scanFile = async (file: string): Promise<readonly Finding[]> => {
     }
     if (inFence) return;
 
-    for (const rule of rules) {
+    for (const rule of active) {
       const match = rule.re.exec(line);
       if (match === null) continue;
       if (suppressedFor(lines, index, rule.id)) continue;
