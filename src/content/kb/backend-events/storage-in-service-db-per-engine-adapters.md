@@ -17,30 +17,31 @@ updated: 2026-05-14
 ---
 
 The outbox pattern only works if the outbox row is written in the same atomic operation
-as the business row. That constraint has an immediate corollary: the outbox must live in
-the same database as the business data. In a system where different services use
-different database engines — some MongoDB, some MySQL — there is no cross-engine ACID
-transaction. A single shared outbox database would require 2PC or a distributed
-transaction coordinator. Neither option is acceptable: 2PC adds a coordinator as a new
-single point of failure, couples services at the transaction level, and collapses under
-partial network failures in exactly the scenarios where you need reliability most.
+as the business row. So the outbox has to live in the same database as the business data.
+When different services run on different database engines (some MongoDB, some MySQL),
+there is no cross-engine ACID transaction to lean on. A single shared outbox database
+would force you into 2PC or a distributed transaction coordinator. That coordinator
+becomes a new single point of failure, it couples services at the transaction level, and
+it tends to fall apart under partial network failures, which are exactly the conditions
+where you needed the outbox to hold.
 
 An event-sourcing service settled this question on 2026-05-14.
 
 ## Why this matters
 
-The event-sourcing service topology includes services on MongoDB and services on MySQL. The naive
-approach — one central outbox database that everyone writes to — breaks atomicity at the
-DB boundary. For a MySQL service to write its business row and an outbox row atomically,
-both writes must be in the same MySQL transaction on the same connection. Writing to a
-remote MongoDB outbox instead requires a distributed transaction. When the network
-between the service and the outbox DB is disrupted mid-write, you are back to the
-lost-event failure mode the outbox was supposed to prevent.
+The event-sourcing service topology includes services on MongoDB and services on MySQL.
+The obvious-looking shortcut, one central outbox database that everyone writes to, breaks
+atomicity at the DB boundary. For a MySQL service to write its business row and an outbox
+row atomically, both writes have to sit in the same MySQL transaction on the same
+connection. Point that outbox write at a remote MongoDB instead and you now need a
+distributed transaction. If the network between the service and the outbox DB drops
+mid-write, you land right back in the lost-event failure mode the outbox was meant to
+prevent.
 
 The solution adopted in the event-sourcing service:
 
-- **Engine-neutral `Outbox` and `Inbox` interfaces.** The rest of the library — relay,
-  transport, retry — is written against these interfaces. It knows nothing about MongoDB
+- **Engine-neutral `Outbox` and `Inbox` interfaces.** The rest of the library (relay,
+  transport, retry) is written against these interfaces and knows nothing about MongoDB
   or MySQL.
 - **Concrete per-engine adapters.** `createMongoOutbox` / `createMongoInbox` for
   MongoDB (v1), `createMysqlOutbox` / `createMysqlInbox` planned for MySQL. Each adapter
@@ -86,8 +87,8 @@ export interface Inbox {
 }
 ```
 
-`TransactionHandle` is typed as `unknown` at the interface level. Each adapter narrows
-it to the engine-specific type internally without leaking that type to callers.
+`TransactionHandle` is typed as `unknown` at the interface level. Each adapter narrows it
+to its engine-specific type internally, so that type never leaks out to callers.
 
 ### MongoDB adapter — v1 (production)
 
@@ -177,9 +178,9 @@ export const createMysqlOutbox = ({ getConnection }: MysqlOutboxDeps): Outbox =>
 
 ### Atomic dual-write — engine-neutral caller code
 
-Because the interface accepts a `TransactionHandle`, the business-layer code is
-identical regardless of the underlying engine. The engine-specific session or connection
-object is passed in from the outside.
+Because the interface accepts a `TransactionHandle`, the business-layer code stays the
+same whatever the underlying engine is. The engine-specific session or connection object
+gets passed in from the outside.
 
 ```ts
 // producer-service/src/orders/create-order.ts
@@ -219,8 +220,9 @@ export const createOrder =
 
 ### Transaction wrappers per engine
 
-The outermost layer — the one that actually opens and commits the transaction — is
-engine-specific but lives at the infrastructure boundary, not in business logic.
+The outermost layer, the one that actually opens and commits the transaction, is
+engine-specific, but it lives at the infrastructure boundary rather than in business
+logic.
 
 ```ts
 // MongoDB transaction wrapper
@@ -276,9 +278,9 @@ export interface Outbox {
 // A MySQL service can never satisfy this interface without a fake session object.
 ```
 
-The first two patterns break the atomicity guarantee. The third violates the adapter
-abstraction and locks the interface to one engine, preventing reuse across a mixed-engine
-fleet.
+The first two patterns break the atomicity guarantee. The third one violates the adapter
+abstraction and pins the interface to a single engine, so you can no longer reuse it
+across a mixed-engine fleet.
 
 ## Enforcement
 
@@ -293,7 +295,7 @@ fleet.
 
 ## See also
 
-The full end-to-end flow including the relay and idempotent consumer is in
+The full end-to-end flow, including the relay and the idempotent consumer, is in
 [Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
-Why a saga does not replace this pattern is in
+For why a saga does not replace this pattern, see
 [A saga is not an outbox](/kb/backend-events/saga-is-not-an-outbox).

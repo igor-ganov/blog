@@ -24,21 +24,20 @@ On 2026-05-23, the content-admin SPA E2E preview suite (`preview:test`) failed w
 Error: listen EACCES: access denied ::1:5173
 ```
 
-The obvious diagnosis — a stale process is holding the port — was wrong. Running
-`kill-port 5173` succeeded (exit 0, no error), yet the bind still failed with the same
-`EACCES`. Port 5173 was not held by any process; Windows was blocking it at the OS
-level.
+The obvious diagnosis is that a stale process is holding the port. That was wrong here.
+`kill-port 5173` succeeded (exit 0, no error), and the bind still failed with the same
+`EACCES`. No process was holding 5173. Windows was blocking it at the OS level.
 
 The cause is **Windows NAT (winnat)**. Starting with Windows 10, the Windows
 Hypervisor Platform and related services (Hyper-V, WSL2, Docker Desktop) instruct winnat
-to reserve dynamic port ranges for internal use. These ranges shift on every reboot.
-If your target port falls inside a reserved range, the OS refuses the bind regardless
-of whether a process is using it — and the error message (`EACCES`) is identical to a
-permission error, which misdirects the investigation.
+to reserve dynamic port ranges for internal use, and those ranges shift on every reboot.
+When your target port lands inside a reserved range, the OS refuses the bind whether or
+not a process is using it. The error you get back is `EACCES`, identical to a plain
+permission error, which is exactly what sends the investigation down the wrong path.
 
 On the machine where this was observed, the reserved range at the time included
-`5120–5219`, which covers 5173. Port 4173 (the Vite preview default) was outside all
-reserved ranges and bound successfully.
+`5120–5219`, which covers 5173. Port 4173 (the Vite preview default) sat outside all
+reserved ranges and bound fine.
 
 ## How to apply
 
@@ -63,14 +62,14 @@ Start Port    End Port
 3 block(s) excluded.
 ```
 
-If your target port (e.g. 5173) appears inside any of these ranges, that is the cause.
-No process kill will fix it. Proceed to the port selection step.
+If your target port (e.g. 5173) falls inside any of these ranges, that is the cause.
+No process kill will help. Move on to picking a free port.
 
 ### Fix without Administrator: use a known-free port via a throwaway config
 
-The fastest fix that requires no elevated privileges is to copy the config to a
-temporary file with a different port and run the suite against that file. Do **not**
-commit the temp file.
+The quickest fix that needs no elevated privileges: copy the config to a temporary file
+with a different port and run the suite against that file. Do **not** commit the temp
+file.
 
 For a Playwright + Vite project:
 
@@ -119,7 +118,7 @@ rm playwright.config.local.ts
 
 ### Fix with Administrator: reshuffle the reserved ranges
 
-If you have Administrator access and want to clear the reserved ranges temporarily:
+With Administrator access, you can clear the reserved ranges temporarily:
 
 ```powershell
 # Requires Administrator — restarts the winnat service, reshuffles dynamic ranges
@@ -128,20 +127,19 @@ net start winnat
 ```
 
 Re-run `netsh interface ipv4 show excludedportrange protocol=tcp` to see the new
-ranges. This is a temporary fix; ranges will shift again on the next reboot or service
-restart.
+ranges. Treat this as temporary, since the ranges shift again on the next reboot or
+service restart.
 
 ### Choosing a reliably free port
 
-On the machine where this issue was encountered, port `4173` is consistently outside all
-winnat-reserved ranges. Other historically stable choices:
+On the machine where this issue came up, port `4173` stays outside the winnat-reserved
+ranges. Other choices that have held up over time:
 
 - `4173` — Vite preview alternate default, consistently free.
 - `4000` — below the typical dynamic reservation window.
 - `3000`, `3001` — classic Node/Express defaults, usually unreserved.
 
-Avoid the `5120–5220` and `7000–7060` bands, which are frequently reserved by
-Hyper-V/WSL2.
+Steer clear of the `5120–5220` and `7000–7060` bands, which Hyper-V and WSL2 grab often.
 
 ## Anti-patterns
 
@@ -157,9 +155,8 @@ netsh interface ipv4 show excludedportrange protocol=tcp
 # then switch to a free port
 ```
 
-Symptom: `kill-port` reports success (or reports no process found), yet the server
-still refuses to bind. This is the definitive sign that winnat — not a process — is the
-blocker.
+Symptom: `kill-port` reports success (or reports no process found), and the server still
+refuses to bind. When you see that, winnat is the blocker, not a process.
 
 ### Committing the throwaway config
 
@@ -173,9 +170,9 @@ rm playwright.config.local.ts
 # If the project permanently needs a different port, update playwright.config.ts directly
 ```
 
-The throwaway config is a local diagnostic tool, not a permanent solution. If 5173 is
-consistently unusable on all developer machines, change the canonical port in
-`playwright.config.ts` and `vite.config.ts`.
+The throwaway config is a local diagnostic, not a permanent fix. If 5173 is unusable on
+every developer machine, change the canonical port in `playwright.config.ts` and
+`vite.config.ts`.
 
 ### Using net stop winnat without Administrator
 
@@ -184,13 +181,12 @@ consistently unusable on all developer machines, change the canonical port in
 net stop winnat
 ```
 
-The command requires an Administrator-elevated terminal. If it fails, the port range
-is unchanged and the subsequent bind will still fail. Verify elevation before relying on
-this approach.
+The command needs an Administrator-elevated terminal. If it fails, the port range stays
+as it was and the next bind still fails. Confirm elevation before relying on this.
 
 ## Enforcement
 
-There is no automated enforcement possible because the issue is OS-level. The
+No automated enforcement is possible here, since the issue lives at the OS level. The
 practical process guard is:
 
 1. Before filing a "port already in use" bug, run

@@ -22,40 +22,39 @@ updated: 2026-06-12
 
 A fresh `BrowserContext` has no service worker. When the page loads, the SW goes
 through `install → activate`, fires `controllerchange` on `navigator.serviceWorker`,
-and the activation handler claims the client — often followed by a
-`location.reload()`. This discards the DOM the page was painting and starts a second
+and the activation handler claims the client. That step is often followed by a
+`location.reload()`, which discards the DOM the page was painting and starts a second
 navigation. If your test body starts in the gap between the first navigation's
 `domcontentloaded` and the reload, Playwright resolves locators against a DOM that is
 about to vanish, and the click lands on a detached element.
 
-The result is a diagnostic signature you can read in the trace viewer:
-`element was detached from the DOM, retrying` followed immediately by
-`navigated to "<base>/"`. The test did not time out in the traditional sense — it was
-racing a reload it did not know was coming.
+In the trace viewer the failure has a recognizable signature: `element was detached
+from the DOM, retrying` followed immediately by `navigated to "<base>/"`. The test
+didn't time out the usual way. It was racing a reload it didn't know was coming.
 
 ## Why this matters
 
 On the content-admin SPA (2026-04-30) the update-lifecycle module listens for
-`controllerchange` and reloads on the **first** SW activation. This is standard
-progressive-web-app behaviour and correct application code. The problem is exclusively
-a test problem: in a fresh `BrowserContext`, every test run is a first activation.
+`controllerchange` and reloads on the **first** SW activation. That is standard
+progressive-web-app behaviour and correct application code. The problem lives entirely
+in the tests: in a fresh `BrowserContext`, every test run is a first activation.
 
-The first fix (2026-04-30) waited for `networkidle` plus a stable anchor. It worked —
-and it was wrong. `networkidle` means "no network requests for 500ms", which makes it
-a **time-shaped wait wearing an event costume**: every visit pays a mandatory 500ms of
-silence even when the SW settled instantly. Across a suite of dozens of visits that is
-half a minute of pure sleep, and it still says nothing about the SW — a page can be
-network-idle while the SW is mid-activation.
+The first fix (2026-04-30) waited for `networkidle` plus a stable anchor. It passed,
+but it was the wrong wait. `networkidle` means "no network requests for 500ms", so it
+is a time-shaped wait wearing an event costume. Every visit pays a mandatory 500ms of
+silence even when the SW settled instantly. Across a suite of dozens of visits that
+adds up to half a minute of pure sleep, and it still tells you nothing about the SW,
+because a page can be network-idle while the SW is mid-activation.
 
 The second pass (2026-06-12), under a hard pipeline-speed budget, replaced it with a
 gate on the lifecycle state itself. The wait resolves the instant the SW controls the
-document — typically a few milliseconds on a warm context, never a fixed 500ms.
+document, typically a few milliseconds on a warm context rather than a fixed 500ms.
 
-The same pass surfaced a second face of the race: **activation aborts in-flight
-navigations**. A test that logs in (registering the SW) and immediately `goto`s the
-next page dies with `net::ERR_ABORTED` — the activating worker claims the client
-mid-navigation. The lifecycle gate must therefore run not only before the test body
-but before any navigation that follows an action which (re)registers the SW.
+That pass also turned up a second face of the race: activation aborts in-flight
+navigations. A test that logs in (registering the SW) and immediately `goto`s the next
+page dies with `net::ERR_ABORTED`, because the activating worker claims the client
+mid-navigation. So the lifecycle gate has to run before the test body and before any
+navigation that follows an action which (re)registers the SW.
 
 ## How to apply
 
@@ -93,9 +92,9 @@ export const visitSettled = async (
 };
 ```
 
-Choose the stable anchor element carefully: it must be present on every page under
-test, rendered by the application, and carry a deterministic `data-testid` — see
-[locator constants](/kb/testing/locator-constants).
+Pick the stable anchor element with care. It has to be present on every page under
+test, rendered by the application, and carry a deterministic `data-testid` (see
+[locator constants](/kb/testing/locator-constants)).
 
 And gate **before the next navigation** whenever the previous step registered the SW:
 
@@ -112,9 +111,9 @@ await waitForSWControl(page);
 await visit(page, '/content/blog');
 ```
 
-This is still event-driven: `waitForFunction` polls a browser-side predicate and
-resolves the instant it is true. There is no fixed cost — see
-[event-driven waits](/kb/testing/event-driven-no-timeouts).
+This is still event-driven. `waitForFunction` polls a browser-side predicate and
+resolves the instant it returns true, with no fixed cost (see
+[event-driven waits](/kb/testing/event-driven-no-timeouts)).
 
 ### Diagnosing the race
 
@@ -146,18 +145,18 @@ await page.route('**/sw.js', (route) => route.abort());
 if (browserName === 'webkit') await page.waitForTimeout(300);
 ```
 
-Disabling the SW in tests is a tempting shortcut that costs real coverage. The
-lifecycle gate costs one shared helper and gives complete confidence that the DOM is
-post-activate and stable.
+Disabling the SW in tests is a tempting shortcut, but it throws away real coverage.
+The lifecycle gate costs one shared helper and buys complete confidence that the DOM
+is post-activate and stable.
 
 ## Enforcement
 
-There is no static analysis for this pattern. The enforcement is the three-run rule
-(see [no retries, no flakes](/kb/testing/no-retries-no-flakes)) — and, more sharply,
-**parallel workers**: serial suites mask this race behind incidental slowness, while
-4 workers on shared CI vCPUs reproduce it within a run or two. See
-[parallel workers surface races](/kb/testing/parallel-workers-surface-races).
+There is no static analysis for this pattern. Enforcement comes from the three-run
+rule (see [no retries, no flakes](/kb/testing/no-retries-no-flakes)) and, more
+sharply, from parallel workers. Serial suites mask this race behind incidental
+slowness, while 4 workers on shared CI vCPUs reproduce it within a run or two (see
+[parallel workers surface races](/kb/testing/parallel-workers-surface-races)).
 
 In code review, check every navigation that follows SW (re)registration: is it gated
-by the lifecycle predicate and a stable anchor? If the project has a SW update
-handler, this is non-optional.
+by the lifecycle predicate and a stable anchor? If the project ships a SW update
+handler, that gate is non-optional.

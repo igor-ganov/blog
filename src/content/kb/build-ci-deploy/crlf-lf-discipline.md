@@ -19,16 +19,16 @@ order: 4
 updated: 2026-04-12
 ---
 
-Windows uses `\r\n` (CRLF) as its line ending. Linux uses `\n` (LF). Git's `text=auto`
-mode converts line endings on checkout to the platform default and back to LF on commit —
+Windows uses `\r\n` (CRLF) as its line ending; Linux uses `\n` (LF). Git's `text=auto`
+mode converts line endings on checkout to the platform default and back to LF on commit,
 unless you override it. The mismatch between a Windows developer machine and a Linux CI
-runner is one of the oldest cross-platform hazards in software development, and it still
-bites in 2026 because the failure mode is **silent wrong results**, not an error.
+runner is one of the oldest cross-platform hazards around, and it still bites in 2026
+because the failure mode is **silent wrong results** rather than an error you can see.
 
-A regex written with a literal `\n` boundary matches perfectly on LF input. On CRLF
-input, the `\n` is preceded by `\r` and the boundary does not match where expected. The
-regex returns no match, or matches a reduced range, or returns an empty capture group.
-No exception is thrown. The caller receives a wrong result and proceeds.
+A regex written with a literal `\n` boundary matches perfectly on LF input. Feed it CRLF
+and the `\n` is preceded by `\r`, so the boundary no longer lands where you expect. You
+get no match, or a reduced range, or an empty capture group. Nothing throws. The caller
+takes the wrong result and keeps going.
 
 ## Why this matters
 
@@ -51,24 +51,24 @@ const parseFrontmatter = (raw: string): Record<string, string> => {
 ```
 
 On Linux (CI and production) the files had LF endings and the function worked correctly.
-On the developer's Windows machine, files saved by the editor had CRLF endings. The regex
-`/^---\n([\s\S]*?)\n---/` did not match because the actual delimiter was `\r\n`, not `\n`.
+On the developer's Windows machine, files saved by the editor had CRLF endings, so the
+regex `/^---\n([\s\S]*?)\n---/` failed to match: the actual delimiter was `\r\n`, not `\n`.
 
-The result: `block` was `''` (empty string from the `?? ''` fallback). The function
-returned `{}` — an empty object — as the parsed frontmatter. This empty object was then
-written back to the file by the save pipeline. The file's frontmatter was replaced with
-`---\n\n---\n\n<original body>`, wiping every metadata field.
+So `block` fell through to `''` via the `?? ''` fallback, and the function returned `{}`
+as the parsed frontmatter. The save pipeline then wrote that empty object back to the
+file, replacing the frontmatter with `---\n\n---\n\n<original body>` and wiping every
+metadata field.
 
-The file appeared to save successfully. No error was thrown at any point. The wiped
-metadata was only discovered when the public site build failed because required frontmatter
-fields were absent. The edited article was restored from git history.
+The save looked successful and nothing threw. The wiped metadata only surfaced when the
+public site build failed on missing required frontmatter fields. We restored the edited
+article from git history.
 
 **A multi-package monorepo, 2026-04-11.**
 
-The same pattern — Windows development, Linux CI — caused biome and tsc to report
-inconsistent errors depending on which platform ran the check. Adding `.gitattributes`
-with `* text=auto eol=lf` normalized all files to LF in the git object store and
-eliminated the divergence. See [standalone-submodule-ci](/kb/build-ci-deploy/standalone-submodule-ci).
+The same Windows-dev, Linux-CI pattern made biome and tsc report inconsistent errors
+depending on which platform ran the check. Adding `.gitattributes` with
+`* text=auto eol=lf` normalized every file to LF in the git object store and the
+divergence went away. See [standalone-submodule-ci](/kb/build-ci-deploy/standalone-submodule-ci).
 
 ## How to apply
 
@@ -79,9 +79,8 @@ eliminated the divergence. See [standalone-submodule-ci](/kb/build-ci-deploy/sta
 * text=auto eol=lf
 ```
 
-This instructs git to:
-- Store all text files as LF in the object store (on commit).
-- Check out all text files as LF on every platform, including Windows.
+This tells git to store all text files as LF in the object store on commit, and to check
+them out as LF on every platform, Windows included.
 
 After adding this file to an existing repo, re-normalize the working tree:
 
@@ -91,7 +90,7 @@ git commit -m "normalize line endings to LF"
 ```
 
 The `--renormalize` flag re-applies the `.gitattributes` rules to every tracked file
-without changing its content semantically.
+without touching its content semantically.
 
 ### 2. Expect "LF will be replaced by CRLF" warnings — they are correct
 
@@ -102,14 +101,14 @@ warning: LF will be replaced by CRLF in src/some-file.ts.
 The file will have its original line endings in your working tree
 ```
 
-This warning is correct behavior in a `text=auto eol=lf` repo: git is telling you that
-your working-tree copy will have CRLF (because Windows), but the stored blob will be LF.
+This is correct behavior in a `text=auto eol=lf` repo. Git is telling you that your
+working-tree copy will have CRLF (because Windows) while the stored blob stays LF.
 **Do not suppress or work around this warning.** It confirms the attribute is working.
 
 ### 3. Normalize CRLF to LF before any regex that contains \n
 
-Any function that parses text content received from disk, the network, or an editor
-must normalize line endings before applying regex or string-split operations:
+Any function that parses text read from disk, the network, or an editor should normalize
+line endings before running a regex or a string split over it:
 
 ```ts
 // ❌ Before — regex breaks silently on CRLF input
@@ -130,14 +129,14 @@ const parseFrontmatter = (raw: string): Record<string, string> => {
 };
 ```
 
-The normalization step has no cost on LF-only input (`\r\n` does not appear, replace is
-a no-op). It is always safe to call.
+On LF-only input the normalization costs nothing: `\r\n` never appears, so the replace is
+a no-op. It is always safe to call.
 
 ### 4. Apply normalization at the I/O boundary, not at each use site
 
-The correct place to normalize is when the string enters the system — when reading from
-disk, receiving a network response, or accepting editor input. Internal functions then
-receive an already-normalized string and do not need to handle both cases.
+Normalize where the string enters the system: reading from disk, receiving a network
+response, accepting editor input. Internal functions then get an already-normalized
+string and never have to handle both cases.
 
 ```ts
 // src/fs/read-file.ts
@@ -151,9 +150,9 @@ export const readTextFile = async (path: string): Promise<string> => {
 // Internal callers receive LF-only strings; no per-function normalization needed
 ```
 
-This mirrors the [validate-at-the-boundary](/kb/typescript/validate-at-the-boundary)
-principle applied to line endings: normalize once at the entry point, trust the
-normalized form internally.
+It is the [validate-at-the-boundary](/kb/typescript/validate-at-the-boundary) principle
+applied to line endings: normalize once at the entry point, then trust the normalized
+form everywhere inside.
 
 ### 5. .editorconfig to prevent editors from writing CRLF
 
@@ -170,8 +169,8 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 ```
 
-Most editors (VS Code, JetBrains, Vim) respect `.editorconfig` automatically. This
-reduces the frequency of CRLF-ending files being staged in the first place.
+VS Code, JetBrains, and Vim respect `.editorconfig` automatically, which cuts down on
+CRLF-ending files getting staged in the first place.
 
 ## Anti-patterns
 
@@ -213,8 +212,8 @@ const lines = content.split('\n');
    ```
 
 2. **Biome formatter enforces LF.** With `"formatter": { "lineEnding": "lf" }` in
-   `biome.json`, `bunx biome ci .` fails if any file has CRLF line endings. This catches
-   any CRLF files that were committed before `.gitattributes` was added.
+   `biome.json`, `bunx biome ci .` fails if any file has CRLF line endings. That catches
+   any CRLF files committed before `.gitattributes` was added.
 
    ```json
    {
@@ -231,7 +230,7 @@ const lines = content.split('\n');
 ## See also
 
 The silent-wrong-result failure mode of CRLF in regex is the same category as
-[never hand-roll a YAML parser](/kb/error-handling/no-self-rolled-yaml): the code appears
-to work, no error is thrown, and the corruption only surfaces downstream when the
-wrong result is consumed. Both incidents affected the same content pipeline on the same
-day (2026-04-12).
+[never hand-roll a YAML parser](/kb/error-handling/no-self-rolled-yaml): the code looks
+like it works, nothing throws, and the corruption only surfaces downstream when something
+consumes the wrong result. Both incidents hit the same content pipeline on the same day
+(2026-04-12).

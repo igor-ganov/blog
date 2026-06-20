@@ -20,17 +20,17 @@ updated: 2026-06-08
 ---
 
 At build time Vite replaces every `import.meta.env.VITE_*` reference with the string
-literal value of that variable taken from `process.env` on the build machine. There is no
-runtime lookup. The deployed bundle contains the literal. If `process.env.VITE_GITHUB_CLIENT_ID`
-is `"gh-client-abc123"` during the build, the bundle ships `"gh-client-abc123"`. If it is
-`undefined`, the bundle ships `"undefined"` — or, with a nullish coalescing fallback, `""`.
+literal value of that variable, read from `process.env` on the build machine. There is no
+runtime lookup. The deployed bundle just contains the literal. If `process.env.VITE_GITHUB_CLIENT_ID`
+is `"gh-client-abc123"` during the build, the bundle ships `"gh-client-abc123"`. If the var
+is `undefined`, the bundle ships `"undefined"`, or, with a nullish coalescing fallback, `""`.
 
-A GitHub Actions runner is a clean Ubuntu VM. It does not read your `.env` file. Variables
+A GitHub Actions runner is a clean Ubuntu VM and does not read your `.env` file. Variables
 only exist if you declare them explicitly under `env:` in the workflow, sourced from
 `vars.*` (repository variables) or `secrets.*`.
 
-The gap between "works locally" and "broken in CI" is purely about what is present in the
-environment at the moment `vite build` or `astro build` runs.
+So the gap between "works locally" and "broken in CI" comes down entirely to what happens
+to be present in the environment at the moment `vite build` or `astro build` runs.
 
 ## Why this matters
 
@@ -50,23 +50,23 @@ const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID ?? '';
 const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&...`;
 ```
 
-The CI workflow had no `env:` block for `VITE_GITHUB_CLIENT_ID`. The build succeeded —
-Vite replaced the reference with `undefined`, the `?? ''` kicked in, and the bundle
-shipped `client_id=` as an empty string. The build is green; the deploy is green; the
-site is up. The symptom only appears when a user clicks "Sign in with GitHub":
+The CI workflow had no `env:` block for `VITE_GITHUB_CLIENT_ID`, so the build happily
+succeeded. Vite replaced the reference with `undefined`, the `?? ''` kicked in, and the
+bundle shipped `client_id=` as an empty string. Green build, green deploy, site up. The
+symptom only appears when a user clicks "Sign in with GitHub":
 
 ```
 GET https://github.com/login/oauth/authorize?client_id=&redirect_uri=...
 → 404
 ```
 
-GitHub returns a generic 404, not an OAuth error page. The symptom looks exactly like
-"the OAuth app has been deleted or transferred." The team spent roughly an hour ruling
-out account-level changes before a network tab inspection revealed `client_id=`.
+GitHub returns a generic 404, not an OAuth error page, so the symptom reads exactly like
+"the OAuth app has been deleted or transferred." The team spent about an hour ruling out
+account-level changes before a network tab inspection turned up the empty `client_id=`.
 
-The fix required: identifying that the workflow lacked the variable, adding it from the
-repository's `vars.*` store, and re-running the build. The entire outage was caused by
-a missing three-line addition to the workflow file.
+The fix was small: spot that the workflow lacked the variable, add it from the repository's
+`vars.*` store, re-run the build. A three-line addition to the workflow file would have
+prevented the whole outage.
 
 **Secondary finding, 2026-06-08, a Jira client app (Astro + Cloudflare Workers).**
 
@@ -75,15 +75,15 @@ Astro's `astro:env` module has two variable classes:
 - `PUBLIC_*` variables are inlined at build time — identical to Vite's behavior.
 - `SECRET_*` variables are accessed at request time and validated at module initialisation.
 
-The validation for secret variables happens when the module is first imported. If a secret
-is absent from the worker's environment (not set via `wrangler secret put`), every route
-that touches that module throws a 500 before any handler logic runs. This caused a full
-worker outage after a fresh deployment to a new environment where secrets had not yet been
+Validation for secret variables runs when the module is first imported. If a secret is
+absent from the worker's environment (not set via `wrangler secret put`), every route that
+touches that module throws a 500 before any handler logic runs. That took out a worker
+entirely after a fresh deployment to a new environment where the secrets had not yet been
 provisioned.
 
-A second trap on the same project: using `wrangler secret put NAME` interactively uploaded
+A second trap on the same project: running `wrangler secret put NAME` interactively uploaded
 an empty string when the terminal was attached to a pipeline that provided no stdin.
-The secret was "set" — Cloudflare accepted it — but its value was `""`. Always pipe the
+Cloudflare accepted it, so the secret looked "set", but its value was `""`. Always pipe the
 value explicitly:
 
 ```sh
@@ -127,13 +127,13 @@ jobs:
 ```
 
 Variables that carry no secrets belong in `vars.*` (visible in the UI, not redacted in
-logs). Variables that carry secrets belong in `secrets.*` (redacted). Neither is read
-from `.env`.
+logs). Anything secret belongs in `secrets.*`, which redacts it. Neither is read from
+`.env`.
 
 ### 3. Fail loudly on a missing variable
 
-Replace silent fallbacks with build-time guards. A guard that throws prevents a
-successful build from producing a broken artifact:
+Replace silent fallbacks with build-time guards. A guard that throws stops a successful
+build from producing a broken artifact:
 
 ```ts
 // src/env.ts — import this instead of importing import.meta.env directly
@@ -173,9 +173,9 @@ export default defineConfig({
 ### 4. Never give a server secret the VITE_ prefix
 
 A variable prefixed `VITE_` is inlined into the client bundle and visible to anyone who
-downloads the page. If you have a Cloudflare API token, a database password, or any
-credential that must not be client-visible, it must not have the `VITE_` prefix — even
-if the code that uses it runs on the server side of a Vite-based project.
+downloads the page. A Cloudflare API token, a database password, any credential that must
+not be client-visible must not carry the `VITE_` prefix, even when the code that reads it
+only runs on the server side of a Vite-based project.
 
 ```ts
 // ❌ Token visible in the client bundle
@@ -252,10 +252,10 @@ wrangler secret put CF_API_TOKEN   // reads stdin; stdin is /dev/null in CI
 
 ## See also
 
-After a build-time env outage, the recovery follows [restore-prod-first incident order](/kb/build-ci-deploy/restore-prod-first-incident-order):
+After a build-time env outage, recovery follows [restore-prod-first incident order](/kb/build-ci-deploy/restore-prod-first-incident-order):
 hot-fix the workflow, confirm the green deploy, then open the root-cause PR that adds the
-`requireEnv` guard. Do not write the guard first while the site is down.
+`requireEnv` guard. Don't write the guard first while the site is down.
 
-The Cloudflare Workers runtime behavior of `astro:env` is also covered in
+The Cloudflare Workers runtime behavior of `astro:env` shows up again in
 [no-ssr-custom-elements-on-edge](/kb/web-components/no-ssr-custom-elements-on-edge),
-which describes other module-init pitfalls on edge runtimes.
+which covers other module-init pitfalls on edge runtimes.

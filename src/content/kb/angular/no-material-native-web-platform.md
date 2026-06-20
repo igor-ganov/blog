@@ -16,47 +16,45 @@ order: 6
 updated: 2026-06-10
 ---
 
-Angular Material is a complete design system: opinionated visual language, theming
-tokens, a suite of pre-built components, and a custom animation library. That completeness
-is its cost. When a project has committed to Material Design — its typography scale,
-elevation model, and component behaviours — Angular Material is a sensible dependency.
-When the project has its own design language, adding Angular Material to get a button
-or a dialog is taking on a full system in order to use one part.
+Angular Material is a whole design system. It brings an opinionated visual language, theming
+tokens, a suite of pre-built components, and a custom animation library, and that completeness
+is what you pay for. If a project has committed to Material Design (its typography scale,
+elevation model, and component behaviours), Angular Material earns its place. If the project
+already has its own design language, pulling in Angular Material just to get a button or a
+dialog means adopting a full system to use one slice of it.
 
-The rule is situational: **check first**. If the project already uses Angular Material,
-stay consistent and keep using it. If it does not, reach for the Web Platform — the
-platform already ships dialogs, popovers, transitions, and scroll-driven animations.
+So the rule depends on the project. **Check first.** A project that already uses Angular
+Material should keep using it for consistency. A project that does not should reach for the
+Web Platform, which already ships dialogs, popovers, transitions, and scroll-driven animations.
 
 ## Why this matters
 
 ### Bundle cost
 
 Angular Material pulls in `@angular/cdk`, its own theming SCSS, and a set of component
-modules. Even with tree-shaking, adding a dialog component adds tens of kilobytes of
-compiled CSS and JavaScript. A native `<dialog>` element is zero kilobytes — it is part
-of the browser.
+modules. Even with tree-shaking, a single dialog component adds tens of kilobytes of
+compiled CSS and JavaScript. A native `<dialog>` element costs zero kilobytes, because it
+already ships in the browser.
 
 ### Mismatch with a custom design
 
 A custom design system and Angular Material fight each other. Material's component
-internals have their own CSS variable namespace, their own elevation scale, their own
-motion tokens. Overriding them in a theme file is possible but brittle: Material's
-internal variable names change between major versions. A WebRTC platform project
-chose headless, custom components on web platform primitives precisely to avoid this
-coupling — each component style lives entirely under the project's own design tokens.
+internals carry their own CSS variable namespace, their own elevation scale, and their own
+motion tokens. You can override them in a theme file, but it's brittle work, because
+Material's internal variable names change between major versions. A WebRTC platform project
+chose headless, custom components on web platform primitives specifically to dodge this
+coupling, so that each component's style lives entirely under the project's own design tokens.
 
 ### Angular animations vs. native CSS
 
-Angular's `@angular/animations` module provides a JavaScript-driven animation system.
-It ships its own runtime, it must be bootstrapped with `provideAnimations()`, and it
-drives animations through programmatic state changes. Native CSS handles the same use
-cases — transitions, keyframe animations, scroll-driven effects, `View Transitions API`
-— with zero JavaScript overhead, lower latency (no JS-to-style bridge), and hardware
-acceleration by default.
+Angular's `@angular/animations` module is a JavaScript-driven animation system. It ships
+its own runtime, has to be bootstrapped with `provideAnimations()`, and drives animations
+through programmatic state changes. Native CSS covers the same ground (transitions, keyframe
+animations, scroll-driven effects, the `View Transitions API`) with no JavaScript overhead,
+lower latency since there is no JS-to-style bridge, and hardware acceleration by default.
 
-For discrete UI state (a button hover, a badge appearing, a drawer sliding in), a CSS
-`transition` on a class change triggered by a signal is simpler, faster, and requires
-no additional imports.
+For discrete UI state such as a button hover, a badge appearing, or a drawer sliding in, a CSS
+`transition` on a class change triggered by a signal does the job with no extra imports.
 
 ## How to apply
 
@@ -73,7 +71,7 @@ cat package.json | grep '@angular/material'
 
 ### Use native HTML for interactive elements
 
-The modern HTML specification ships interactivity that previously required a library.
+Modern HTML ships interactivity that used to require a library.
 
 **Dialog / modal**
 
@@ -142,8 +140,8 @@ export class ConfirmDialogComponent {
 
 **Popover**
 
-The Popover API is now baseline-available in all modern browsers. A `popover` attribute
-and a `popovertarget` attribute replace a floating-panel component entirely:
+The Popover API is now baseline-available across modern browsers. A `popover` attribute
+plus a `popovertarget` attribute replace a floating-panel component outright:
 
 ```typescript
 @Component({
@@ -217,7 +215,7 @@ export class PanelComponent {
 }
 ```
 
-For entrance/exit animations, CSS `@starting-style` (baseline 2024) removes the last
+For entrance and exit animations, CSS `@starting-style` (baseline 2024) takes away the last
 reason to use Angular animations for discrete state transitions:
 
 ```css
@@ -239,13 +237,13 @@ scroll()`) is baseline 2024 and needs zero JavaScript.
 
 ### Headless custom components over library wrappers
 
-A WebRTC platform and a headless web-component library use headless custom components: a component defines
-behaviour and exposes ARIA-correct markup; all styling comes from the host project's
-design tokens. This approach:
+A WebRTC platform and a headless web-component library both use headless custom components.
+A component defines behaviour and exposes ARIA-correct markup, while all styling comes from
+the host project's design tokens. What you get from that:
 
-- Has no dependency on a third-party component library version.
-- Does not inherit opinionated CSS that must be overridden.
-- Stays accessible because ARIA is explicit and auditable in the template.
+- No dependency on a third-party component library version.
+- No inherited opinionated CSS that you then have to override.
+- Accessibility you can audit, because ARIA is explicit in the template.
 
 ```typescript
 // A headless tabs component — behaviour only; styling entirely via CSS variables
@@ -297,7 +295,7 @@ export class TabsComponent {
 }
 ```
 
-No library, no CDK, no Material — just the platform.
+No library, no CDK, no Material, just the platform.
 
 ## Anti-patterns
 
@@ -330,6 +328,6 @@ bootstrapApplication(AppComponent, {
 ## See also
 
 - [ARIA on the real element](/kb/web-components/aria-on-the-real-element) — the
-  accessibility approach that informs the headless component pattern used here.
+  accessibility approach behind the headless component pattern used here.
 - [Minimalism and schematic design](/kb/design-ux/minimalism-no-emoji-schematic) — the
-  design philosophy that pairs with building lean, token-driven components.
+  design philosophy that goes with building lean, token-driven components.

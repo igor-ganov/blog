@@ -16,23 +16,24 @@ order: 7
 updated: 2026-06-11
 ---
 
-A Service Worker acting as a backend-for-frontend ends up holding the user's token —
-it has to, to do its job. Routes inside it then execute GitHub API calls with that
-token. The subtle failure: the SW serves *every* script running on the origin, not
-just the well-behaved UI components you wrote. If a privileged route trusts its
-caller, any same-origin script — an XSS foothold, a compromised dependency, a
-malicious browser extension with page access — can drive it.
+A Service Worker acting as a backend-for-frontend ends up holding the user's token;
+it has no choice, that is its job. Routes inside it then execute GitHub API calls
+with that token. Here is the failure mode that is easy to miss. The SW serves
+*every* script running on the origin, not only the well-behaved UI components you
+wrote. A privileged route that trusts its caller can be driven by any same-origin
+script, whether that is an XSS foothold, a compromised dependency, or a browser
+extension with page access.
 
 That is the classic confused deputy: a component with authority (the token)
 performing actions on behalf of a caller with less authority, without checking.
 
-On a content-admin SPA (2026-06-11) the audit found three SW routes —
-`POST /api/github/org-role` (change anyone's role), `POST /api/github/org-invite`,
-and the invite revoke — executing with the stored admin token and **no role check**.
-The painful part: the roles-config routes *in the same directory* had the check.
-The pattern existed; it just wasn't applied to the newer handlers. One
+On a content-admin SPA (2026-06-11) the audit found three SW routes executing with
+the stored admin token and **no role check**: `POST /api/github/org-role` (change
+anyone's role), `POST /api/github/org-invite`, and the invite revoke. The roles-config
+routes *in the same directory* did have the check. So the pattern already existed, it
+just never got applied to the newer handlers. One
 `fetch('/api/github/org-role', {method: 'POST', body: '{"login":"me","role":"admin"}'})`
-from any same-origin context and the RBAC model is decoration.
+from any same-origin context turns the whole RBAC model into decoration.
 
 ## How to apply
 
@@ -50,17 +51,17 @@ return requireAdmin() ?? performPrivilegedThing(cfg, body)
 ```
 
 The `??` shape keeps the handler declarative: the gate returns a 403 `Response` or
-`undefined`, and the real work only runs when the gate passes.
+`undefined`, and the real work only runs once the gate passes.
 
 Two design points matter more than the snippet:
 
 - **The check re-derives authorization from state the caller cannot set.** Here the
-  role resolves from the org's roles file and the org-admin cache — not from a
-  request field, not from anything postMessage can carry.
+  role resolves from the org's roles file and the org-admin cache. It never reads a
+  request field or anything postMessage can carry.
 - **GitHub still enforces token scopes underneath.** The SW gate is defence in
-  depth, but it is the layer that turns "any XSS = org takeover" into "XSS is
-  contained to what the current user could do anyway" — which is the whole point of
-  having roles.
+  depth. Its job is to turn "any XSS means org takeover" into "XSS is contained to
+  what the current user could already do anyway", which is the entire reason roles
+  exist.
 
 ## Anti-patterns
 
@@ -74,9 +75,9 @@ export const handleSetRole = async (request: Request) =>
 v-if="role === 'admin'" // hides the button; the route still answers anyone
 ```
 
-Symptom: nothing, until someone hostile finds it. Privilege checks that exist only
-in templates produce no errors and no logs — the audit finding is usually the first
-signal.
+Symptom: nothing, until someone hostile finds it. Privilege checks that live only in
+templates produce no errors and no logs, so the audit finding is usually the first
+signal you get.
 
 ## Enforcement
 

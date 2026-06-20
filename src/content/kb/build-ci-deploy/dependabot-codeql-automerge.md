@@ -16,24 +16,24 @@ order: 6
 updated: 2026-06-10
 ---
 
-A public repository accumulates security exposure over time as its dependencies age.
-Dependabot surfaces that exposure automatically. Left without guardrails, Dependabot PRs
-accumulate and are either merged without review (risky) or ignored until they become
-toil (also risky). The pattern described here automates the low-risk work — patch and
-minor updates — and forces human attention on the high-risk work — major updates and
-security advisories that require judgment.
+A public repository accumulates security exposure as its dependencies age, and Dependabot
+surfaces that exposure for you. Without guardrails, though, Dependabot PRs pile up. You
+either merge them blind or let them rot into a backlog nobody touches, and both options
+carry risk. This pattern automates the low-risk work (patch and minor updates) and forces
+a human to look at the high-risk work: major updates and security advisories that need a
+judgment call.
 
-The four components work together: Dependabot finds the updates, CodeQL scans the code
-for introduced vulnerabilities, CI verifies the build still passes, and the auto-merge
-workflow closes the loop for safe updates without human time.
+There are four moving parts. Dependabot finds the updates, CodeQL scans the code for
+introduced vulnerabilities, CI checks that the build still passes, and the auto-merge
+workflow merges the safe updates so nobody has to.
 
 ## Why this matters
 
 **A headless web-component library, 2026-06-10.**
 
-The library is a public repo. It needed a sustainable
-security maintenance posture without requiring a developer to manually review and merge
-routine dependency bumps every week. The design goals:
+The library is a public repo. It needed a maintenance posture that stays secure over time
+without making a developer hand-review and merge routine dependency bumps every week. The
+design goals:
 
 - Patch and minor updates merge automatically if CI passes — zero human time.
 - Major updates require a human: they may include breaking API changes.
@@ -41,8 +41,8 @@ routine dependency bumps every week. The design goals:
 - Code introduced by dependencies is scanned for known vulnerability patterns.
 - PRs that pull in high-severity advisories are blocked at the CI gate, not just flagged.
 
-The full setup lives in `.github/` and is configured partly via workflow files and partly
-via the GitHub API (repository settings that cannot be expressed in files).
+The full setup lives in `.github/`. Some of it is workflow files; the rest is repository
+settings applied through the GitHub API, since they can't be expressed in files.
 
 ## How to apply
 
@@ -75,10 +75,10 @@ updates:
         patterns: ["*"]
 ```
 
-The `groups` key collapses multiple package updates into a single PR, which reduces the
-number of PRs to review or auto-merge from potentially dozens per week to one or two.
-Security updates are not grouped — they open immediately when a vulnerability is published,
-regardless of the weekly schedule.
+The `groups` key collapses multiple package updates into one PR, which cuts the number of
+PRs to review or auto-merge from potentially dozens a week down to one or two. Security
+updates are never grouped. They open the moment a vulnerability is published, ignoring the
+weekly schedule.
 
 ### .github/workflows/codeql.yml
 
@@ -122,9 +122,9 @@ jobs:
           category: /language:javascript-typescript
 ```
 
-The `security-extended` query suite adds coverage for injection, path traversal,
-prototype pollution, and other CWE categories that the default suite omits. The weekly
-cron run catches vulnerabilities in unchanged code when a new CVE is published.
+The `security-extended` query suite covers injection, path traversal, prototype pollution,
+and other CWE categories the default suite skips. The weekly cron run is what catches a
+vulnerability in code that hasn't changed, once a new CVE lands for it.
 
 ### .github/workflows/ci.yml
 
@@ -174,10 +174,10 @@ jobs:
           comment-summary-in-pr: always
 ```
 
-The `dependency-review` job is the gate that prevents Dependabot from auto-merging a
-security update that is actually a downgrade to a version with an advisory. It compares
-the dependency tree before and after the PR and fails if any new dependency has a
-high-or-critical severity advisory.
+The `dependency-review` job is the gate that stops Dependabot from auto-merging a "security
+update" that is really a downgrade to a version with an advisory. It diffs the dependency
+tree before and after the PR and fails if any new dependency carries a high-or-critical
+severity advisory.
 
 ### .github/workflows/dependabot-auto-merge.yml
 
@@ -218,18 +218,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-`gh pr merge --auto` enables the merge only when all required status checks pass. It does
-not approve the PR — GitHub Actions cannot approve PRs on behalf of the repo owner for
-security reasons. The merge fires when CI (verify + dependency-review + codeql) is green.
+`gh pr merge --auto` arms the merge only once all required status checks pass. It does not
+approve the PR; GitHub Actions can't approve PRs on the repo owner's behalf, by design. The
+merge fires when CI (verify + dependency-review + codeql) goes green.
 
-Majors are excluded intentionally. A major version bump may remove APIs, change default
-behavior, or require config migration. CI passing on a major is a necessary but not
-sufficient condition for safe merge. A human must read the changelog.
+Majors stay out of this on purpose. A major bump can remove APIs, change default behavior,
+or demand a config migration. Green CI on a major tells you the build compiles, not that
+the upgrade is safe. Someone has to read the changelog.
 
 ### Repository settings via gh api
 
-The following settings cannot be expressed in workflow files. Apply them once after the
-repo is created:
+These settings can't be expressed in workflow files. Apply them once, after the repo
+exists:
 
 ```sh
 REPO="my-org/web-components"
@@ -263,9 +263,10 @@ gh api repos/$REPO/branches/main/protection \
 EOF
 ```
 
-`enforce_admins: false` keeps admin direct-push working, which is useful for emergency
-hotfixes. `required_conversation_resolution: true` prevents merging a PR that has
-unresolved review comments — relevant for major update PRs that go through human review.
+`enforce_admins: false` keeps admin direct-push working, which you want for emergency
+hotfixes. `required_conversation_resolution: true` blocks merging a PR that still has
+unresolved review comments, which matters for the major-update PRs that go through human
+review.
 
 ## Anti-patterns
 
@@ -296,14 +297,14 @@ if: steps.metadata.outputs.update-type != 'version-update:semver-major'
 
 ## Enforcement
 
-The enforcement is structural: the branch protection rule requires the `Verify` check to
-pass before any merge is allowed. Auto-merge fires only when checks pass. Majors never
-auto-merge. There is no manual step that can be skipped.
+Enforcement is structural. The branch protection rule requires the `Verify` check to pass
+before any merge is allowed, auto-merge fires only when checks pass, and majors never
+auto-merge. There's no manual step left to skip.
 
 Review the setup quarterly:
 - Confirm CodeQL is still analyzing with `security-extended`.
 - Confirm `dependency-review` fail-on-severity is still `high`.
-- Confirm no major-update PRs have accumulated unreviewed for more than two weeks.
+- Confirm no major-update PRs have sat unreviewed for more than two weeks.
 
-A major-update PR that sits open for more than two weeks is a signal that the human
-review step is too expensive and needs process attention, not automation bypass.
+When a major-update PR sits open past two weeks, the human review step has become too
+expensive. Fix the process, don't reach for an automation bypass.

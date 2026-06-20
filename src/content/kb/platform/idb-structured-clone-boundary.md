@@ -16,28 +16,26 @@ order: 1
 updated: 2026-04-30
 ---
 
-IndexedDB uses the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
-to serialise values. The algorithm is stricter than `JSON.stringify`: where JSON silently
-drops functions and `undefined`, structured clone **throws** a `DOMException`. The
-throw is synchronous, it surfaces immediately when `IDBObjectStore.put()` is called,
-and if the call site is `void appendEntry(entry)` — fire-and-forget — the exception
-lands in a rejected promise that nobody is listening to. The app continues running. The
-entry was silently not persisted. The user sees no error.
+IndexedDB serialises values with the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm),
+which is stricter than `JSON.stringify`. Where JSON silently drops functions and
+`undefined`, structured clone **throws** a `DOMException`. The throw is synchronous and
+surfaces the moment `IDBObjectStore.put()` runs. If the call site is fire-and-forget
+(`void appendEntry(entry)`), that exception lands in a rejected promise nobody listens
+to, so the app keeps running, the entry never gets persisted, and the user sees nothing.
 
-On a content-admin SPA (2026-04-30) this was the exact failure mode.
-`NotificationEntry.cta.action` was a callback function — a value perfectly reasonable
-in memory but illegal at the IDB boundary. The persist call was `void`-prefixed fire-
-and-forget. The `DOMException: Failed to execute 'put' on 'IDBObjectStore': #<Object>
-could not be cloned` was thrown, rejected the internal promise, and disappeared. The
-notification history store appeared to work (no console error in normal operation) while
-silently accumulating no data.
+That was the exact failure on a content-admin SPA (2026-04-30).
+`NotificationEntry.cta.action` was a callback function, fine to hold in memory but
+illegal at the IDB boundary. The persist call was `void`-prefixed fire-and-forget, so
+the `DOMException: Failed to execute 'put' on 'IDBObjectStore': #<Object> could not be
+cloned` was thrown, rejected the internal promise, and vanished. The notification
+history store looked like it worked (no console error during normal use) while quietly
+storing nothing.
 
 ## Why this matters
 
 ### `JSON.stringify` is not a safe analogy
 
-A common assumption is that "if JSON serialisation works, IDB persistence works". This
-is wrong.
+People assume that if JSON serialisation works, IDB persistence works. It doesn't.
 
 ```ts
 const entry = {
@@ -59,9 +57,9 @@ structuredClone(entry);
 // → DOMException: Failed to execute 'structuredClone': () => ... could not be cloned.
 ```
 
-IDB behaves like `structuredClone`, not like `JSON.stringify`. If your existing
-persistence "works" but you have callbacks in your data objects, it is failing silently.
-Verify with `structuredClone()` locally before trusting IDB persistence.
+IDB matches `structuredClone`, not `JSON.stringify`. If your persistence appears to
+work but you have callbacks sitting in your data objects, it is failing silently.
+Run the value through `structuredClone()` locally before you trust IDB to hold it.
 
 ### The framework proxy problem
 
@@ -73,10 +71,10 @@ fields. However:
 - Pinia store objects returned from `useStore()` are reactive Proxies.
 - `reactive()` objects can contain non-cloneable internal slots.
 
-When you persist a Pinia store slice directly to IDB, you are persisting a Proxy, which
-throws. The fix is not to check "is this a Vue ref?" — it is to have an explicit
-`toPersistable()` step that materialises the data to a plain-object snapshot before
-it touches the persistence layer.
+Persist a Pinia store slice straight to IDB and you are persisting a Proxy, which
+throws. Don't try to sniff out "is this a Vue ref?" at write time. Add an explicit
+`toPersistable()` step that materialises the data into a plain-object snapshot before
+it ever touches the persistence layer.
 
 ```ts
 // Bad: persisting a Pinia store slice directly — it is a Proxy.
@@ -89,7 +87,7 @@ await db.put('notifications', notifStore.entries.map(toPersistable));
 
 ### The `void` + no error handler combination
 
-The second factor in the incident was the call site:
+The second factor in the incident was the call site itself:
 
 ```ts
 // The call site — fire-and-forget with no error handler.
@@ -103,22 +101,22 @@ const appendEntry = async (entry: NotificationEntry): Promise<void> => {
 ```
 
 `void` discards the returned Promise. A `DOMException` thrown inside an `async`
-function becomes a rejected Promise. A rejected Promise with no `.catch()` and no
-`await` at any level produces an unhandled rejection. In a service worker, unhandled
-rejections are sometimes swallowed silently. The result: the exception is thrown, the
-data is not written, and nothing is logged.
+function becomes a rejected Promise, and a rejected Promise with no `.catch()` and no
+`await` anywhere up the chain produces an unhandled rejection. Service workers sometimes
+swallow those silently. So the exception is thrown, the data is not written, and nothing
+is logged.
 
-The combined lesson: a `toPersistable` boundary is required, AND fire-and-forget IDB
-calls must forward their rejection to somewhere it can be seen — see [never swallow an
-error](/kb/error-handling/never-swallow-errors).
+Two things have to be true together: you need a `toPersistable` boundary, and any
+fire-and-forget IDB call has to forward its rejection somewhere visible. See [never
+swallow an error](/kb/error-handling/never-swallow-errors).
 
 ## How to apply
 
 ### Define a `toPersistable` boundary
 
-Create an explicit function at the persistence boundary that transforms the in-memory
-representation to a structured-clone-safe plain object. The function strips known
-non-cloneable fields and materialises any Proxy or class instance.
+Put a single function at the persistence boundary that turns the in-memory
+representation into a structured-clone-safe plain object. It strips the known
+non-cloneable fields and materialises any Proxy or class instance into plain data.
 
 ```ts
 // src/notifications/to-persistable.ts
@@ -171,14 +169,14 @@ export const appendEntry = async (
 };
 ```
 
-The development-only `structuredClone(safe)` is a fast local verification. It throws
-at the call site — not inside the IDB transaction — and includes the field that failed
-in the error message, making the missing `toPersistable` case easy to diagnose.
+The development-only `structuredClone(safe)` is a cheap local check. It throws at the
+call site rather than deep inside the IDB transaction, and it names the offending field
+in the error message, so a missing `toPersistable` case is easy to track down.
 
 ### Forward IDB errors from fire-and-forget calls
 
-If `appendEntry` is called fire-and-forget (no `await`), the rejection must still be
-routed somewhere visible:
+When `appendEntry` runs fire-and-forget with no `await`, route the rejection somewhere
+you can actually see it:
 
 ```ts
 // src/notifications/history-store.ts
@@ -195,8 +193,8 @@ appendEntry(db, entry).catch((error) => {
 
 ### Diagnosing an existing IDB silent failure
 
-If an IDB write appears to succeed (no console error in normal operation) but data is
-not appearing on read, the structured-clone failure is the first thing to check:
+When an IDB write looks like it succeeded (no console error during normal use) but the
+data never shows up on read, check for a structured-clone failure first:
 
 1. Open the browser console.
 2. Listen for `pageerror` events (or add a `window.addEventListener('unhandledrejection',
@@ -205,8 +203,8 @@ not appearing on read, the structured-clone failure is the first thing to check:
 4. If a `DOMException: ... could not be cloned` appears, the boundary is missing.
 
 In Playwright tests, add `page.on('pageerror', (err) => { throw err; })` to the test
-setup — it surfaces the DOMException synchronously during the test run, where it
-normally disappears into the service worker's void.
+setup. It surfaces the DOMException synchronously during the run, in the spot where it
+would otherwise disappear into the service worker.
 
 ## Anti-patterns
 
@@ -245,10 +243,10 @@ void appendEntry(entry); // rejection silently swallowed
 
 ## See also
 
-[Never swallow an error](/kb/error-handling/never-swallow-errors) — the companion
-rule: once the `toPersistable` boundary is in place, the IDB write's rejected Promise
-must still reach an error handler, not disappear into a `void`.
+[Never swallow an error](/kb/error-handling/never-swallow-errors) is the companion
+rule. Once the `toPersistable` boundary is in place, the IDB write's rejected Promise
+still has to reach an error handler instead of disappearing into a `void`.
 
-[Wait for service worker settle](/kb/testing/wait-for-service-worker-settle) — when
-IDB persistence runs inside a service worker, tests must wait for SW initialisation
-to complete before asserting on stored data.
+[Wait for service worker settle](/kb/testing/wait-for-service-worker-settle) covers the
+case where IDB persistence runs inside a service worker: tests have to wait for SW
+initialisation before asserting on stored data.

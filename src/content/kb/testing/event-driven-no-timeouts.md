@@ -24,39 +24,39 @@ order: 1
 updated: 2026-06-12
 ---
 
-A `waitForTimeout(500)` in a test says one of two things: "I do not know what I am
-waiting for," or "the app is not fast or deterministic enough to wait for the real
-signal." Both are bugs. The first is a bug in the test; the second is a bug in the
-application. A timeout papers over whichever one you have, turns green into
-probably-green, and guarantees a flake on the slowest CI run.
+A `waitForTimeout(500)` in a test admits one of two things. Either you do not know
+what you are waiting for, or the app is not fast and deterministic enough to wait for
+the real signal. Both are bugs, one in the test and one in the application, and a
+timeout papers over whichever one you have. It turns a green run into a probably-green
+run and guarantees a flake on the slowest CI machine.
 
-The rule: **tests synchronise on events — DOM events and network events — and nothing
-else.** Event-wait timeouts (the maximum a wait will block before failing) stay
-minimal, because a correct app fires the event promptly. If it does not, you fix the
-app, not the wait.
+So the rule is that tests synchronise on events, meaning DOM events and network events,
+and nothing else. Event-wait timeouts (the maximum a wait will block before failing)
+stay minimal, because a correct app fires the event promptly. If it does not, you fix
+the app, not the wait.
 
 ## Why this matters
 
-The standard for this is uncompromising and predates the test suite: **the app must
-open and respond in under one second, no exceptions** (a desktop UI tool, 2026-03-12). From
-that follows everything else — no idle timeouts as a completion signal, no test
-retries, and the acceptance bar that you **run the tests three times and if any run
-fails, the code is broken and gets rewritten.** Timeouts and retries are explicitly
-called crutches that mask broken code.
+The standard here predates the test suite and does not bend: **the app must
+open and respond in under one second, no exceptions** (a desktop UI tool, 2026-03-12).
+Everything else follows from that. No idle timeouts as a completion signal, no test
+retries, and the acceptance bar is that you **run the tests three times and if any run
+fails, the code is broken and gets rewritten.** Timeouts and retries are crutches that
+mask broken code.
 
-The concrete failure mode that taught the discipline: on the admin panel, a fresh test
-`BrowserContext` races the service worker's install → activate → `controllerchange` →
-`location.reload()` cycle. A test that waited a fixed time, or just `domcontentloaded`,
-would click an element on the about-to-be-discarded DOM, the reload would navigate, and
-the click timed out with "navigated to /". Intermittent, platform-dependent, and
-invisible until CI. The fix was not a longer timeout — it was waiting on the real
-settle signal: a predicate over the SW lifecycle state plus a stable anchor element.
-See [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+Here is the concrete failure that taught the discipline. On the admin panel, a fresh
+test `BrowserContext` races the service worker's install → activate → `controllerchange`
+→ `location.reload()` cycle. A test that waited a fixed time, or just on
+`domcontentloaded`, would click an element on the about-to-be-discarded DOM, the reload
+would navigate away, and the click failed with "navigated to /". Intermittent,
+platform-dependent, invisible until it hit CI. We did not fix it with a longer timeout.
+We waited on the real settle signal: a predicate over the SW lifecycle state plus a
+stable anchor element. See [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
 
-A second-order trap discovered later (2026-06-12): **`networkidle` is a timeout in
-disguise.** It resolves after 500ms of network silence, so every call pays a fixed
-half-second even when the page settled instantly — and a page can be network-idle
-while the thing you care about is still mid-flight. The same goes for any "idle"
+There is a second-order trap we found later (2026-06-12). **`networkidle` is a timeout
+in disguise.** It resolves after 500ms of network silence, so every call pays a fixed
+half-second even when the page settled instantly, and a page can be network-idle while
+the thing you actually care about is still mid-flight. The same applies to any "idle"
 load state used as a completion signal. Wait on the state itself, not on silence.
 
 ## How to apply
@@ -79,9 +79,10 @@ await expect(page.getByTestId(SAVE_CONFIRMATION)).toBeVisible();
 ```
 
 For app state that resolves through several async steps, wait on the user-visible
-consequence — a status region flipping to "idle", a row appearing — using Playwright's
-auto-retrying assertions (`toBeVisible`, `toHaveText`). These poll the DOM and resolve
-the instant the condition is true; they are event-shaped, not time-shaped.
+consequence (a status region flipping to "idle", or a row appearing) using Playwright's
+auto-retrying assertions like `toBeVisible` and `toHaveText`. These poll the DOM and
+resolve the instant the condition holds, so they react to the event rather than to the
+clock.
 
 When a test is genuinely flaky, the playbook is investigative, not cosmetic:
 
@@ -120,7 +121,6 @@ test.
 
 ## See also
 
-This is the testing face of a single belief: deterministic systems over probabilistic
-hacks. The same standard — sub-second response, no idle timeouts, no retries, run it
-three times — is what [no retries, no flakes](/kb/testing/no-retries-no-flakes) makes
-explicit.
+This comes back to one preference: deterministic systems over probabilistic hacks. The
+same standard (sub-second response, no idle timeouts, no retries, run it three times) is
+what [no retries, no flakes](/kb/testing/no-retries-no-flakes) makes explicit.

@@ -17,41 +17,37 @@ order: 1
 updated: 2026-04-26
 ---
 
-A project has phases, and the rules that govern one phase do not automatically govern
-another. The coding conventions in CLAUDE.md — use Angular, organise by feature, use
-signals, set up Storybook — are rules for the **implementation phase**. They say nothing
+A project has phases, and the rules that govern one phase do not automatically carry into
+the next. The coding conventions in CLAUDE.md (use Angular, organise by feature, use
+signals, set up Storybook) are rules for the **implementation phase**. They say nothing
 about the design phase, because at the design phase there is no code yet. Proposing an
-Angular workspace when the user is working in Penpot is not "being thorough". It is a
-category error that shifts the conversation to a different phase the user has not
-requested, wastes their time, and signals that the task description was not read
-carefully.
+Angular workspace while the user is working in Penpot is not thoroughness. It is a
+category error: it shifts the conversation to a phase the user never asked for, wastes
+their time, and signals that nobody read the task description.
 
-On a design-stage project (2026-04-26) this happened literally: the team was working on a
-Penpot mockup task and received a proposal for an Angular workspace + Storybook in
-response. The feedback was direct — the Angular rules do exist and are not wrong, but
-they are **coding rules**. A design task is not a coding task.
+On a design-stage project (2026-04-26) exactly this happened. The team was working on a
+Penpot mockup task and got back a proposal for an Angular workspace plus Storybook. The
+feedback was blunt. The Angular rules do exist and they are not wrong, but they are
+**coding rules**, and a design task is not a coding task.
 
 ## Why this matters
 
 ### The cost of a phase mismatch
 
-When a user says "help me with this mockup in Penpot", they have a specific, bounded
-scope in mind: visual design, layout decisions, component variants, colour tokens,
-typography, prototype flows. Responding with a framework proposal forces them to either:
+When a user says "help me with this mockup in Penpot", the scope is bounded: visual
+design, layout decisions, component variants, colour tokens, typography, prototype flows.
+A framework proposal forces them into one of two bad outcomes. They can spend time
+rejecting it and steering the conversation back, or they can accept it and end up in the
+wrong phase for the work they actually need. Both are failures. The first burns their
+time; the second drags premature implementation decisions into a stage where the real
+design constraints aren't known yet.
 
-- spend time explicitly rejecting it and redirecting the conversation, or
-- accept it and end up in the wrong phase for the work they actually need.
-
-Either outcome is a failure. The first wastes their time. The second derails the
-project by pulling premature implementation decisions into a stage where they cannot yet
-be informed by the real constraints of the design.
-
-Design decisions and implementation decisions depend on each other, but they are made
-separately. The design phase determines what to build — layout, visual hierarchy,
-interaction model, component boundaries as visual concepts. The coding phase determines
-how to implement it. Collapsing the two forces implementation choices before the design
-is stable, which is how you end up with a component that looks wrong but cannot be
-changed because it is already wired into a state management graph.
+Design decisions and implementation decisions depend on each other, but you make them
+separately. The design phase settles what to build: layout, visual hierarchy, interaction
+model, component boundaries as visual concepts. The coding phase settles how to implement
+it. Collapse the two and you force implementation choices before the design is stable,
+which is how you end up with a component that looks wrong but can't be changed because it
+is already wired into a state management graph.
 
 ### The trigger words
 
@@ -64,12 +60,13 @@ explicitly told otherwise:
 - tokens (design tokens, not auth tokens)
 - component in Penpot
 
-If these words appear, the response scope is: design concepts, design-tool capabilities,
-visual decisions. Code enters the conversation only when the user explicitly asks for it.
+If these words appear, the response stays within design concepts, design-tool
+capabilities, and visual decisions. Code enters the conversation only when the user
+explicitly asks for it.
 
 ## How to apply
 
-When a design task arrives, work entirely within the design tool's domain:
+When a design task arrives, stay within the design tool's domain:
 
 **Typography**
 Discuss typeface choice, weight and size scales, line-height and letter-spacing, optical
@@ -123,20 +120,19 @@ description of the prototype wiring, or drive Penpot directly via the browser MC
 ```
 
 Notice what is absent: no Angular module, no Storybook story, no interface definition,
-no component decorator. Those belong to the implementation phase. At the design phase,
-a token file and a layout spec are complete, correct deliverables.
+no component decorator. Those belong to the implementation phase. At the design phase a
+token file and a layout spec are complete, correct deliverables on their own.
 
 ### Transition to code — only on request
 
 The design phase ends when the user explicitly signals it: "OK, now let's build this",
-"generate the component", "start the Angular project". At that point, and only at that
-point, the coding conventions apply. Until then, keep all responses inside design-tool
-space.
+"generate the component", "start the Angular project". At that point, and only then, the
+coding conventions apply. Until then, keep every response inside design-tool space.
 
 If a design artefact (a token file, a component spec) will need an implementation
-counterpart, it is fine to **note** that in one sentence — "when you are ready to
-implement, these tokens map directly to CSS custom properties" — but do not expand it
-into a framework proposal or a file structure until asked.
+counterpart, you can **note** that in one sentence, for example "when you are ready to
+implement, these tokens map directly to CSS custom properties". Do not expand it into a
+framework proposal or a file structure until someone asks.
 
 ## Anti-patterns
 
@@ -168,11 +164,11 @@ correctness:
 
 ## Enforcement
 
-This is enforced by reading comprehension, not by a linter. The check is: does the
-task description contain any of the design-phase trigger words listed above? If yes,
-restrict the response to design-tool space until a coding request arrives explicitly.
-In pull request review, if a response to a design task contains a framework import or
-a workspace scaffold, that response was wrong regardless of technical quality.
+Reading comprehension enforces this, not a linter. The check is simple: does the task
+description contain any of the design-phase trigger words above? If it does, restrict the
+response to design-tool space until a coding request arrives explicitly. In pull request
+review, a response to a design task that contains a framework import or a workspace
+scaffold was wrong, regardless of how good the code is.
 
 ## See also
 

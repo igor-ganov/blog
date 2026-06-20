@@ -19,30 +19,30 @@ order: 2
 updated: 2026-06-10
 ---
 
-An `if` statement does not tell the compiler how many cases exist. A ternary tells the
-compiler there are exactly two, but it does not tell it whether those two are the only
-ones possible. Neither construct forces exhaustiveness. When a third case is added to a
-union, the compiler stays silent, the unhandled case reaches the runtime, and the error
-surfaces far from where the branch should have been.
+An `if` statement says nothing about how many cases exist. A ternary tells the compiler
+there are exactly two, but not whether those two are the only ones possible. Neither
+construct forces exhaustiveness. Add a third case to a union and the compiler stays
+silent: the unhandled case reaches the runtime, and the error surfaces far from where the
+branch should have been.
 
-**`??` for value-defaulting is acceptable.** It is not control flow — it selects a
-fallback value when a result is absent. The ban applies to branching on application
-logic: `if (status === 'pending')`, `type === 'admin' ? adminView : userView`,
+**`??` for value-defaulting is acceptable.** It selects a fallback value when a result is
+absent, which is not control flow. The ban applies to branching on application logic:
+`if (status === 'pending')`, `type === 'admin' ? adminView : userView`,
 `isLoading && <Spinner />`.
 
 ## Why this matters
 
 A major refactoring of a content-admin SPA (2026-03-24) set an explicit goal: **zero
 `if` statements, zero imperative loops** across the entire codebase. That requirement
-was not theoretical. The preceding state had branching scattered through service-worker
-message handlers, UI components, and data-transform pipelines. Every time a new message
-type or new status was introduced, developers had to grep for every branch point and
-manually add a case. Misses were silent until production.
+came from pain. Branching was scattered through service-worker message handlers, UI
+components, and data-transform pipelines, so every new message type or status forced
+developers to grep for each branch point and add a case by hand. The misses stayed silent
+until production.
 
-The engineering standard (2026-06-07) formalised the rule: every multi-branch must
-be **exhaustive over a closed union** so the compiler proves totality. The mechanism —
-whether `switch` with a `never` default, `Effect/Match`, or a `Record<Key, Fn>` strategy
-map — is secondary to the exhaustiveness guarantee.
+The engineering standard (2026-06-07) formalised the rule: every multi-branch must be
+**exhaustive over a closed union** so the compiler proves totality. The mechanism matters
+less than that guarantee, whether it's `switch` with a `never` default, `Effect/Match`,
+or a `Record<Key, Fn>` strategy map.
 
 The enforcement is lint, not review:
 
@@ -55,8 +55,8 @@ The enforcement is lint, not review:
 **Replace an if-chain with a Record strategy map.**
 
 The strategy map is a plain object that maps every member of a closed union to a
-function. Adding a new union member means adding a new key to the map — the compiler
-flags the map as incomplete before the build passes.
+function. Add a new union member and you must add a new key to the map; the compiler flags
+the map as incomplete before the build passes.
 
 ```ts
 // Bad: if-chain over status — silent when a new status is added
@@ -142,8 +142,8 @@ const toDisplayMessage = Match.type<ApiResult>().pipe(
 );
 ```
 
-`Match.exhaustive` is the compiler proof. Removing a `Match.tag` case causes a type
-error at the declaration site, not a runtime crash at the call site.
+`Match.exhaustive` is the compiler proof. Remove a `Match.tag` case and you get a type
+error at the declaration site rather than a runtime crash at the call site.
 
 **`??` is not banned.**
 
@@ -154,8 +154,8 @@ Value-defaulting is not control flow and is not subject to this rule:
 const label = config.label ?? 'Untitled';
 ```
 
-The rule targets branching on application logic. `??` says "use the right side if the
-left is null or undefined" — there is no application-specific decision being made.
+The rule targets branching on application logic. `??` only says "use the right side if the
+left is null or undefined", so there is no application-specific decision being made.
 
 ## Anti-patterns
 
@@ -184,8 +184,8 @@ switch (status) {
 }
 ```
 
-The symptom of every pattern above is the same: a union grows, the compiler stays
-silent, the new case reaches production unhandled.
+Every pattern above shares one symptom: a union grows, the compiler stays silent, and the
+new case reaches production unhandled.
 
 ## Enforcement
 
@@ -215,6 +215,6 @@ silent, the new case reaches production unhandled.
 }
 ```
 
-These rules run in CI. `eslint-disable` comments are not permitted. When the lint rule
-fires, the correct response is to introduce a strategy map or a proper `switch` — not to
-suppress the warning.
+These rules run in CI, and `eslint-disable` comments are not permitted. When the lint rule
+fires, the fix is to introduce a strategy map or a proper `switch`, never to suppress the
+warning.

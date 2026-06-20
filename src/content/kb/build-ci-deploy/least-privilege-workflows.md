@@ -16,23 +16,24 @@ order: 7
 updated: 2026-06-11
 ---
 
-Three GitHub Actions defaults are wrong for security, and all three are invisible
-until an audit or an incident makes them visible:
+Three GitHub Actions defaults are wrong for security, and you won't see any of them
+until an audit or an incident drags them into the light:
 
-1. **The ambient `GITHUB_TOKEN` defaults to a broad grant** (org/repo setting
-   dependent, historically read/write). Any step — including code inside a
-   compromised action or a malicious transitive dependency running during
-   `bun install` — inherits it.
+1. **The ambient `GITHUB_TOKEN` defaults to a broad grant** (it depends on the
+   org/repo setting, and historically that meant read/write). Every step inherits
+   it, including code inside a compromised action or a malicious transitive
+   dependency that runs during `bun install`.
 2. **Tags are mutable.** `uses: some-org/some-action@v4` re-resolves on every run.
-   A hijacked maintainer account re-points the tag, and the next deploy runs
-   attacker code adjacent to `CLOUDFLARE_API_TOKEN`.
-3. **Job-level `env` hands secrets to every step**, and on `pull_request` events the
-   job runs PR-authored code (GitHub withholds secrets from fork PRs by default,
-   but same-repo PRs and loosened settings both bypass that comfort).
+   Hijack a maintainer account, re-point the tag, and the next deploy runs attacker
+   code sitting right next to `CLOUDFLARE_API_TOKEN`.
+3. **Job-level `env` hands secrets to every step.** On `pull_request` events that
+   job runs PR-authored code. GitHub withholds secrets from fork PRs by default,
+   but same-repo PRs and loosened settings both walk straight past that protection.
 
-On a content-admin SPA and its public site (2026-06-11), the audit found all three
-at once: nine workflows, zero `permissions:` blocks, every action tag-pinned, and a
-sandbox PAT in job-level env on a `pull_request`-triggered E2E workflow.
+On a content-admin SPA and its public site (2026-06-11), the audit turned up all
+three together: nine workflows with zero `permissions:` blocks, every action
+tag-pinned, and a sandbox PAT in job-level env on a `pull_request`-triggered E2E
+workflow.
 
 ## How to apply
 
@@ -45,9 +46,9 @@ permissions:
   contents: read
 ```
 
-Widening happens per job, with the reason visible: a workflow that pushes commits
-uses a dedicated PAT (different blast radius, rotatable) or gets `contents: write`
-on exactly the job that pushes.
+Widen per job, and make the reason obvious. A workflow that pushes commits should
+use a dedicated PAT (different blast radius, and you can rotate it) or get
+`contents: write` on exactly the job that pushes, nowhere else.
 
 Every `uses:` gets a full SHA and a human-readable comment:
 
@@ -56,10 +57,9 @@ Every `uses:` gets a full SHA and a human-readable comment:
 - uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
 ```
 
-The comment is not decoration — dependabot's `github-actions` ecosystem reads it,
-keeps the SHA moving, and updates the comment in the same PR. Pinning without
-dependabot is how you end up running a two-year-old action; add both in the same
-change:
+That comment does real work. Dependabot's `github-actions` ecosystem reads it, keeps
+the SHA moving, and rewrites the comment in the same PR. Pinning without dependabot
+is how you end up running a two-year-old action, so add both in one change:
 
 ```yaml
 # .github/dependabot.yml
@@ -69,8 +69,8 @@ change:
     interval: weekly
 ```
 
-Secrets move from job-level to step-level env, and PR-triggered jobs that touch
-secrets get a same-repo guard:
+Move secrets from job-level to step-level env, and give any PR-triggered job that
+touches a secret a same-repo guard:
 
 ```yaml
 if: >-
@@ -103,7 +103,7 @@ if: ${{ !startsWith(github.event.head_commit.message, 'content:') }}
 
 ## Enforcement
 
-Branch protection makes the E2E/deploy checks *required* so workflow-level gates
-cannot be bypassed by commit-message phrasing. Beyond that: zizmor or actionlint in
-CI both flag missing `permissions:` and unpinned actions; dependabot keeps the pins
-honest.
+Branch protection makes the E2E/deploy checks *required*, so a workflow-level gate
+can't be skipped by phrasing a commit message a certain way. On top of that, zizmor
+or actionlint in CI will flag missing `permissions:` and unpinned actions, and
+dependabot keeps the pins honest.

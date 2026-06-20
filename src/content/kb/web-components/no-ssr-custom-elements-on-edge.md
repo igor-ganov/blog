@@ -18,40 +18,41 @@ updated: 2026-06-10
 ---
 
 Cloudflare Workers is not a browser. It does not expose `HTMLElement`, `customElements`,
-or any of the Web Components APIs. The `@astrojs/lit` integration attempts to render
+or any of the Web Components APIs. The `@astrojs/lit` integration tries to render
 Lit components on the server using `@lit-labs/ssr`, which depends on a DOM polyfill.
-When the SSR renderer runs inside a Cloudflare Worker, it reaches for `HTMLElement` and
-immediately throws `ReferenceError: HTMLElement is not defined`. The worker returns HTTP
+Run that SSR renderer inside a Cloudflare Worker and it reaches for `HTMLElement`, then
+throws `ReferenceError: HTMLElement is not defined`. The worker returns HTTP
 500 before any HTML reaches the client.
 
-This is not a version-specific bug or a configuration oversight. It is an architectural
-mismatch: Cloudflare Workers deliberately excludes the browser DOM surface. Lit's SSR
-path requires it. They cannot coexist.
+This is not a version-specific bug or a configuration oversight. Cloudflare Workers
+deliberately leaves out the browser DOM surface, and Lit's SSR path requires that surface
+to exist. The two cannot run together.
 
-A Jira client app (2026-06-08) encountered this the first time a Lit component was
+A Jira client app (2026-06-08) hit this the first time a Lit component was
 added to an Astro site deployed to Cloudflare Workers. The `@astrojs/lit` integration
 was registered in `astro.config.ts`, the component was used with `client:load`, and
-every edge request resulted in a 500 until the integration was removed and the component
+every edge request returned a 500 until the integration was removed and the component
 was loaded via a plain `<script type="module">` import instead.
 
 ## Why this matters
 
-The `@astrojs/lit` integration exists for a reason: it serialises Lit component HTML on
+The `@astrojs/lit` integration has a job: it serialises Lit component HTML on
 the server so the user sees content before JavaScript loads (progressive enhancement).
-On a Node.js server or in Astro's static output mode, this works. On the edge it does
-not, and there is no workaround short of replacing Cloudflare Workers with a Node.js
+On a Node.js server or in Astro's static output mode, that job gets done. On the edge it
+does not, and there is no workaround short of replacing Cloudflare Workers with a Node.js
 runtime.
 
-The failure is total, not degraded. A missing `HTMLElement` polyfill does not cause the
-component to render without styles — it throws synchronously during module initialisation
-when `@lit-labs/ssr` is imported. Every request crashes. There is no fallback.
+The failure is total rather than degraded. A missing `HTMLElement` polyfill does not
+leave the component rendering without styles. It throws synchronously during module
+initialisation, the moment `@lit-labs/ssr` is imported, so every request crashes with no
+fallback.
 
-A secondary issue compounds this in the same project: Astro's `astro:env` secret variables are
-validated at module initialisation time. If the secrets are not present in the worker
-environment (because they were not bound in the Cloudflare dashboard), the validation
+A second problem compounds this in the same project. Astro's `astro:env` secret variables
+are validated at module initialisation time. If the secrets are not present in the worker
+environment, because they were not bound in the Cloudflare dashboard, the validation
 throws at startup before any request is served. The worker 500s until the secrets are
-configured. This is separate from the Lit issue but follows the same pattern: anything
-that runs at module init on the edge must be resilient to a missing runtime environment.
+configured. That is separate from the Lit issue but follows the same pattern: anything
+that runs at module init on the edge has to survive a missing runtime environment.
 See [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) for the
 related constraint on static build-time env vars.
 
@@ -88,7 +89,7 @@ export default defineConfig({
 ```
 
 **Load Lit components via a client `<script>` import.** The component definition runs
-in the browser, where `HTMLElement` exists. There is no SSR step, so the edge runtime
+in the browser, where `HTMLElement` exists. With no SSR step, the edge runtime
 never sees the Lit code.
 
 ```astro
@@ -126,10 +127,10 @@ declare namespace JSX {
 }
 ```
 
-**Static output avoids the problem entirely.** If the site does not require per-request
+**Static output avoids the problem entirely.** If the site does not need per-request
 server rendering, set `output: 'static'`. Astro renders everything to HTML at build
 time and the Cloudflare Worker serves static files. Lit components load on the client
-and none of the runtime constraints apply. This blog follows that pattern: `output:
+and none of the runtime constraints apply. This blog runs that way: `output:
 'static'`, Lit islands loaded by client script, no `@astrojs/lit`.
 
 ```ts
@@ -151,13 +152,12 @@ meaningful initial HTML, the available options are:
    what is already there rather than replacing blank markup.
 
 2. Move SSR rendering to a Cloudflare Worker that runs Node.js-compatible code via the
-   `nodejs_compat` compatibility flag, then use `@lit-labs/ssr` there. This is a
-   significant infrastructure change and is only warranted if the SEO or TTFB benefit is
-   measurable.
+   `nodejs_compat` compatibility flag, then use `@lit-labs/ssr` there. That is a large
+   infrastructure change, worth it only if you can measure the SEO or TTFB benefit.
 
-For most applications the client-script island pattern is sufficient. Components load in
-a few hundred milliseconds on a modern connection, which is imperceptible for
-interactive UI that is only visible after user action anyway.
+For most applications the client-script island pattern is enough. Components load in
+a few hundred milliseconds on a modern connection, which nobody notices on
+interactive UI that only appears after a user action anyway.
 
 ## Anti-patterns
 
@@ -192,7 +192,7 @@ import { JIRA_TOKEN } from 'astro:env/server'; // throws if unset
 
 If the project uses Cloudflare Workers as its adapter, a CI check can assert that
 `@astrojs/lit` is not in the dependency tree and not referenced in `astro.config.ts`.
-A simple grep in the pipeline is sufficient:
+A grep in the pipeline does the job:
 
 ```bash
 grep -r '@astrojs/lit' astro.config.ts package.json && \
@@ -201,7 +201,7 @@ grep -r '@astrojs/lit' astro.config.ts package.json && \
 ```
 
 Pair this with the `output: 'static'` default in the Astro config wherever the site
-does not require per-request server logic. Static output eliminates the entire class of
+does not need per-request server logic. Static output removes the entire class of
 edge runtime compatibility bugs.
 
 ## See also
@@ -210,5 +210,5 @@ The Lit components loaded via client script rely on the decorator configuration
 described in [Lit legacy decorators — never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor)
 and follow the shell/core split from
 [A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
-The `astro:env` startup crash is the edge-runtime face of the broader constraint
+The `astro:env` startup crash is the edge-runtime version of the broader constraint
 covered in [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked).

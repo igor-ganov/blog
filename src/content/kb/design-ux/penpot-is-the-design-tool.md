@@ -16,18 +16,17 @@ order: 5
 updated: 2026-04-26
 ---
 
-Penpot (penpot.app) is an open-source design tool — the self-hosted alternative to
-Figma. The team's design tool is a local, self-hosted Penpot instance. When design work
-arrives, Penpot is the production design environment: the place where components are
-created, prototypes are wired, and design tokens are maintained. Work flows into Penpot,
-not around it.
+Penpot (penpot.app) is an open-source design tool, the self-hosted alternative to
+Figma. The team runs a local, self-hosted Penpot instance, and that is where design
+work happens: components get created, prototypes get wired, design tokens get
+maintained. Work flows into Penpot rather than around it.
 
 On a design-stage project (2026-04-26) the tool was referred to as "пинпод" and
-"penpod" — treat these as Penpot (transliterations through Russian phonology). The tool
-was not recognised, so the response proposed an Angular workspace and Storybook. That
-was wrong on two counts: wrong tool identification, and wrong phase (see [The design
-phase is not the coding phase](/kb/design-ux/design-phase-is-not-code-phase)). The
-correct response was to ask for the local Penpot URL and proceed in the design tool.
+"penpod". Both are Penpot, transliterated through Russian phonology. The name went
+unrecognised, so the response proposed an Angular workspace and Storybook. That missed
+on two counts. The tool was misidentified, and the phase was wrong too (see [The design
+phase is not the coding phase](/kb/design-ux/design-phase-is-not-code-phase)). The right
+move was to ask for the local Penpot URL and carry on inside the design tool.
 
 ## Why this matters
 
@@ -46,9 +45,9 @@ Penpot supports:
 - **File format** — `.penpot` files are ZIP archives containing EDN data + assets;
   importable via the Penpot import dialog.
 
-Understanding these capabilities determines what deliverables are appropriate. A request
-to "add a colour token" has a correct Penpot-native answer (add it to the token set in
-the assets panel or export a modified token JSON), not an Angular answer.
+Knowing these capabilities tells you which deliverables fit. A request to "add a colour
+token" has a Penpot-native answer (add it to the token set in the assets panel, or
+export a modified token JSON), not an Angular one.
 
 ### Spelling variants
 
@@ -56,12 +55,12 @@ The team's transliteration of "Penpot" varies. All of the following mean Penpot:
 
 - пинпод / penpod / pinpot / пенпот / penpot
 
-When any of these appear in context, do not treat them as unknown tooling. Identify
-as Penpot and proceed accordingly. If the local URL is not already known, ask for it.
+When any of these show up, don't treat them as unknown tooling. Read them as Penpot and
+proceed. If the local URL isn't already known, ask for it.
 
 ## How to apply
 
-There are four modes of working with a local Penpot instance:
+There are four ways to work with a local Penpot instance.
 
 ### 1. Generate W3C design token JSON
 
@@ -120,9 +119,9 @@ SVGs should:
 
 ### 3. Drive Penpot via the browser MCP
 
-For direct manipulation of the Penpot canvas — creating frames, placing components,
-adjusting layout — drive the running Penpot instance via the browser MCP (Playwright
-or Chrome DevTools Protocol). Steps:
+To manipulate the Penpot canvas directly (creating frames, placing components,
+adjusting layout), drive the running Penpot instance via the browser MCP, either
+Playwright or Chrome DevTools Protocol. Steps:
 
 1. Ask for the local Penpot URL (typically `http://localhost:7070` or the configured
    port) and credentials if not already provided.
@@ -130,14 +129,14 @@ or Chrome DevTools Protocol). Steps:
 3. Interact via the Penpot web UI: select tools from the toolbar, create shapes, set
    fill values in the design panel, wire prototype connections.
 
-Penpot's web UI is the canonical interface; driving it via MCP is equivalent to a human
-operating it. Do not attempt to modify `.penpot` ZIP files in place while Penpot has
-the file open — Penpot will overwrite changes on next save.
+Penpot's web UI is the canonical interface, and driving it via MCP is the same as a
+human operating it. Don't modify `.penpot` ZIP files in place while Penpot has the file
+open; Penpot will overwrite your changes on the next save.
 
 ### 4. Generate .penpot import files
 
-For larger deliverables (a complete component library, a page set), it is possible to
-generate a `.penpot` file from scratch. The format is a ZIP archive with:
+For larger deliverables such as a complete component library or a page set, you can
+generate a `.penpot` file from scratch. The format is a ZIP archive:
 
 ```
 file.penpot
@@ -148,10 +147,10 @@ file.penpot
     └── <uuid>.<ext>     # embedded raster assets
 ```
 
-The EDN structure is non-trivial to generate by hand; this approach is practical only
-when working from an existing `.penpot` template or when the structure can be scripted.
-For most tasks, W3C token JSON plus SVG assets covers the deliverable surface without
-requiring file-format knowledge.
+The EDN structure is hard to write by hand, so this approach only pays off when you
+start from an existing `.penpot` template or can script the structure. For most tasks,
+W3C token JSON plus SVG assets covers what you need to deliver without knowing the file
+format at all.
 
 ### Asking for the URL and credentials
 
@@ -161,21 +160,21 @@ with the running instance, ask exactly:
 > "What is the local URL for your Penpot instance, and do you have credentials for me
 > to use?"
 
-Do not assume `localhost:7070` without confirmation — the port is configurable and the
-instance may be behind a reverse proxy.
+Don't assume `localhost:7070` without confirmation. The port is configurable, and the
+instance may sit behind a reverse proxy.
 
 ## Anti-patterns
 
 **Not recognising the tool**
 
-Seeing "пинпод" or "penpod" and treating it as an unfamiliar tool, then proposing a
-different toolchain, is the exact error described above. Identify the tool, then work
+Seeing "пинпод" or "penpod", treating it as an unfamiliar tool, and then proposing a
+different toolchain is the exact error described above. Identify the tool, then work
 with it.
 
 **Proposing to install a different design tool**
 
-If the user works in Penpot, do not suggest Figma, Sketch, or Adobe XD as alternatives.
-The tool is chosen; the task is to work within it.
+If the user works in Penpot, don't suggest Figma, Sketch, or Adobe XD as alternatives.
+The tool has already been chosen, so the task is to work inside it.
 
 **Generating Storybook stories or component scaffolds for design tasks**
 
@@ -185,11 +184,10 @@ references). A `.stories.ts` file is not a design deliverable.
 
 **Exporting CSS as the design deliverable**
 
-CSS is an implementation artefact, not a design artefact. Delivering a block of CSS
-custom properties to a Penpot design task conflates the design phase with the
-implementation phase. The design deliverable is a token JSON; the implementation
-deliverable is the CSS that consumes it. They are different documents for different
-phases.
+CSS is an implementation artefact, not a design artefact. Handing a block of CSS custom
+properties to a Penpot design task collapses the design phase into the implementation
+phase. The design deliverable is a token JSON, and the CSS that consumes it comes later,
+as a separate document for a separate phase.
 
 ## See also
 

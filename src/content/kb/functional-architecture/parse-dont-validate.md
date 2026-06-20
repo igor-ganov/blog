@@ -20,37 +20,36 @@ order: 6
 updated: 2026-06-10
 ---
 
-A function that validates returns `boolean`. The information — whether the input
-conforms to a shape — is computed and then discarded. The caller still has the untyped
-value. To use it as the expected type, the caller must cast. That cast is unverified: it
-asserts the shape the validator just checked, but the compiler connects the two with
-nothing but trust.
+A function that validates returns `boolean`. It computes whether the input conforms to a
+shape, then throws that answer away. The caller is left holding the same untyped value it
+started with, so to use it as the expected type it has to cast. The cast is unverified.
+It asserts the exact shape the validator just checked, but nothing in the compiler ties
+those two facts together. You are trusted on your word.
 
-A function that parses returns the typed value or an error. The conformance check and
-the type assignment are one operation. There is no cast. Downstream code receives a
-value already in the precise type; it does not need to check again, and it cannot
-forget to check.
+A function that parses returns the typed value or an error. The conformance check and the
+type assignment are the same operation, so there is no cast. Downstream code receives a
+value that already has the precise type. It never re-checks, and it can't forget to check.
 
-The phrase is from Alexis King's 2019 essay "Parse, don't validate". The practice in
-this codebase is grounded in Effect.Schema and in runtime guards written at explicit
-boundary points.
+The phrase comes from Alexis King's 2019 essay "Parse, don't validate". In this codebase
+the practice rests on Effect.Schema and on runtime guards written at explicit boundary
+points.
 
 ## Why this matters
 
-A major refactoring of a content-admin SPA (2026-03-24) placed Effect.Schema
-decoders in `src/validation/`. Every value entering the service-worker or client layer
-from a network response, a `postMessage`, or `IndexedDB` was decoded through a Schema.
-The decoder either returned a fully-typed value or failed the Effect pipeline with a
-structured `ParseError`. No code inside the boundary used `as`, `JSON.parse` without
-decoding, or defensive `typeof` checks.
+A major refactoring of a content-admin SPA (2026-03-24) put Effect.Schema decoders in
+`src/validation/`. Every value entering the service-worker or client layer, whether from
+a network response, a `postMessage`, or `IndexedDB`, was decoded through a Schema. The
+decoder returned a fully-typed value or failed the Effect pipeline with a structured
+`ParseError`. Inside the boundary you won't find `as`, a bare `JSON.parse`, or defensive
+`typeof` checks.
 
-An edge bot project (2026-05-23) applied the same discipline in
-`src/util/json.ts`. The producer client consumed raw JSON from an external queue; all
-parsing happened in `json.ts` before the value was passed to any business logic. The
-typed client interface downstream never saw `unknown`.
+An edge bot project (2026-05-23) used the same discipline in `src/util/json.ts`. The
+producer client pulled raw JSON off an external queue, and all of the parsing happened in
+`json.ts` before anything reached business logic. The typed client interface downstream
+never saw `unknown`.
 
-In both cases, the boundary file is a clear physical marker: code above it is untyped;
-code below it is typed. The parser is the transition.
+The boundary file works as a physical marker in both cases. Code above it is untyped, code
+below it is typed, and the parser is what carries you across.
 
 ## How to apply
 
@@ -93,8 +92,9 @@ const handleResponse = (res: Response): Effect.Effect<void, ParseError | HttpErr
   );
 ```
 
-`processUser` never sees `unknown`. It cannot be called before parsing succeeds. There
-is no cast to write, no cast to audit, no cast to become stale when `User` changes shape.
+`processUser` never sees `unknown`, and it can't run until parsing has already succeeded.
+There is no cast to write, none to audit, and none left to go stale when `User` changes
+shape.
 
 **Boundary file as the transition point.**
 
@@ -128,8 +128,8 @@ export const processSyncMessage = (
 
 **Incremental narrowing with Schema.**
 
-When the full type is only known after checking a discriminant, use `Schema.Union` with
-`Schema.Literal` to narrow automatically:
+When the full type is only known after you check a discriminant, reach for `Schema.Union`
+with `Schema.Literal` and let it narrow for you:
 
 ```ts
 const ApiResponseSchema = Schema.Union(
@@ -154,10 +154,10 @@ const render = (response: ApiResponse): string => {
 
 **Type guards as a fallback (when Effect is unavailable).**
 
-In a context where the Effect bundle cost is prohibitive (see
+Where the Effect bundle cost is too high to justify (see
 [errors-as-values-with-effect](/kb/functional-architecture/errors-as-values-with-effect)
-for when that exception applies), use a proper type-predicate guard rather than a
-boolean validator:
+for when that exception applies), write a proper type-predicate guard instead of a boolean
+validator:
 
 ```ts
 // Acceptable fallback: predicate guard — the check and the type are connected
@@ -175,8 +175,7 @@ const parseUser = (value: unknown): User | undefined => {
 };
 ```
 
-Even here the cast is localised to the single function that performed the check. No
-other file casts.
+Even here the cast stays inside the one function that ran the check. No other file casts.
 
 ## Anti-patterns
 
@@ -200,9 +199,9 @@ const applyDiscount = (raw: unknown): number => {
 const order: Order = JSON.parse(localStorage.getItem('order')!); // cast + no check
 ```
 
-Each pattern shares a flaw: untyped input reaches code that assumes it is typed. The
-assumption is not verified by the compiler. When the input does not match, the error
-surfaces far from where the untyped value entered.
+Every one of these has the same flaw. Untyped input reaches code that assumes it is typed,
+and the compiler never checked that assumption. When the input doesn't match, the error
+surfaces far away from where the untyped value first entered.
 
 ## Enforcement
 
@@ -214,6 +213,6 @@ surfaces far from where the untyped value entered.
   (`src/util/json.ts`, `src/validation/`) receives a typed value; it must not call
   `JSON.parse` or access `.json()` on a `Response` directly.
 
-The boundary files are the single location where `unknown` is permissible. Lint rules
-enforce the rest. No `as` casts appear outside the parser function that performed the
-exhaustive check.
+The boundary files are the only place where `unknown` is allowed, and lint rules cover the
+rest. The only `as` cast permitted lives inside the parser function that ran the exhaustive
+check.

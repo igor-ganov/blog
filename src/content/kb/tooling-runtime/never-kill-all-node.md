@@ -17,27 +17,27 @@ updated: 2026-06-10
 
 ## Why this matters
 
-On 2026-03-14, during E2E work on a content-admin SPA, the following pattern was
-observed: a `dev:token` server was already running on the Playwright target port when
-the test suite launched. Because `playwright.config.ts` had `reuseExistingServer: true`,
-Playwright reused that process instead of starting a fresh one. The stale server lacked
-`MOCK_OAUTH=true` in its environment, so every authentication-dependent test timed out.
-Eleven Chromium suites failed simultaneously.
+On 2026-03-14, during E2E work on a content-admin SPA, a `dev:token` server was already
+running on the Playwright target port when the test suite launched. Because
+`playwright.config.ts` had `reuseExistingServer: true`, Playwright grabbed that process
+instead of starting a fresh one. The stale server had no `MOCK_OAUTH=true` in its
+environment, so every authentication-dependent test timed out. Eleven Chromium suites
+failed at once.
 
-The tempting fix — "kill all node processes and start clean" — is categorically wrong:
+The tempting fix is "kill all node processes and start clean", and it is wrong for a few
+reasons:
 
 - Other developers or background tools (language servers, build watchers, local
-  microservices) may be running node processes that are completely unrelated to the
-  failing test.
-- On a shared machine or in CI with parallel jobs, killing all node processes ends
+  microservices) may be running node processes that have nothing to do with the failing
+  test.
+- On a shared machine, or in CI with parallel jobs, killing every node process ends
   unrelated jobs.
 - The root cause is a stale server on a specific port, not node in general.
 
-This blog's own `.vscode/settings.json` contains a `PreToolUse` hook that **DENIES**
-any bash command that kills all node processes. Attempting it is a hard stop.
+This blog's own `.vscode/settings.json` contains a `PreToolUse` hook that **DENIES** any
+bash command that kills all node processes. Try it and you hit a hard stop.
 
-The correct mental model: processes are identified by port or PID, not by the binary
-name.
+So identify processes by port or PID, never by the binary name.
 
 ## How to apply
 
@@ -66,9 +66,8 @@ taskkill /PID <pid> /F
 
 ### The correct pre-Playwright teardown sequence
 
-When `reuseExistingServer: true` is set (which is common to avoid double-building), the
-responsibility for environment correctness falls on the caller. Always stop the
-target-port process before launching the suite:
+When `reuseExistingServer: true` is set (common, to avoid double-building), the caller
+owns environment correctness. Stop the target-port process before launching the suite:
 
 ```bash
 # Step 1 — kill whatever is on the Playwright port
@@ -91,14 +90,14 @@ In `package.json`, encode this as a composite script so it cannot be skipped:
 }
 ```
 
-The `kill-port` package is a cross-platform wrapper for exactly this pattern. It does
-not touch any process outside the given port.
+The `kill-port` package is a cross-platform wrapper for exactly this pattern, and it
+leaves every process outside the given port alone.
 
 ### Configuring Playwright to avoid the trap
 
-If the project can afford rebuilding, set `reuseExistingServer` to `false` in CI and
-keep it `true` only for local developer convenience — but document that developers must
-ensure the running server has the correct env:
+If the project can afford rebuilding, set `reuseExistingServer` to `false` in CI and keep
+it `true` only for local developer convenience. Document that developers have to make sure
+the running server carries the correct env:
 
 ```typescript
 // playwright.config.ts
@@ -130,7 +129,7 @@ netstat -ano | findstr :5173
 tasklist /FI "PID eq <pid>"
 ```
 
-This takes five seconds and prevents accidentally ending an unrelated process.
+That check takes five seconds and saves you from killing an unrelated process by mistake.
 
 ## Anti-patterns
 
@@ -146,8 +145,8 @@ taskkill /IM node.exe /F
 lsof -ti :5173 | xargs kill -9
 ```
 
-The symptom produced by the bad approach: other watchers die, editors lose their
-TypeScript language server, unrelated background jobs fail silently.
+What the bad approach produces: other watchers die, editors lose their TypeScript
+language server, and unrelated background jobs fail silently.
 
 ### Starting Playwright without clearing the port first
 
@@ -159,9 +158,9 @@ bun run playwright test
 lsof -ti :5173 | xargs kill -9 2>/dev/null; bun run playwright test
 ```
 
-The symptom: tests that depend on a specific environment variable (e.g. `MOCK_OAUTH`)
-fail with authentication timeouts even though the env is set in the Playwright config,
-because `reuseExistingServer: true` skips the `command` entirely.
+The symptom: tests that depend on a specific environment variable (say `MOCK_OAUTH`) fail
+with authentication timeouts even though the env is set in the Playwright config, because
+`reuseExistingServer: true` skips the `command` entirely.
 
 ### Using `--force` on a PID that no longer exists
 
@@ -170,17 +169,17 @@ because `reuseExistingServer: true` skips the `command` entirely.
 lsof -ti :5173 | xargs kill -9 2>/dev/null || true
 ```
 
-Without the `|| true`, a CI step that runs this as a teardown step will fail if the
-port is already free, causing a false-negative pipeline failure.
+Without the `|| true`, a CI teardown step fails when the port is already free, and you get
+a false-negative pipeline failure.
 
 ## Enforcement
 
 The `PreToolUse` hook in the project's `.vscode/settings.json` blocks tool calls whose
 command string matches patterns like `killall node`, `pkill node`, or
-`taskkill /IM node.exe`. If the hook fires, investigate which port is actually stale and
-kill only that.
+`taskkill /IM node.exe`. When the hook fires, find which port is actually stale and kill
+only that.
 
-For code review, flag any script in `package.json` or a CI workflow file that contains
+In code review, treat any script in `package.json` or a CI workflow file that contains
 `killall`, `pkill -f node`, or `taskkill /IM node.exe` as a blocker. The replacement is
 always a port-targeted kill.
 

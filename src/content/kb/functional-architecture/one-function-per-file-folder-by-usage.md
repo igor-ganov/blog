@@ -19,29 +19,28 @@ order: 1
 updated: 2026-06-10
 ---
 
-A file that exports a single pure function and is named after that function is the
-smallest coherent unit of functional architecture. When every file follows this shape,
-the codebase becomes a navigable tree: find the thing you need by following the usage
-path, not by hunting through barrel exports or scanning a flat `utils/` folder.
+A file that exports one pure function and is named after that function is the smallest
+unit of functional architecture worth caring about. Make every file this shape and the
+codebase turns into a navigable tree. You find what you need by following the usage path
+instead of hunting through barrel exports or scanning a flat `utils/` folder.
 
-The complementary constraint is size: **≤ 50 lines excluding import lines**. That limit
-is not aesthetic. A function that needs more than 50 lines of implementation is either
-doing two things (split it) or contains logic that should be lifted into a helper called
-from a subdirectory below it.
+Size is the other half of the rule: **≤ 50 lines excluding import lines**. The limit
+earns its keep. A function that needs more than 50 lines of implementation is usually
+doing two jobs, in which case you split it, or it holds logic that should move down into
+a helper called from a subdirectory below.
 
 ## Why this matters
 
 A major refactoring of a content-admin SPA (2026-03-24) restructured over 70
-service-worker files into a **7-level dependency tree**. The guiding principle stated
-explicitly: "tree structure — depth over breadth; dependent files in subdirectories."
-Before the refactoring, the codebase had wide, shallow folders where related logic
-accumulated in the same directory regardless of specificity. Finding the function
-responsible for a narrow concern meant reading multiple files with multiple exports.
+service-worker files into a **7-level dependency tree**. The guiding principle was stated
+plainly: "tree structure — depth over breadth; dependent files in subdirectories."
+Before the refactoring the codebase had wide, shallow folders where related logic piled
+up in the same directory regardless of how specific it was. To find the function behind
+some narrow concern you had to read several files, each with several exports.
 
-After the refactoring, each file had one export, its filename was the function name, and
-specialised logic lived in subdirectories of the logic that depended on it. The depth of
-a file in the tree communicated its specificity. Navigating the tree was navigating the
-dependency graph.
+Afterwards every file had one export, its filename was the function name, and specialised
+logic lived in subdirectories of whatever depended on it. How deep a file sat told you
+how specific it was, so navigating the tree meant navigating the dependency graph.
 
 The engineering standard (2026-06-07) codified this explicitly:
 
@@ -58,8 +57,8 @@ The engineering standard (2026-06-07) codified this explicitly:
 
 **Folder-by-usage, not folder-by-layer.**
 
-Layer-based layout groups by technical role (`services/`, `utils/`, `helpers/`). Every
-new concern adds to the same flat directories. Usage-based layout groups by what the
+Layer-based layout groups by technical role (`services/`, `utils/`, `helpers/`), so every
+new concern lands in the same flat directories. Usage-based layout groups by what the
 code is for: logic that exists to serve a narrower piece of logic lives below it in the
 tree.
 
@@ -88,8 +87,8 @@ src/
         merge-remote-patch.ts             // export mergeRemotePatch
 ```
 
-The deepest files are the most specialised. Their callers live exactly one level up.
-There are no cross-cutting imports from `utils/` that obscure the dependency direction.
+The deepest files are the most specialised, and their callers live exactly one level up.
+Nothing reaches sideways into a `utils/` bucket to muddy which way the dependencies run.
 
 **One export, filename equals function name.**
 
@@ -104,14 +103,14 @@ export const formatDate = (d: Date): string =>
   new Intl.DateTimeFormat('en-GB', { dateStyle: 'short' }).format(d);
 ```
 
-The filename is the API. Autocomplete and `go-to-definition` work without opening
-barrel files.
+The filename is the API. Autocomplete and `go-to-definition` land you on the right code
+without ever opening a barrel file.
 
 **The 50-line rule and the custom lint rule.**
 
-The built-in ESLint `max-lines` rule counts every line including imports. A file with
-10 imports and 50 lines of implementation reports 60 lines and fails the check. The
-correct rule excludes imports:
+The built-in ESLint `max-lines` rule counts every line, imports included. A file with
+10 imports and 50 lines of implementation reports 60 lines and fails the check even
+though the implementation is fine. The rule you actually want excludes imports:
 
 ```js
 // eslint.config.js (excerpt)
@@ -126,17 +125,17 @@ correct rule excludes imports:
 }
 ```
 
-A minimal implementation of `max-lines-no-imports` counts lines where
-`node.type !== 'ImportDeclaration'` before comparing against the limit. Ship it once in
-`eslint-rules/max-lines-no-imports.js`; the rule then applies across every workspace.
+A minimal `max-lines-no-imports` counts lines where `node.type !== 'ImportDeclaration'`
+before comparing against the limit. Ship it once in
+`eslint-rules/max-lines-no-imports.js` and it applies across every workspace.
 
 **Side effects belong at the top of the tree.**
 
 Pure functions compose without limit. A function that reads from `localStorage` or fires
-a network request cannot be composed safely because calling it in a test has a side
-effect. Keep side effects in files at the root of the tree — files that import pure
-helpers, call them, and then perform the effect. The pure helpers are individually
-testable; only the thin imperative shell needs integration tests.
+a network request does not compose safely, because calling it in a test has a side
+effect. Keep those effects in files at the root of the tree, files that import pure
+helpers, call them, and then perform the effect. The pure helpers each test in isolation,
+and only the thin imperative shell needs integration tests.
 
 ```ts
 // pure-core/compute-retry-delay.ts — pure, testable in isolation
@@ -178,8 +177,8 @@ export const processEvent = (event: AppEvent): State => { ... }
 export default (d: Date) => ...  // consumer names it anything
 ```
 
-Each anti-pattern costs in the same way: the file's name stops being a reliable pointer
-to the code's purpose, and refactoring requires reading rather than navigating.
+Every one of these costs you the same thing. The file's name stops pointing reliably at
+what the code does, so refactoring turns into reading instead of navigating.
 
 ## Enforcement
 
@@ -192,12 +191,12 @@ Three lint rules enforce this together:
 3. One-export-per-file — either a custom rule counting `ExportNamedDeclaration` nodes
    or an architectural restriction enforced by directory-convention tests.
 
-All three run in CI. No `eslint-disable` comments. When the rule fires, the correct
-response is to split the file, not to suppress the warning.
+All three run in CI, with no `eslint-disable` comments allowed. When a rule fires, split
+the file. Suppressing the warning is not on the table.
 
 ## See also
 
-The folder-by-usage tree is the structural counterpart to the no-branching rule: just as
-strategy maps make branching explicit and exhaustive, usage-based folder structure makes
-dependencies explicit and directional. The two together make the architecture legible
-from the filesystem.
+The folder-by-usage tree is the structural counterpart to the no-branching rule. Strategy
+maps make branching explicit and exhaustive; usage-based folders make dependencies
+explicit and directional. Run both and the architecture is legible straight from the
+filesystem.

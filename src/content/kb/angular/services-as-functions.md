@@ -16,30 +16,31 @@ order: 5
 updated: 2026-06-10
 ---
 
-Angular's `@Injectable` class is the conventional container for service logic, and it
-is often overused. A service that transforms data, validates input, or formats a string
-does not need a class — it needs a function. When the function needs context it does not
-carry itself, inject that context through a closure. When the service genuinely needs to
-hold and share reactive state, use a class — but keep its logic declarative, and expose
-state through separate read and write functions rather than mixing them.
+Angular's `@Injectable` class is the conventional container for service logic, and most
+teams reach for it far more often than they need to. A service that transforms data,
+validates input, or formats a string does not need a class. It needs a function. When the
+function needs context it can't carry on its own, supply that context through a closure.
+The exception is a service that genuinely has to hold and share reactive state: then use a
+class, keep its logic declarative, and expose state through separate read and write
+functions instead of one method that does both.
 
 The rule: **arrow function first; injectable class only when you need shared reactive
 state**.
 
 ## Why this matters
 
-A class carries implicit affordances: instantiation, `this`, mutable properties, and
-lifecycle. A service that computes a derived value needs none of these. Wrapping that
-computation in a class just to satisfy Angular's injection system adds cognitive
-overhead: where is the logic? Is it pure? Does it hold state? Reading a class requires
-all of these questions to be answered; reading a function does not.
+A class drags along implicit affordances: instantiation, `this`, mutable properties,
+lifecycle. A service that computes a derived value needs none of them. Wrap that
+computation in a class just to satisfy Angular's injection system and you force every
+reader to ask where the logic is, whether it's pure, and whether it holds state. A
+function answers all three at a glance.
 
-The deeper concern is the boundary between business logic and the Angular runtime. DDD
-practice puts business rules in a rich model that is ignorant of the framework. An
-arrow function is framework-agnostic by nature. An `@Injectable` class is bound to
-Angular's injection tree from the moment you decorate it. Business logic that lives
-in pure functions is independently testable without `TestBed`, without a component
-fixture, without Angular at all.
+The boundary between business logic and the Angular runtime matters more. DDD practice
+puts business rules in a rich model that knows nothing about the framework, and an arrow
+function is framework-agnostic by nature. An `@Injectable` class, by contrast, is bound
+to Angular's injection tree from the moment you decorate it. Logic that lives in pure
+functions stays testable on its own, without `TestBed`, without a component fixture,
+without Angular in the room at all.
 
 The engineering standard captures this as: "when creating a service implement it as an
 arrow function; if it needs state, move state into a class with `@Injectable providedIn
@@ -89,8 +90,8 @@ export class TicketRowComponent {
 ```
 
 When the function needs a dependency (say, the base URL for an API call), pass it as a
-parameter or create a factory function via closure — do not make it `@Injectable` just
-to provide the dependency.
+parameter or build a factory function via closure. Don't reach for `@Injectable` just to
+hand over the dependency.
 
 ```typescript
 // Factory function pattern: the dependency is captured in the closure
@@ -111,10 +112,10 @@ export class TicketListComponent {
 
 ### Stateful service: root-provided class with read/write separation
 
-When a service genuinely needs to share reactive state across the application — a
-selected user, a notification queue, a feature flag — use an `@Injectable({ providedIn: 'root' })`
-class. Keep its public API minimal: one function (or signal) to read state, one function
-to write state.
+When a service genuinely has to share reactive state across the application (a selected
+user, a notification queue, a feature flag), use an `@Injectable({ providedIn: 'root' })`
+class. Keep its public API small: one function or signal to read state, one function to
+write it.
 
 ```typescript
 // features/tickets/ticket-selection.store.ts
@@ -152,15 +153,15 @@ export class TicketDetailComponent {
 }
 ```
 
-Separation of read and write prevents components from accidentally mutating global state
-through a signal reference they obtained for reading. It also makes the flow of state
-changes auditable: every write goes through a named function in the store, not a raw
+Splitting read from write stops a component from accidentally mutating global state
+through a reference it only grabbed in order to read. It also keeps state changes
+auditable, since every write goes through a named function in the store rather than a raw
 `.set()` scattered across the codebase.
 
 ### Business logic in separate closures
 
-Model logic — rules like "a ticket can only be closed if it has an assignee" — does not
-belong in either the store or the component. It belongs in a domain-layer closure.
+Model logic, like the rule that a ticket can only be closed once it has an assignee,
+belongs in neither the store nor the component. Put it in a domain-layer closure.
 
 ```typescript
 // domain/ticket.ts — framework-agnostic domain logic
@@ -179,8 +180,8 @@ export const close = (ticket: Ticket): Ticket =>
   canClose(ticket) ? { ...ticket, status: 'closed' } : ticket;
 ```
 
-The component or store calls `canClose` and `close`; they do not re-implement the
-rule inline. The domain file has zero Angular imports and can be tested with a plain
+The component or store calls `canClose` and `close` rather than re-implementing the rule
+inline. The domain file has zero Angular imports and can be tested with a plain
 `describe`/`it` block.
 
 ## Anti-patterns
@@ -228,9 +229,10 @@ export class FilterStore {
 // Fix: separate filters = this._filters.asReadonly() and setFilters = (f) => this._filters.set(f)
 ```
 
-The symptoms these patterns produce are consistent: `TestBed` must be set up for logic
-that has no Angular dependency; state can be mutated from anywhere without a traceable
-write path; domain rules rot inside the service layer and are never reused.
+These patterns produce the same symptoms over and over. You end up setting up `TestBed`
+for logic that has no Angular dependency. State gets mutated from anywhere with no
+traceable write path. Domain rules rot inside the service layer where nobody else can
+reuse them.
 
 ## See also
 

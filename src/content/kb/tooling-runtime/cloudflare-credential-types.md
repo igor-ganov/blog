@@ -22,25 +22,19 @@ updated: 2026-06-10
 ## Why this matters
 
 On 2026-05-23, during setup of an edge bot (Cloudflare Workers), a Cloudflare credential
-was declared invalid because `wrangler whoami` returned an authentication error. The
-credential was actually valid — it was a narrow Workers/Pages deploy token, and
-`wrangler whoami` calls `/accounts` and `/user` endpoints that such a token is not
-scoped to access.
+got written off as invalid because `wrangler whoami` returned an authentication error.
+The credential was fine. It was a narrow Workers/Pages deploy token, and `wrangler
+whoami` calls the `/accounts` and `/user` endpoints, which such a token is not scoped to
+reach.
 
-The same pattern repeated on 2026-05-29 during deployment of a food-delivery platform:
-a `cfk_` Global API Key was tested with a Bearer header, which is the wrong
-authentication scheme for Global Keys.
+A similar thing happened on 2026-05-29 deploying a food-delivery platform, except the
+mistake ran the other way: a `cfk_` Global API Key was tested with a Bearer header,
+which is the wrong scheme for Global Keys.
 
-These two incidents represent opposite mistakes:
-
-1. Calling `wrangler whoami` on a scoped deploy token and concluding the token is broken
-   because whoami requires broad account/user permissions.
-2. Sending a Global API Key as a `Bearer` token instead of using the `X-Auth-Email` +
-   `X-Auth-Key` header pair.
-
-Cloudflare has three distinct credential types with different authentication schemes,
-different scopes, and different correct validation endpoints. Using the wrong test for
-the wrong type wastes time and may cause a valid credential to be discarded.
+Both incidents come down to the same root cause. Cloudflare has three credential types,
+each with its own authentication scheme, its own scope, and its own correct validation
+endpoint. Pick the wrong test for the type in your hand and you can waste an afternoon,
+or worse, throw away a credential that works.
 
 ## How to apply
 
@@ -52,7 +46,7 @@ the wrong type wastes time and may cause a valid credential to be discarded.
 | `cfat_` | API Token (user-created) | `Authorization: Bearer <token>` |
 | `cfut_` | User API Token | `Authorization: Bearer <token>` |
 
-The prefix is always present in the credential value. Check it before choosing an
+The prefix is always there in the credential value. Read it before you decide on an
 authentication scheme.
 
 ### Validate each credential type correctly
@@ -90,8 +84,8 @@ curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUN
 
 ### wrangler environment variable mapping
 
-Wrangler reads credentials from the environment. The correct variable depends on the
-credential type:
+Wrangler reads credentials from the environment, and which variable it wants depends on
+the credential type:
 
 ```bash
 # For an API Token (cfat_/cfut_) — Bearer auth
@@ -102,25 +96,26 @@ CLOUDFLARE_API_KEY=<key>
 CLOUDFLARE_EMAIL=<email>
 ```
 
-Critical: if `CLOUDFLARE_API_TOKEN` is set in `.env`, wrangler uses it as a Bearer
+Watch this one: if `CLOUDFLARE_API_TOKEN` is set in `.env`, wrangler uses it as a Bearer
 token and **ignores** `CLOUDFLARE_API_KEY` and `CLOUDFLARE_EMAIL`. A stray
-`CLOUDFLARE_API_TOKEN` from a previous project left in `.env` will cause wrangler to
-attempt Bearer auth with a Global Key value, producing an opaque authentication error.
+`CLOUDFLARE_API_TOKEN` left over from a previous project will make wrangler attempt
+Bearer auth with a Global Key value, and you get back an opaque authentication error
+that points at nothing.
 
-Check `.env` for conflicting variables before debugging further:
+Check `.env` for conflicting variables before you debug anything else:
 
 ```bash
 # In the project root — look for both variable families
 grep -E "CLOUDFLARE_API_TOKEN|CLOUDFLARE_API_KEY|CLOUDFLARE_EMAIL" .env
 ```
 
-If both are present, remove or unset the one that does not match the credential type
-you are using.
+If both show up, remove or unset whichever one doesn't match the credential type you're
+actually using.
 
 ### Mint a scoped token from the Global Key
 
-The Global API Key grants full account access and cannot be scoped. Use it once to
-create a narrow token, then use the narrow token day-to-day:
+The Global API Key grants full account access and can't be scoped down. Use it once to
+mint a narrow token, then use that narrow token for day-to-day work:
 
 ```bash
 # Use the Global Key to create a scoped Workers/Pages deploy token
@@ -145,8 +140,8 @@ curl -s -X POST "https://api.cloudflare.com/client/v4/user/tokens" \
   }' | jq '.result.value'
 ```
 
-Store the resulting `cfat_` token in `.env` as `CLOUDFLARE_API_TOKEN`. Remove
-`CLOUDFLARE_API_KEY` and `CLOUDFLARE_EMAIL` from the same `.env` to avoid conflicts.
+Store the resulting `cfat_` token in `.env` as `CLOUDFLARE_API_TOKEN`, then drop
+`CLOUDFLARE_API_KEY` and `CLOUDFLARE_EMAIL` from the same file so they can't conflict.
 
 ### Interpret error codes correctly
 
@@ -156,9 +151,9 @@ Store the resulting `cfat_` token in `.env` as `CLOUDFLARE_API_TOKEN`. Remove
 | 10000 | Authentication error | Wrong auth scheme (e.g. Bearer on a Global Key) |
 | 9103 | Unknown X-Auth-Key or X-Auth-Email | The key or email value is incorrect, not just the scope |
 
-Error 10000 on a `cfk_` credential almost always means Bearer was used instead of
-`X-Auth-Email` + `X-Auth-Key`. Error 9103 means the value itself is wrong, not that
-the credential is out of scope.
+Error 10000 on a `cfk_` credential almost always means someone sent Bearer instead of
+`X-Auth-Email` + `X-Auth-Key`. Error 9103 is different: the value itself is wrong, so
+don't go chasing scope when you see it.
 
 ## Anti-patterns
 
@@ -173,9 +168,9 @@ curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/workers/scrip
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq '.success'
 ```
 
-Symptom: `wrangler whoami` prints `✘ You are not authenticated` even though the token
-successfully deploys in CI. This is not a bug; the token is working correctly for its
-intended scope.
+Symptom: `wrangler whoami` prints `✘ You are not authenticated` even though the same
+token deploys cleanly in CI. The token is doing exactly what its scope allows, so leave
+it alone.
 
 ### Sending a Global API Key as Bearer
 
@@ -193,10 +188,10 @@ curl -H "X-Auth-Email: $CLOUDFLARE_EMAIL" \
 
 ### Using the Global Key in CI
 
-The Global Key has full account access with no scope restriction. If it leaks from a CI
-environment variable, an attacker has complete control over the Cloudflare account.
-Always use a narrowly-scoped `cfat_` token in CI. The Global Key is only for local
-one-time operations like minting new tokens.
+The Global Key has full account access with no scope restriction, so if it leaks from a
+CI environment variable, whoever grabs it owns your Cloudflare account outright. Use a
+narrowly-scoped `cfat_` token in CI instead. Keep the Global Key for local one-time jobs
+like minting new tokens.
 
 ## See also
 

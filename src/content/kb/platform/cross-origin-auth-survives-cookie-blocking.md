@@ -16,30 +16,30 @@ order: 2
 updated: 2026-05-24
 ---
 
-Cookie-based authentication relies on the browser automatically attaching cookies to
-requests. That automatic attachment is precisely what privacy protections are designed
-to restrict. Since Chrome 80 (2020), Chromium has progressively tightened third-party
-cookie handling: cookies are `SameSite=Lax` by default, and cross-site cookies (even
-`SameSite=None; Secure`) are blocked by the Privacy Sandbox's third-party cookie phase-
-out. When the site and the API are on different eTLD+1s — different public suffix
-registrations — the API's cookies are third-party cookies from the site's perspective,
-and they do not persist.
+Cookie-based authentication leans on the browser to attach cookies to requests on its
+own. That automatic attachment is exactly the behaviour privacy protections set out to
+restrict. Since Chrome 80 (2020), Chromium has steadily tightened third-party cookie
+handling. Cookies default to `SameSite=Lax`, and cross-site cookies (even
+`SameSite=None; Secure`) get blocked by the Privacy Sandbox's third-party cookie phase-
+out. Once the site and the API live on different eTLD+1s, meaning different public suffix
+registrations, the API's cookies are third-party cookies as far as the site is concerned,
+so they never stick.
 
-On a food-delivery platform's preview environment (2026-05-24) the site was deployed to
-a `.pages.dev` host (Cloudflare Pages) and the API to a `.workers.dev` host (Cloudflare
-Workers). These are two separate eTLD+1s: `pages.dev` and `workers.dev`. The API's
-`Set-Cookie` response was `SameSite=None; Secure`. Modern Chromium blocked it.
-`document.cookie` on the site origin was empty. Cookie-based CSRF protection on mutating
-API routes returned 403 for every write. The app was functionally broken for all
-authenticated operations in the preview environment.
+A food-delivery platform's preview environment (2026-05-24) made this concrete. The site
+was deployed to a `.pages.dev` host (Cloudflare Pages) and the API to a `.workers.dev`
+host (Cloudflare Workers), which are two separate eTLD+1s: `pages.dev` and `workers.dev`.
+The API replied with `Set-Cookie: SameSite=None; Secure`, modern Chromium dropped it, and
+`document.cookie` on the site origin came back empty. With no cookie to validate against,
+cookie-based CSRF protection on mutating API routes returned 403 for every write, and
+every authenticated operation in preview was dead.
 
 ## Why this matters
 
 ### The eTLD+1 boundary
 
-A cookie is "same-site" if the registrable domain matches between the page origin and
-the request target. The registrable domain is the eTLD+1: the effective top-level domain
-(from the Public Suffix List) plus one label.
+A cookie counts as "same-site" when the registrable domain matches between the page origin
+and the request target. The registrable domain is the eTLD+1: the effective top-level
+domain (from the Public Suffix List) plus one label.
 
 | Site origin | API origin | eTLD+1 match? |
 |---|---|---|
@@ -47,23 +47,22 @@ the request target. The registrable domain is the eTLD+1: the effective top-leve
 | `app.pages.dev` | `api.workers.dev` | No — `pages.dev` ≠ `workers.dev` |
 | `app.example.com` | `api.example.com` | Yes — both `example.com` |
 
-Preview deployments on multi-tenant platforms frequently violate the eTLD+1 match.
-This is intentional for the platform (it prevents cross-tenant cookie access) and
-unavoidable without a custom domain. The auth strategy must handle it.
+Preview deployments on multi-tenant platforms break the eTLD+1 match all the time. The
+platform does this on purpose to prevent cross-tenant cookie access, and you cannot avoid
+it without a custom domain, so the auth strategy has to cope with it.
 
 ### Why Bearer tokens are CSRF-safe
 
-Cross-Site Request Forgery works because browsers automatically attach cookies to
-requests. An attacker's page can trigger a `fetch('https://api.example.com/delete', {
-method: 'DELETE' })` and the browser attaches the victim's session cookie — the API
-cannot distinguish the legitimate request from the forged one.
+Cross-Site Request Forgery works because the browser attaches cookies to requests
+automatically. An attacker's page can fire `fetch('https://api.example.com/delete', {
+method: 'DELETE' })`, the browser tacks on the victim's session cookie, and the API has
+no way to tell the legitimate request from the forged one.
 
-`Authorization: Bearer <token>` is not automatically attached by the browser for any
-request. An attacker's page cannot read `sessionStorage` from a different origin (same-
-origin policy). Therefore a Bearer token in sessionStorage cannot be exfiltrated cross-
-site, and a forged request cannot include it. Bearer tokens do not require CSRF
-protection. This is a property of the credential transport mechanism, not of the token
-format.
+`Authorization: Bearer <token>` never rides along automatically. An attacker's page also
+cannot read `sessionStorage` from a different origin, thanks to the same-origin policy. So
+a Bearer token in sessionStorage cannot be exfiltrated cross-site, and a forged request
+has no way to include it. Bearer tokens need no CSRF protection, and that comes from the
+credential transport itself rather than the token format.
 
 ```
 Cookie auth:     browser attaches automatically → CSRF protection required
@@ -74,8 +73,8 @@ Bearer (header): must be explicitly attached by JS → CSRF-safe by design
 
 ### 1. Return tokens in the response body
 
-The login endpoint (and OAuth callback) returns both the session token and the CSRF
-token in the JSON response body — in addition to, or instead of, a `Set-Cookie` header.
+The login endpoint (and the OAuth callback) returns both the session token and the CSRF
+token in the JSON response body, alongside or in place of a `Set-Cookie` header.
 
 ```ts
 // Cloudflare Worker — login handler
@@ -138,9 +137,9 @@ export const clearSession = (): void => {
 };
 ```
 
-`sessionStorage` is used instead of `localStorage` because session tokens should not
-outlive the browser session. A user closing the tab logs out — the correct security
-posture for an app without an explicit "remember me" option.
+Use `sessionStorage` rather than `localStorage` here because a session token should not
+outlive the browser session. Closing the tab logs the user out, which is the right
+security posture for an app that has no explicit "remember me" option.
 
 ### 3. Send tokens as Bearer + X-CSRF-Token
 
@@ -189,8 +188,8 @@ export const fetchWithAuth = async (
 
 ### 4. Accept either cookie or Bearer server-side
 
-The API must accept both credential transports: cookie for same-origin production and
-Bearer for cross-origin preview / native apps.
+The API has to accept both credential transports: cookie for same-origin production, and
+Bearer for cross-origin preview and native apps.
 
 ```ts
 // src/auth/require-auth.ts (Cloudflare Worker middleware)
@@ -255,42 +254,43 @@ export const csrfGuard = async (
 ### 5. Collapse to one apex in production
 
 In production, both the site and the API sit under the same registrable domain
-(`example.com` / `api.example.com`). Cookies are same-site; no cross-origin
-cookie blocking occurs. The Bearer path remains active as a fallback for native mobile
-apps, CLI clients, and server-to-server integrations.
+(`example.com` / `api.example.com`). Cookies are same-site there, so no cross-origin
+cookie blocking happens. The Bearer path stays live as a fallback for native mobile apps,
+CLI clients, and server-to-server integrations.
 
 ```
 Preview:    app.pages.dev → api.workers.dev   (different eTLD+1; Bearer path)
 Production: example.com → api.example.com      (same eTLD+1; cookie path)
 ```
 
-This means the auth system is tested under its harder condition (cross-origin) in
-preview before production. Any regression in the Bearer path is caught in review.
+The upshot is that the auth system gets exercised under its harder condition, cross-origin,
+in preview before it ever reaches production, so a regression in the Bearer path surfaces
+during review.
 
 ## Anti-patterns
 
 **Relying on `SameSite=None; Secure` to survive cross-origin**
 
-`SameSite=None; Secure` allows the cookie to be sent with cross-site requests, but
-modern Chromium's third-party cookie blocking prevents it from being set in the first
-place. A `Set-Cookie` response from a cross-origin API is simply ignored. The cookie
-is never written.
+`SameSite=None; Secure` lets the cookie travel with cross-site requests, but modern
+Chromium's third-party cookie blocking stops it from being set in the first place. A
+`Set-Cookie` response from a cross-origin API gets ignored, and the cookie is never
+written.
 
 **Using `localStorage` instead of `sessionStorage` for session tokens**
 
-`localStorage` persists until explicitly cleared. A session token in `localStorage`
-outlives the browser session — the user closes the tab, opens a new one, and is still
-authenticated. For most apps this is unintended. Use `sessionStorage` unless
-"remember me" persistence is an explicit product requirement.
+`localStorage` persists until something explicitly clears it. A session token parked there
+outlives the browser session, so the user closes the tab, opens a new one, and is still
+logged in. For most apps that is a surprise nobody asked for. Stick with `sessionStorage`
+unless "remember me" persistence is an explicit product requirement.
 
 **Not guarding the CSRF check behind the Bearer path**
 
-If the CSRF guard does not recognise Bearer credentials and falls through to a cookie-
-CSRF check, the Bearer path will fail with 403 on all mutating requests. The guard
-must explicitly skip the CSRF header check when `Authorization: Bearer` is present.
+If the CSRF guard does not recognise Bearer credentials and falls through to a cookie-CSRF
+check, the Bearer path fails with 403 on every mutating request. The guard has to skip the
+CSRF header check explicitly when `Authorization: Bearer` is present.
 
 ## See also
 
 [Tokens don't fit in cookies](/kb/platform/tokens-dont-fit-in-cookies) — the related
-case where the token is too large for a cookie even on the same origin; both problems
-lead to server-side session stores with only a session ID in the cookie.
+case where the token is too large for a cookie even on the same origin. Both problems push
+you toward server-side session stores that keep only a session ID in the cookie.

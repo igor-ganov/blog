@@ -21,24 +21,24 @@ updated: 2026-06-10
 
 ## Why this matters
 
-TypeScript inference is powerful enough that most type annotations are noise: the compiler already knows the type. Redundant annotations do not make code safer; they make it louder and more brittle — when a function return type changes, every manual annotation on the call site also needs updating. Trusting inference reduces ceremony and keeps refactors local.
+Most type annotations are noise. The compiler already knows the type, so writing it again does not buy you any safety. What it buys you is brittleness: change a function's return type and every manual annotation at the call site has to change too. Lean on inference and your refactors stay local.
 
-The corollary rules in this section exist to make inference reliable and the code predictable:
+The rest of the rules here keep that inference reliable and the code predictable:
 
-- `import type` tells the bundler a symbol is erased at emit — enabling `verbatimModuleSyntax` and tree-shaking to work correctly.
-- `readonly` prevents accidental mutation that inference cannot catch.
-- Explicit visibility modifiers (`private`, `public`, `protected`) make intent searchable and prevent accidental surface area on classes or Angular components.
-- Arrow functions preserve `this` lexically and compose better than method declarations.
-- Closures over classes avoid inheritance hierarchies and make dependencies explicit.
+- `import type` tells the bundler a symbol is erased at emit, which is what lets `verbatimModuleSyntax` and tree-shaking work correctly.
+- `readonly` blocks accidental mutation that inference cannot catch.
+- Explicit visibility modifiers (`private`, `public`, `protected`) make intent searchable and keep stray members off the public surface of classes and Angular components.
+- Arrow functions preserve `this` lexically and compose more cleanly than method declarations.
+- Closures over classes skip inheritance hierarchies and make dependencies explicit.
 - `globalThis` instead of `window` works in every JS environment (workers, Node, Deno) without special configuration.
 
-The content-admin SPA grand refactoring (2026-03-25) codified all of these as hard rules under "strict types, zero overrides". Every override of a tsconfig option, every suppression comment, requires a written justification tracked in the refactoring notes. The default is full strictness with full adherence to these patterns.
+The content-admin SPA grand refactoring (2026-03-25) made all of these hard rules under "strict types, zero overrides". Any override of a tsconfig option or any suppression comment needs a written justification tracked in the refactoring notes. The default is full strictness and full adherence to these patterns.
 
 ## How to apply
 
 ### import type for type-only imports
 
-When an import is only used as a type annotation, use `import type`. This guarantees the import is erased at emit, prevents circular-reference runtime errors, and satisfies `verbatimModuleSyntax`.
+When an import is only used as a type annotation, use `import type`. The import then gets erased at emit, which avoids circular-reference runtime errors and satisfies `verbatimModuleSyntax`.
 
 ```typescript
 // Bad — value import used only as a type annotation
@@ -62,7 +62,7 @@ In `tsconfig.json`:
 }
 ```
 
-With `verbatimModuleSyntax`, the compiler errors if a value import is used only as a type — so the rule is mechanically enforced.
+With `verbatimModuleSyntax` on, the compiler errors when a value import is used only as a type, so nobody has to remember the rule.
 
 ### readonly everywhere appropriate
 
@@ -100,7 +100,7 @@ const DIRECTIONS = ['north', 'south', 'east', 'west'] as const;
 
 ### Arrow functions over method declarations
 
-Arrow functions capture `this` lexically, compose with higher-order utilities without `.bind()`, and serialize consistently. Use them for all standalone functions and callbacks.
+Arrow functions capture `this` lexically and drop into higher-order utilities without `.bind()`. Use them for standalone functions and callbacks.
 
 ```typescript
 // Bad — method declaration; this is dynamic; requires .bind() in callbacks
@@ -117,7 +117,7 @@ const fetchIssue = (id: string): Promise<unknown> =>
 
 ### Closures over classes
 
-A closure captures its dependencies explicitly and returns a typed interface. It is simpler than a class, easier to test (pass dependencies as arguments), and avoids inheritance.
+A closure captures its dependencies explicitly and returns a typed interface. There is no class to subclass, and tests get to pass dependencies in as plain arguments.
 
 ```typescript
 // Bad — class with implicit dependency through a property
@@ -143,7 +143,7 @@ const createUserService = (apiUrl: string): UserService => ({
 });
 ```
 
-The returned object type (`UserService`) is the public contract. The `apiUrl` binding is private by lexical scoping, not by a `private` keyword. Tests inject a fake `apiUrl` as a function argument.
+The returned object type (`UserService`) is the public contract. The `apiUrl` binding stays private through lexical scoping, no `private` keyword required. Tests pass in a fake `apiUrl` as an argument.
 
 ### Explicit visibility modifiers
 
@@ -171,7 +171,7 @@ class FeatureComponent {
 
 ### globalThis instead of window
 
-`window` is a browser-only global. Code that references `window` fails in Web Workers, Node scripts, and server-side rendering. `globalThis` is the standard, environment-agnostic global object.
+`window` is a browser-only global, so any code that touches it breaks in Web Workers, Node scripts, and server-side rendering. `globalThis` is the standard global object that exists in every JS environment.
 
 ```typescript
 // Bad — browser-only
@@ -183,7 +183,7 @@ const origin = globalThis.location?.origin ?? 'http://localhost';
 
 ### Let inference carry the return type
 
-Annotate return types on public API functions (exported functions, Angular `@Input` setters) for documentation and safety. Omit them where inference is unambiguous and the function is internal.
+Annotate return types on public API functions (exported functions, Angular `@Input` setters) so the contract is documented and pinned. Drop the annotation where the function is internal and inference is unambiguous.
 
 ```typescript
 // Verbose and redundant — inference already knows the return type

@@ -17,22 +17,21 @@ updated: 2026-06-02
 ---
 
 A `data-testid="theme-toggle-button"` string in a component and the same string copied
-into a test are two independent facts that are supposed to describe one thing. When the
-component changes its test id, only one of the two strings breaks — silently, if it
-breaks the test at runtime, or invisibly if nobody updates the component. Either way,
-you find out in CI, not in your editor.
+into a test are two independent facts pretending to describe one thing. Change the test
+id in the component and only one of the two strings moves. If you're lucky the test
+breaks at runtime; if you're not, nobody touches the component and the drift sits there
+unnoticed. You find out in CI, not in your editor.
 
-The fix is mechanical: the string lives once, in a constants file next to the component,
-and both the component and the test import it. The string can never drift.
+The fix is mechanical. Put the string once, in a constants file next to the component,
+and have both the component and the test import it. Now it can't drift.
 
 ## Why this matters
 
-The engineering standard (2026-06-02) states this directly: use constants placed in
-a separate file next to the component; reference them in the component as well.
+The engineering standard (2026-06-02) says it plainly: keep the constants in a separate
+file next to the component, and reference them from the component too.
 
-This blog applies that principle throughout its own Lit web component layer. The
-`theme-toggle` component and the `kb-filter` component both ship a `.locators.ts`
-sibling:
+This blog follows that across its Lit web component layer. The `theme-toggle` and
+`kb-filter` components each ship a `.locators.ts` sibling:
 
 ```
 src/components/islands/
@@ -68,8 +67,8 @@ export const KB_FILTER = {
 
 The `theme-toggle.ts` component imports from its sibling and writes `THEME_TOGGLE.tag`
 as the custom element name and `THEME_TOGGLE.button` into `data-testid`. The test does
-the same import and calls `page.getByTestId(THEME_TOGGLE.button)`. If the constant
-changes, TypeScript surfaces every reference in the same compilation pass.
+the same import and calls `page.getByTestId(THEME_TOGGLE.button)`. Change the constant
+and TypeScript flags every reference in the same compilation pass.
 
 ## How to apply
 
@@ -84,8 +83,8 @@ export const NOTIFICATIONS_BADGE = {
 } as const;
 ```
 
-Use `as const` so the values are narrowed to their literal types — this lets callers
-destructure or index without losing the string literal.
+Use `as const` so the values narrow to their literal types. Callers can then destructure
+or index without losing the string literal.
 
 **2. Import the constants into the component and use them in the template.**
 
@@ -132,8 +131,8 @@ test('shows unread count', async ({ page }) => {
 ```
 
 The test never contains the string `'notifications-badge-indicator'` as a literal. Only
-the constant file does. Renaming the id is a single-file change that the TypeScript
-compiler propagates and verifies across the whole project.
+the constant file does. Renaming the id is a one-file change, and the TypeScript compiler
+propagates and verifies it across the whole project.
 
 ## Anti-patterns
 
@@ -162,16 +161,16 @@ page.locator('[data-testid="kb-filter-input"]'); // bypasses the constant entire
 //    when it is a trap.
 ```
 
-The symptom of missing constants is test failures that look like typos: the locator
-finds zero elements, the assertion fails, and the cause is a string that was changed in
-one place and not the other. These failures are silent until runtime and hard to diff.
+Missing constants show up as test failures that look like typos. The locator finds zero
+elements, the assertion fails, and the cause is a string that was changed in one place
+and not the other. Nothing surfaces until runtime, and the diff tells you nothing.
 
 ## Enforcement
 
-TypeScript's own compiler is the primary enforcer. Because the constant is typed with
-`as const`, any reference to a non-existent key (`NOTIFICATIONS_BADGE.indicatr`) is a
-compile error, not a runtime surprise. The pattern also makes the search surface small:
-`grep -r 'data-testid=' src/` should return only component files, never test files.
+The TypeScript compiler does most of the enforcing. With the constant typed `as const`,
+a reference to a key that doesn't exist (`NOTIFICATIONS_BADGE.indicatr`) is a compile
+error rather than a runtime surprise. The pattern also keeps the search surface small:
+`grep -r 'data-testid=' src/` should only ever hit component files, never test files.
 
 In code review, verify:
 

@@ -16,51 +16,48 @@ order: 3
 updated: 2026-06-10
 ---
 
-Web components introduce a structural illusion: the custom element wraps the real
-interactive content, so it looks like a reasonable place to put `role` and `aria-*`
-attributes. It is not. A roleless wrapper element that receives ARIA attributes hands
-the accessibility tree a lie: the element the screen reader announces is not the element
-that receives focus and keyboard events.
+A web component wraps the real interactive content, so the custom element looks like a
+reasonable place to hang `role` and `aria-*` attributes. Don't. A roleless wrapper that
+carries ARIA misleads the accessibility tree, because the element the screen reader
+announces is not the one that receives focus and keyboard events.
 
-The second, unrelated mistake that commonly appears in the same codebase: naming a
-public method `open()` when the component has a `@property({ reflect: true }) open`
-field. In JavaScript a method and a property share the same name slot on the prototype.
-The method silently shadows the reflected attribute, `this.open = true` stops working
-from the outside, and the bug is invisible until someone writes a test that drives the
-component through its attribute.
+A separate mistake shows up in the same codebases: naming a public method `open()` when
+the component already has a `@property({ reflect: true }) open` field. In JavaScript a
+method and a property compete for the same name slot on the prototype. The method shadows
+the reflected attribute, `this.open = true` stops working from the outside, and the bug
+stays invisible until someone writes a test that drives the component through its
+attribute.
 
-Both were encountered and resolved in the headless web-component library (2026-06-06).
+Both showed up in the headless web-component library (2026-06-06) and were fixed there.
 
 ## Why this matters
 
-**Accessibility.** The accessible name computation for an interactive element looks at
-the element that has `role="button"` (or the native `<button>`) and resolves
-`aria-label`, `aria-labelledby`, or its text content against that element. When you put
-`aria-label="Open menu"` on a `<div>` wrapper that has no role, the label is attached
-to an element that the accessibility tree does not expose as interactive. The `<button>`
-inside still has its own, unlabelled interactive node. The result is two nodes: one with
-a label but no role, one with a role but no label.
+**Accessibility.** Accessible-name computation for an interactive element looks at the
+element that carries `role="button"` (or the native `<button>`) and resolves
+`aria-label`, `aria-labelledby`, or text content against that element. Put
+`aria-label="Open menu"` on a roleless `<div>` wrapper and the label attaches to
+something the accessibility tree never exposes as interactive, while the `<button>` inside
+keeps its own unlabelled interactive node. You end up with two nodes: one with a label and
+no role, one with a role and no label.
 
-Screen readers handle this inconsistently. VoiceOver on macOS often reads the wrapper
-text and then re-reads the button as an unlabelled control. NVDA on Windows may skip the
-wrapper entirely. Neither is correct and neither is predictable. The only safe rule is
-**ARIA goes on the element that receives focus**.
+Screen readers cope with this inconsistently. VoiceOver on macOS often reads the wrapper
+text and then re-reads the button as an unlabelled control; NVDA on Windows may skip the
+wrapper entirely. The safe rule is to put **ARIA on the element that receives focus**.
 
 **Reflected attribute shadowing.** A `LitElement` property decorated with
-`@property({ reflect: true })` is stored on the element instance. A method with the same
-name is on the prototype. When JavaScript resolves a property access, own properties
-(instance) win over prototype properties. So `element.open` returns the boolean
-value — fine — but assigning `element.open = true` calls the Lit property setter because
-it is defined via `Object.defineProperty` on the prototype chain. If you then add a
-method `open()` to the class body, the compiler emits it on the prototype, and depending
-on the TypeScript target and decorator transform, the method may overwrite the property
-descriptor. The symptom is that `element.open = true` no longer triggers `requestUpdate`
-and the component appears frozen.
+`@property({ reflect: true })` lives on the element instance, while a method of the same
+name lives on the prototype. On a read, own (instance) properties win over prototype ones,
+so `element.open` returns the boolean. Assigning `element.open = true` runs the Lit
+property setter, which Lit installs via `Object.defineProperty` on the prototype chain.
+Add a method `open()` to the class body and the compiler emits it on the prototype; under
+some TypeScript targets and decorator transforms that method overwrites the property
+descriptor. Now `element.open = true` no longer triggers `requestUpdate`, and the
+component looks frozen.
 
-The fix is naming: the method that transitions to the open state is `openMenu()`, the
-method that transitions to the closed state is `closeMenu()`, and the convenience
-wrapper is `toggle()`. The reflected attribute `open` is the observable state; the
-methods are imperative commands.
+The fix is naming. The method that transitions to the open state is `openMenu()`, the one
+that transitions to closed is `closeMenu()`, and the convenience wrapper is `toggle()`.
+That keeps the reflected attribute `open` as the observable state and the methods as
+imperative commands.
 
 ## How to apply
 
@@ -98,9 +95,9 @@ hostUpdated(): void {
 }
 ```
 
-The popup gets `role="menu"` in the shadow template, and each item is expected to have
-`role="menuitem"`. The component documents this contract but does not enforce it
-forcibly — the caller owns the slotted content and its roles.
+The popup gets `role="menu"` in the shadow template, and each item is expected to carry
+`role="menuitem"`. The component documents this contract but does not force it, since the
+caller owns the slotted content and its roles.
 
 **Naming to avoid attribute shadowing.** The public API uses verb phrases, not attribute
 mirrors:
@@ -213,9 +210,9 @@ test('no axe violations on the demo page', async ({ page }) => {
 });
 ```
 
-The `aria-label-test-locator-hygiene` article covers using ARIA attributes as stable
-test locators — the same labels that serve accessibility serve the test suite, which is
-why getting them right on the correct element pays double.
+The `aria-label-test-locator-hygiene` article covers using ARIA attributes as stable test
+locators. The same labels that serve accessibility serve the test suite, so getting them
+onto the correct element pays off twice.
 
 ## See also
 

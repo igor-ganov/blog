@@ -15,23 +15,23 @@ order: 4
 updated: 2026-05-21
 ---
 
-`localStorage` is scoped to an origin — the combination of scheme, host, and port. A
-page on `site-a.example.com` cannot read `localStorage` from `site-b.example.com`. This
-is the same-origin policy applied to storage, and it is not a browser limitation to
-work around — it is a deliberate privacy boundary. The consequence for features that
-span multiple sites is straightforward: you cannot know from site A whether the user has
-visited site B, unless you build infrastructure specifically to share that knowledge.
-Building that infrastructure is building a tracker.
+`localStorage` is scoped to an origin, meaning the combination of scheme, host, and port. A
+page on `site-a.example.com` cannot read `localStorage` from `site-b.example.com`. That is
+the same-origin policy applied to storage. It is a deliberate privacy boundary, not a
+browser limitation you have to route around. For any feature that spans multiple sites the
+consequence is plain: from site A you cannot tell whether the user has visited site B
+unless you build infrastructure specifically to share that fact, and that infrastructure is
+a tracker.
 
-On a privacy-first embeddable widget (2026-05-21) the desired feature was a
-"least-recently-visited" preference for the webring's outbound link ordering: sites the
-user had not visited recently should be prioritised. The naive design — read visit
-history from each member site's `localStorage` and aggregate — is impossible without
-either a shared backend or a third-party tracking mechanism, both of which contradict the
-widget's privacy stance. The implemented solution uses per-origin local click intent:
-when the user clicks a webring link, that click is recorded in `localStorage` on the
-widget's own origin. The ordering is based on outbound click recency, not visit history.
-The boundary is respected; the feature still works.
+On a privacy-first embeddable widget (2026-05-21) the feature we wanted was a
+"least-recently-visited" preference for ordering the webring's outbound links, so that
+sites the user hadn't visited recently would float to the top. The obvious design, reading
+visit history out of each member site's `localStorage` and aggregating it, can't be done
+without a shared backend or a third-party tracking mechanism, and both of those flatly
+contradict the widget's privacy stance. What we shipped instead records per-origin click
+intent: when the user clicks a webring link, that click lands in `localStorage` on the
+widget's own origin. Ordering keys off outbound click recency rather than visit history.
+The boundary stays intact and the feature still does its job.
 
 ## Why this matters
 
@@ -49,16 +49,16 @@ one of:
   data across origins. Requires user identification (session or fingerprint) — this is
   a tracker.
 
-None of these options are neutral. Each requires a deliberate engineering choice to
-build cross-site visibility, and each involves a tradeoff against user privacy. The
-boundary is not a bug to work around; it is the correct default.
+None of these are neutral. Each one is a deliberate engineering choice to build cross-site
+visibility, and each one trades away some user privacy to do it. The boundary is the
+correct default, not a bug you have to defeat.
 
 ### The webring use case
 
 A webring is a circular collection of independent sites linked by a common nav widget.
-The original webring concept (circa 1995) had a central registry; modern webrings often
-operate as a decentralised widget distributed to member sites. The challenge: how should
-the widget order or select the "next site" link?
+The original concept (circa 1995) had a central registry. Modern webrings usually run as a
+decentralised widget that each member site embeds. So the question is how the widget should
+order or pick the "next site" link.
 
 Options that would require tracking:
 - "Next unvisited site" — requires knowing which sites the user has visited.
@@ -71,9 +71,9 @@ Options that work within the privacy boundary:
   recorded on the webring origin; no cross-site data needed.
 - Time-based diversity (weight sites not clicked recently by the widget) — same.
 
-The click-intent approach is the correct framing. It answers "which sites has the user
-used this widget to navigate to, from this origin?" — a question that `localStorage`
-can answer — rather than "which sites has the user visited?" — a question that requires
+The click-intent approach reframes the question into one `localStorage` can actually
+answer: "which sites has the user navigated to through this widget, from this origin?"
+That replaces "which sites has the user visited?", which can only be answered with
 cross-origin data.
 
 ## How to apply
@@ -161,16 +161,16 @@ terms of its privacy properties:
 </p>
 ```
 
-This is accurate and builds user trust. The feature is not "limited" because it cannot
-track cross-site visits — it is privacy-respecting because it does not.
+That copy is accurate and it earns trust. The feature isn't crippled by its inability to
+track cross-site visits; declining to track is the whole point.
 
 ### When cross-site state is genuinely required
 
-If the product requirement truly needs cross-site state (a user account that syncs
-preferences across devices, or a distributed comment system), the right architecture is
-an explicit, user-authenticated backend. The user logs in; the backend stores state
-against their account; the client reads it on any device. This is not a tracker — it is
-an explicit data relationship the user opted into.
+Some requirements really do need cross-site state, such as a user account that syncs
+preferences across devices or a distributed comment system. For those, the right
+architecture is an explicit, user-authenticated backend. The user logs in, the backend
+stores state against their account, and the client reads it back on any device. That isn't
+a tracker; it's a data relationship the user opted into knowingly.
 
 The distinction:
 - **Tracker**: collects data without explicit user awareness; often fingerprint or
@@ -178,8 +178,8 @@ The distinction:
 - **Authenticated backend**: user chooses to create an account; data is tied to
   the account; user can view, export, and delete it.
 
-The webring use case does not require or justify an authenticated backend. Per-origin
-click intent is sufficient and correct.
+The webring case neither requires nor justifies an authenticated backend. Per-origin
+click intent is enough, and it's the right call.
 
 ## Anti-patterns
 
@@ -201,14 +201,14 @@ window.addEventListener('message', (e) => {
 });
 ```
 
-Do not build this. It bypasses the same-origin boundary intentionally and constitutes
-cross-site tracking, regardless of whether the data is sold or shared externally.
+Don't build this. It deliberately bypasses the same-origin boundary and amounts to
+cross-site tracking whether or not the data ever gets sold or shared externally.
 
 **Treating `localStorage` capacity errors as blocking**
 
-`localStorage` quota varies by browser and origin (typically 5–10 MB). On mobile it
-may be lower. Writes that exceed quota throw a `QuotaExceededError`. This should be
-caught and handled gracefully — degrade to no persistence, not to a crash.
+`localStorage` quota varies by browser and origin, typically 5–10 MB, and often less on
+mobile. A write past the quota throws a `QuotaExceededError`. Catch it and degrade to no
+persistence rather than letting it crash the page.
 
 ```ts
 // Anti-pattern: unguarded write — throws if quota exceeded.
@@ -228,15 +228,14 @@ try {
 
 **Using `localStorage` for sensitive data**
 
-`localStorage` is accessible to any JavaScript on the same origin, including injected
-scripts from third-party tag managers or compromised dependencies. Session tokens,
-access tokens, and personal data should not be stored in `localStorage`. Prefer
-`sessionStorage` for session tokens (cleared on tab close) and server-side session
-stores for long-lived credentials.
+Any JavaScript on the same origin can read `localStorage`, including scripts injected by
+third-party tag managers or by a compromised dependency. Keep session tokens, access
+tokens, and personal data out of it. Use `sessionStorage` for session tokens, since it
+clears on tab close, and server-side session stores for long-lived credentials.
 
 ## See also
 
 [Cross-origin auth that survives third-party-cookie blocking](/kb/platform/cross-origin-auth-survives-cookie-blocking) —
-the complementary problem: when your own site and API are cross-origin, cookies do not
-flow either. The privacy boundary applies to your own architecture, not just to
-third-party trackers.
+the flip side of the same boundary: when your own site and API live on different origins,
+cookies don't flow either. The privacy boundary applies to your own architecture too, not
+only to third-party trackers.

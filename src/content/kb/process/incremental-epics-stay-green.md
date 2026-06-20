@@ -16,36 +16,35 @@ order: 5
 updated: 2026-06-10
 ---
 
-An epic that ships in one large PR is hard to review, hard to bisect when something
-breaks, and impossible to partially deploy. An epic that ships in increments where
-later increments skip ahead or let tests go red is not incremental — it is a large PR
-with extra steps.
+An epic that ships in one large PR is hard to review and hard to bisect when something
+breaks, and you can't deploy half of it. But splitting it into increments buys you
+nothing if later increments skip ahead or let tests go red. That's still a large PR,
+just dressed up as several.
 
-The content-admin SPA offline initiative (2026-04-30) established a concrete structure:
-each increment is one GitHub issue, the issue body follows a fixed schema, all five
-test layers stay green at every increment without exception, and the epic order is
-strictly sequential — Phase B is gated on Phase A being merged and green.
+The content-admin SPA offline initiative (2026-04-30) settled on a concrete structure.
+Each increment is one GitHub issue. The issue body follows a fixed schema. All five
+test layers stay green at every increment, no exceptions. And the epic order is strictly
+sequential: Phase B is gated on Phase A being merged and green.
 
 ## Why this matters
 
-The content-admin SPA offline initiative was a multi-phase capability rollout. The phases were ordered
-because each phase established contracts — service worker registration, cache keys,
-IDB schema, API shape — that subsequent phases depended on. Skipping Phase A and
-implementing Phase B first would have produced Phase B code that referenced contracts
-that did not exist yet, requiring either: temporary stubs that would later be removed
-(rework), or a single large commit that implemented both phases (defeating the
-incremental structure).
+The content-admin SPA offline initiative was a multi-phase capability rollout. The
+phases were ordered because each one established contracts that later phases depended
+on: service worker registration, cache keys, IDB schema, API shape. Skip Phase A and
+implement Phase B first, and Phase B code references contracts that don't exist yet.
+Now you either write temporary stubs you'll rip out later, which is rework, or you
+fold both phases into one large commit, which kills the incremental structure you were
+after.
 
-Beyond the contract dependency, the green-at-every-increment requirement serves
-bisectability. If a regression appears after Phase C, and every increment merged as
-green, the bisect range is one increment's worth of code. If the rule was relaxed and
-Phase B was allowed to merge with known test failures "to be fixed in Phase C," the
-regression could have been introduced in Phase B's cut corners.
+The green-at-every-increment rule buys bisectability. Say a regression shows up after
+Phase C. If every increment merged green, the bisect range is a single increment's
+worth of code. Relax the rule, let Phase B merge with known failures "to be fixed in
+Phase C," and the regression might be hiding in whatever corners Phase B cut.
 
-The issue body schema was not aesthetic preference. Goal / Acceptance / Tests / Out of
-scope / Depends on encodes exactly the information a reviewer needs to evaluate the PR:
-what was the intended outcome, how do we know it was achieved, what was verified, what
-was deliberately deferred, and what must already be complete.
+The issue body schema isn't decoration. Goal / Acceptance / Tests / Out of scope /
+Depends on captures what a reviewer actually needs to evaluate the PR: the intended
+outcome, how we know it was achieved, what was verified, what was deliberately
+deferred, and what must already be merged before this starts.
 
 ## How to apply
 
@@ -95,9 +94,9 @@ All five layers must be green when the increment PR is merged:
 5. **Manual** — human verification in the real runtime (desktop app screenshots, mobile
    viewport, console clean).
 
-"All layers green" means no skips, no flakes, no known failures deferred to the next
-increment. A test that is disabled with `test.skip` or `xit` to allow a merge is a
-failing test. See [no retries, no flakes](/kb/testing/no-retries-no-flakes).
+"All layers green" means no skips, no flakes, nothing deferred to the next increment.
+A test disabled with `test.skip` or `xit` so a merge can go through is a failing test.
+See [no retries, no flakes](/kb/testing/no-retries-no-flakes).
 
 ### Epic ordering
 
@@ -107,58 +106,57 @@ Number phases explicitly: `epic.1`, `epic.2`, `epic.3`. The rule:
 - `epic.N+1` may not reference a contract (API, schema, event) that `epic.N` was
   supposed to establish but has not yet been reviewed and merged.
 
-If you find yourself writing code for `epic.3` because `epic.2` is in review and you
-want to stay productive, the correct action is to fix `epic.2` (address review
-comments) rather than speculatively implement `epic.3`.
+If you catch yourself writing code for `epic.3` because `epic.2` is in review and you
+want to stay busy, stop. Go address the review comments on `epic.2` instead of
+speculatively building `epic.3` on contracts that might still change.
 
 ### MVP-valuable isolation
 
-Before writing the issue, ask: if every subsequent phase were cancelled, would this
-increment still be worth merging? If the answer is no, the increment boundary is
-wrong. Either:
+Before writing the issue, ask: if every later phase got cancelled, would this increment
+still be worth merging? If the answer is no, the boundary is wrong, and there are two
+usual causes:
 
-- The increment is pure infrastructure that delivers no user-visible value — consider
-  whether the infrastructure and the first consumer can be the same increment.
-- The increment delivers a half-feature that needs the next increment to be useful —
-  consider whether the scope can be adjusted to deliver a complete, minimal version of
-  the feature now.
+- The increment is pure infrastructure with no user-visible value. See whether the
+  infrastructure and its first consumer can ship as one increment.
+- The increment is a half-feature that only becomes useful once the next one lands.
+  See whether you can adjust the scope to deliver a complete, minimal version of the
+  feature now.
 
-"Worth merging in isolation" does not mean "complete." A stripped-down version of a
-feature that works end-to-end is valuable in isolation. A scaffolding commit with
-placeholder implementations is not.
+"Worth merging in isolation" doesn't mean "complete." A stripped-down version that
+works end to end is valuable on its own. A scaffolding commit full of placeholder
+implementations isn't.
 
 ## Anti-patterns
 
 **Skipping ahead.** Phase B starts before Phase A is merged because "Phase A is
-basically done." Phase A is done when it is merged and green, not when it is in review.
-The contracts it establishes are not stable until it merges.
+basically done." Phase A is done when it's merged and green, not when it's in review.
+The contracts it establishes aren't stable until it merges.
 
-**Deferring test failures.** A test that covers Phase A behaviour fails intermittently;
-the decision is made to merge and fix in Phase B. This is not an increment — it is
+**Deferring test failures.** A test covering Phase A behaviour fails intermittently,
+and someone decides to merge now and fix it in Phase B. That's not an increment, it's
 technical debt encoded in the test suite. Fix the test or fix the code before merging.
 
-**Out of scope left empty.** An empty "Out of scope" section usually means the scope
-boundary was not thought through. Every feature decision involves deferred concerns;
-if none come to mind, the increment scope has not been examined carefully enough.
+**Out of scope left empty.** An empty "Out of scope" section usually means nobody
+thought hard about the boundary. Every feature decision defers something. If nothing
+comes to mind, you haven't examined the scope carefully enough.
 
-**Acceptance criteria that are not verifiable.** "The feature should feel responsive"
-is not an acceptance criterion. "WHEN the user clicks Save THE SYSTEM SHALL display
-the confirmation within 200ms" is. Acceptance criteria follow the same quality bar as
-EARS requirements — they must be independently testable.
+**Acceptance criteria that aren't verifiable.** "The feature should feel responsive"
+is not a criterion. "WHEN the user clicks Save THE SYSTEM SHALL display the
+confirmation within 200ms" is. Acceptance criteria hold to the same bar as EARS
+requirements: independently testable.
 
 **Goal written as a task description.** "Implement the service worker registration
 module" is a task. "Users can load the app in an offline-first mode after the first
-visit" is a goal. The Goal section must describe the user or system outcome, not the
-implementation work.
+visit" is a goal. The Goal section describes the user or system outcome, not the work
+done to get there.
 
 ## Enforcement
 
 The PR description references the issue number and confirms all five test layers are
-green. A PR that merges without a green test suite is a process violation regardless
-of urgency. If CI is flaky, the flakiness is fixed before merging — it is not
-bypassed.
+green. Merging without a green test suite is a process violation, however urgent the
+change. When CI is flaky, you fix the flakiness before merging rather than bypassing it.
 
-Epic ordering is enforced by the "Depends on" field in the issue and by not opening
-a PR for `epic.N+1` while `epic.N` is unmerged. This is a social/process enforcement,
-not a tool enforcement, but the rule is recorded here so that a deviation is explicit
-and requires a recorded reason.
+Epic ordering rests on the "Depends on" field and on not opening a PR for `epic.N+1`
+while `epic.N` is still unmerged. Nothing in the tooling enforces this, it's a process
+rule. Recording it here means any deviation has to be explicit and carry a stated
+reason.

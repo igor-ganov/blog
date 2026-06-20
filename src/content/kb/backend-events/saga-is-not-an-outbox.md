@@ -17,11 +17,11 @@ updated: 2026-05-14
 ---
 
 "Why not use a saga?" comes up in every design discussion that touches distributed
-transactions. The question is reasonable on the surface — sagas handle multi-service
-consistency — but it conflates two different problems at two different layers. The
-confusion costs real time: teams debate the pattern, prototype compensation logic, and
-eventually arrive back at an outbox anyway because the reliability problem was never
-about workflow management in the first place.
+transactions. Sagas do handle multi-service consistency, so the question sounds
+reasonable, but it conflates two problems that live at two different layers. The
+confusion costs real time. Teams debate the pattern and prototype compensation logic,
+then come back to an outbox anyway, because the reliability problem was never about
+workflow management.
 
 An event-sourcing service answered this explicitly on 2026-05-14, so there is a
 concrete decision to point at rather than reasoning in the abstract.
@@ -35,21 +35,21 @@ because both involve multiple services and eventual consistency. The decision no
 > producer writes a ChangeEvent and the service records it. There is no multi-step
 > business workflow to coordinate. No workflow means no saga.
 
-That is the minimal framing. The fuller argument requires understanding what each pattern
+That is the minimal framing. The fuller argument needs you to know what each pattern
 actually does.
 
 **A saga is a workflow-level construct.** It models a long-running business process that
-spans multiple services as a sequence of local transactions, each of which publishes an
-event or command to trigger the next step. When a step fails, the saga executes
-compensating transactions to undo prior steps. The canonical example is an e-commerce
-order that reserves inventory, charges a card, and schedules shipping — three separate
-services, three local commits, and a defined set of compensations if any step fails after
-others have committed.
+spans multiple services as a sequence of local transactions, each one publishing an
+event or command to trigger the next step. When a step fails, the saga runs
+compensating transactions to undo the prior steps. The canonical example is an e-commerce
+order that reserves inventory, charges a card, then schedules shipping: three separate
+services, three local commits, and a defined set of compensations for when a step fails
+after others have committed.
 
-**An outbox is a transport-level construct.** It solves one problem: how to guarantee
+**An outbox is a transport-level construct.** It solves one problem. It guarantees
 that a message is published to a broker exactly once relative to a local database commit,
 even if the process crashes between the write and the publish. It has no concept of
-workflow steps, compensation, or cross-service coordination. It just ensures the message
+workflow steps, compensation, or cross-service coordination. It only makes sure the message
 leaves the service reliably.
 
 The two operate at different layers:
@@ -63,15 +63,14 @@ Transport layer: [ Outbox + relay ]       [ Inbox + idempotent consumer ]
 ```
 
 A saga _needs_ an outbox underneath. If a saga step publishes to a broker without an
-outbox, that publish is unreliable — it can be lost on a crash. A saga without reliable
-transport is a saga that silently skips steps, which is arguably worse than no saga at
-all.
+outbox, that publish can be lost on a crash. A saga without reliable transport silently
+skips steps, which is arguably worse than having no saga at all.
 
 ### Why the confusion happens
 
 The confusion arises because sagas and outboxes share surface-level features: both
-involve events, both span service boundaries, and both respond to partial failures. The
-difference is what "failure" means in each case.
+involve events, both cross service boundaries, both respond to partial failures. What
+separates them is what "failure" means in each case.
 
 - Saga failure: a **business step** fails (payment declined, inventory insufficient).
   The response is compensation: reverse prior steps to restore business-level consistency.
@@ -79,8 +78,8 @@ difference is what "failure" means in each case.
   The response is retry: re-attempt the same delivery until it succeeds.
 
 Compensation logic and retry logic are not interchangeable. You cannot "retry" a payment
-that was declined — you need to cancel the reservation. You cannot "compensate" for a
-broker being down — you need to queue the message and try again.
+that was declined; you cancel the reservation instead. And you cannot "compensate" for a
+broker being down, you queue the message and try again.
 
 ## How to apply
 
@@ -137,7 +136,7 @@ Use only an outbox when:
 
 This ingestion pattern is this case. The producer writes one ChangeEvent in its own
 transaction, and the event-sourcing service records it. If the record fails, the message is
-redelivered. There is nothing to compensate — either the event is recorded or it is not.
+redelivered. There is nothing to compensate, since either the event is recorded or it is not.
 
 ```ts
 // Not a saga. One step. Retry on failure. Outbox handles reliability.
@@ -188,8 +187,8 @@ const reserveInventoryStep: SagaStep<OrderContext> = {
 ```
 
 The first anti-pattern wastes design effort on compensation logic that is semantically
-meaningless for the actual failure mode. The second is a saga that silently loses
-messages — a saga built on sand.
+meaningless for the actual failure mode. The second builds a saga on a transport that
+silently loses messages, so the workflow it is supposed to guarantee never holds.
 
 ## See also
 

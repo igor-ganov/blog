@@ -20,19 +20,19 @@ updated: 2026-06-10
 
 ## Why this matters
 
-For years, running TypeScript in Node required either compiling to JavaScript first (`tsc && node dist/script.js`), using a third-party runner (`ts-node`, `tsx`), or passing experimental flags. All three approaches add friction: a build step means the script is out of date until you run it; third-party runners are extra dependencies that can drift from the project's TypeScript version; flags are non-obvious and can silently break on Node upgrades.
+For years, running TypeScript in Node meant one of three chores: compile to JavaScript first (`tsc && node dist/script.js`), reach for a third-party runner (`ts-node`, `tsx`), or pass experimental flags. Each one costs you something. A build step leaves the script stale until you remember to rebuild. Third-party runners are extra dependencies whose pinned TypeScript version drifts away from yours. The flags are obscure and tend to break quietly when Node upgrades under you.
 
-Node 22 shipped native TypeScript support via type-stripping (the `--experimental-strip-types` flag, enabled by default from Node 22.6). Node 23 promoted the feature out of experimental. **Node 24**, which is the version on this machine (`v24.7.0`), runs `.ts` files directly with no flags, no config, and no extra packages:
+Node 22 shipped native TypeScript support via type-stripping (the `--experimental-strip-types` flag, on by default from Node 22.6). Node 23 promoted the feature out of experimental. **Node 24**, which is the version on this machine (`v24.7.0`), runs `.ts` files directly with no flags, no config, and no extra packages:
 
 ```
 node script.ts
 ```
 
-That is the entire invocation. The style rule in this codebase is unambiguous: **generate only `.ts` scripts that Node can run natively. No `.js`. No third-party libs or flags. Node can run TS by itself.**
+That is the whole invocation. The style rule in this codebase leaves no room: **generate only `.ts` scripts that Node can run natively. No `.js`. No third-party libs or flags. Node can run TS by itself.**
 
-The Jira admin tooling scripts (2026-05-22) were the first place this was applied systematically. The tooling consisted of numbered `.ts` scripts (`01-fetch-sprint.ts`, `02-map-issues.ts`, etc.) that ran directly on Node 24 with no `package.json` build command and no compiled output. The scripts stayed in TypeScript throughout their lifetime; the team edited the `.ts` file and ran it immediately.
+The Jira admin tooling scripts (2026-05-22) were the first place this got applied across the board. That tooling was a set of numbered `.ts` scripts (`01-fetch-sprint.ts`, `02-map-issues.ts`, etc.) that ran straight on Node 24 with no `package.json` build command and no compiled output. They stayed in TypeScript for their whole life: edit the `.ts` file, run it, done.
 
-**Relationship to bun**: the project default runtime is `bun` (see [bun-by-default](/kb/tooling-runtime/bun-by-default)). The point of this article is not to prefer Node over bun — bun also runs `.ts` natively and is often the better choice. The point is that **no build pipeline is needed for scripts in either runtime**. You do not write `.js`, you do not run `tsc`, you do not install `ts-node`. That simplicity is the rule.
+**Relationship to bun**: the project default runtime is `bun` (see [bun-by-default](/kb/tooling-runtime/bun-by-default)). This article is not arguing Node over bun. Bun also runs `.ts` natively and is usually the better pick. What both runtimes share is that **no build pipeline is needed for scripts**. You do not write `.js`, you do not run `tsc`, you do not install `ts-node`.
 
 ## How to apply
 
@@ -52,7 +52,7 @@ No compilation, no `dist/` folder, no intermediate `.js` file.
 
 ### Script structure
 
-Write scripts with full TypeScript types. Type-stripping removes annotations at execution time; it does not transform syntax beyond that. Avoid TypeScript features that require transformation:
+Write scripts with full TypeScript types. Type-stripping erases annotations at execution time and does nothing else to the syntax, so steer clear of any TypeScript feature that needs a real transform:
 
 - **Allowed**: type annotations, interfaces, type aliases, generics, `as const`, `satisfies`, `import type`.
 - **Not stripped (avoided in scripts)**: `enum` (use `as const` objects instead), legacy decorators, `namespace` blocks.
@@ -84,7 +84,7 @@ Run it:
 node 01-fetch-sprint.ts
 ```
 
-No tsconfig required for the execution itself (Node uses its own defaults for stripping). If you want editor type-checking, a minimal `tsconfig.json` covering the scripts directory is sufficient:
+Execution needs no tsconfig at all; Node strips with its own defaults. If you want type-checking in the editor, a small `tsconfig.json` over the scripts directory does the job:
 
 ```jsonc
 // tsconfig.scripts.json
@@ -102,7 +102,7 @@ No tsconfig required for the execution itself (Node uses its own defaults for st
 
 ### Enum replacement
 
-`enum` requires transformation that type-stripping does not perform. Replace with `as const`:
+`enum` needs a transform that type-stripping never runs. Use an `as const` object instead:
 
 ```typescript
 // Bad — enum requires transformation, fails with type-stripping
@@ -136,11 +136,11 @@ import { parseSprint } from './parse-sprint.ts';
 import { parseSprint } from './parse-sprint.js';
 ```
 
-Node's `NodeNext` module resolution with type-stripping resolves `.ts` imports correctly.
+Node's `NodeNext` resolution paired with type-stripping resolves `.ts` imports correctly.
 
 ### Numbered scripts for sequential tooling
 
-When building a workflow that runs in steps, prefix each script with a number. The sequence is self-documenting, the files sort correctly in a directory listing, and each step can be run independently.
+When a workflow runs in steps, prefix each script with a number. The order documents itself, the files sort right in a directory listing, and you can still run any step on its own.
 
 ```
 scripts/
@@ -175,7 +175,7 @@ tsc --project tsconfig.scripts.json
 node dist/scripts/01-fetch-sprint.js
 ```
 
-**Symptom**: developers forget to recompile after editing; they run the stale `.js` and wonder why their change has no effect.
+**Symptom**: someone edits the source, forgets to recompile, runs the stale `.js`, and can't work out why the change did nothing.
 
 ### Using ts-node or tsx
 
@@ -185,7 +185,7 @@ npx ts-node scripts/01-fetch-sprint.ts
 npx tsx scripts/01-fetch-sprint.ts
 ```
 
-**Symptom**: `ts-node` and `tsx` have their own TypeScript version pinned via their own dependency tree, which can diverge from the project's TypeScript. Subtle type-checking differences cause scripts that pass locally to fail in CI or vice versa.
+**Symptom**: `ts-node` and `tsx` pin their own TypeScript through their own dependency tree, which can drift from the project's version. Small type-checking differences then make a script pass locally and fail in CI, or the reverse.
 
 ### Writing the script in JavaScript
 
@@ -195,7 +195,7 @@ npx tsx scripts/01-fetch-sprint.ts
 const fetchIssue = async (id) => { /* ... */ };
 ```
 
-**Symptom**: no compile-time type checking; errors surface at runtime. TypeScript is already available and runs natively; there is no reason to write untyped scripts.
+**Symptom**: no compile-time checks, so the errors only show up at runtime. TypeScript is already there and runs natively, so writing untyped scripts buys you nothing.
 
 ### Using experimental flags explicitly
 
@@ -204,7 +204,7 @@ const fetchIssue = async (id) => { /* ... */ };
 node --experimental-strip-types script.ts
 ```
 
-**Symptom**: the flag documents a misunderstanding of the Node version in use. On Node 24 the flag is implicit; including it misleads future readers into thinking it is still required.
+**Symptom**: the flag advertises a wrong assumption about the Node version. On Node 24 it is implicit, so keeping it tricks the next reader into thinking it is still required.
 
 ### Using enums
 
@@ -213,14 +213,14 @@ node --experimental-strip-types script.ts
 enum Direction { North = 'N', South = 'S' }
 ```
 
-**Symptom**: `SyntaxError: Unexpected reserved word` or `SyntaxError: Decorators are not valid here` depending on the Node version. Replace with `as const` objects.
+**Symptom**: `SyntaxError: Unexpected reserved word` or `SyntaxError: Decorators are not valid here`, depending on the Node version. Switch to `as const` objects.
 
 ## Enforcement
 
-- Set `"noEmit": true` in any tsconfig covering scripts. If a CI job ever tries to write `.js` output from a scripts directory, the build should fail.
-- A project-level `.gitignore` rule of `dist/` or `scripts/dist/` ensures compiled output is never committed.
+- Set `"noEmit": true` in any tsconfig covering scripts, so a CI job that tries to emit `.js` from a scripts directory fails the build.
+- A project-level `.gitignore` rule of `dist/` or `scripts/dist/` keeps compiled output out of commits.
 - Lint rule: `@typescript-eslint/no-restricted-syntax` can ban `TSEnumDeclaration` in script files.
-- The `engines` field in `package.json` should pin the minimum Node version to 22 to make the native TS capability a stated requirement:
+- Pin the minimum Node version to 22 in the `engines` field of `package.json` so the native-TS capability becomes a stated requirement:
 
 ```jsonc
 {

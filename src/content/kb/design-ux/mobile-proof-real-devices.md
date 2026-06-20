@@ -19,25 +19,23 @@ order: 4
 updated: 2026-04-19
 ---
 
-Chrome DevTools device emulation is a viewport simulator, not a device simulator. It
-sets `window.innerWidth`, scales the viewport, and simulates touch events. It does not
-replicate the operating system's scrollbar model, input method behaviour, font rendering
-stack, or browser chrome geometry. A layout that looks correct in DevTools emulation
-can still have a visible defect on a real device — and that defect only surfaces when a
-human holds the phone.
+Chrome DevTools device emulation is a viewport simulator. It sets `window.innerWidth`,
+scales the viewport, and dispatches touch events, but it does not replicate the operating
+system's scrollbar model, input method behaviour, font rendering stack, or browser chrome
+geometry. So a layout can look correct in DevTools emulation and still carry a visible
+defect that only surfaces when someone holds the actual phone.
 
-On one project (2026-04-19) this was not theoretical. A `scrollbar-gutter:
-stable` declaration on the `html` element, added to prevent layout shift when a modal
-opens on desktop, created a visible white strip on the right edge of every page on
-mobile. Desktop browsers with overlay scrollbars (macOS, iOS, Android) reserve no space
-for the scrollbar gutter, but `scrollbar-gutter: stable` forces a reservation anyway —
-resulting in a permanent 15px-wide white strip down the right side of the screen. In
-DevTools mobile emulation the strip was invisible because DevTools did not simulate the
-overlay-scrollbar model accurately. It was only visible on real hardware.
+On one project (2026-04-19) that bit us. A `scrollbar-gutter: stable` declaration on the
+`html` element, added to prevent layout shift when a modal opens on desktop, produced a
+visible white strip on the right edge of every page on mobile. Desktop browsers with
+overlay scrollbars (macOS, iOS, Android) reserve no space for the gutter, yet
+`scrollbar-gutter: stable` forces a reservation regardless, so you get a permanent
+15px-wide white strip down the right side of the screen. DevTools mobile emulation never
+showed it, because DevTools does not simulate the overlay-scrollbar model accurately. The
+strip was visible only on real hardware.
 
-Mobile layout work from that point was accepted only as a complete folder of screenshots
-of every page at mobile viewport dimensions. Not a single representative page. Every
-page.
+From that point, mobile layout work was accepted only as a complete folder of screenshots
+covering every page at mobile viewport dimensions. One representative page is not enough.
 
 ## Why this matters
 
@@ -67,15 +65,15 @@ DevTools mobile emulation does NOT accurately simulate:
 ### The `scrollbar-gutter` incident
 
 `scrollbar-gutter: stable` prevents layout shift when content tall enough to trigger
-a scrollbar is added to the page — the gutter is reserved in advance, so adding the
-scrollbar does not shift content left. This is a valid desktop behaviour.
+a scrollbar gets added to the page. The gutter is reserved in advance, so adding the
+scrollbar does not shift content left. On desktop that is exactly what you want.
 
-On mobile, scrollbars are overlay overlays. They appear transiently over content and
-reserve no space. `scrollbar-gutter: stable` on `html` on a mobile browser with
-overlay scrollbars creates a reserved-but-invisible gutter — visible as a white strip
-matching the scrollbar-gutter width on the right edge of every page.
+On mobile, scrollbars are overlays. They appear transiently over content and reserve no
+space, so `scrollbar-gutter: stable` on `html` in a mobile browser with overlay
+scrollbars reserves a gutter that nothing fills. You see it as a white strip matching the
+gutter width on the right edge of every page.
 
-The fix: scope it to the breakpoint where desktop scrollbars exist.
+The fix is to scope the property to the breakpoint where desktop scrollbars exist.
 
 ```css
 /* Bad: applies scrollbar-gutter reservation to all viewports including mobile */
@@ -92,16 +90,16 @@ html {
 ```
 
 When debugging mobile overflow or unexpected right-side whitespace, check this property
-first. It is the most common source of invisible-in-emulation, visible-on-device right
-edge issues.
+first. It is the most common source of right-edge issues that hide in emulation and show
+up on the device.
 
 ### The `100vh` / address bar problem
 
-Mobile browsers have a dynamic viewport where the address bar hides on scroll. This
+Mobile browsers have a dynamic viewport where the address bar hides on scroll, which
 makes the visual viewport taller than `100vh` once the user starts scrolling. An element
-set to `height: 100vh` is shorter than the actual available space when the address bar
-is hidden, causing gaps below hero sections, footers that do not reach the bottom, and
-clipped full-page overlays.
+set to `height: 100vh` ends up shorter than the available space once the address bar is
+gone, leaving gaps below hero sections, footers that never reach the bottom, and clipped
+full-page overlays.
 
 ```css
 /* Bad: 100vh is "initial viewport height" — shorter than full-screen on mobile after
@@ -141,12 +139,12 @@ screenshots/mobile-proof/
 
 "Every page" means every distinct route, not just the ones the PR touched directly.
 A layout change (grid change, spacing change, header change, CSS custom property change)
-can cascade to pages the author did not consciously modify. The screenshot of every page
-is the only way to catch cascading regressions.
+can cascade to pages the author never consciously modified, and a screenshot of every
+page is the only reliable way to catch those cascading regressions.
 
-If screenshots cannot be taken on real hardware, use the mobile browser directly — open
+If you cannot capture screenshots on real hardware, use the mobile browser directly: open
 the page on a physical phone and screenshot there, or use a real-device cloud service.
-Do not use the DevTools device toolbar as a substitute.
+Do not substitute the DevTools device toolbar.
 
 ### The mobile debugging checklist
 
@@ -179,9 +177,9 @@ When a mobile layout issue is reported or suspected, check in this order:
 
 **"I checked in DevTools, it looks fine"**
 
-DevTools is not evidence for mobile. It is evidence for desktop-at-narrow-width. For
-mobile-specific properties and behaviours, real hardware or a real device cloud is
-required. Attaching a DevTools screenshot as mobile proof is not accepted.
+DevTools is evidence for desktop-at-narrow-width, not for mobile. Mobile-specific
+properties and behaviours need real hardware or a real-device cloud, so a DevTools
+screenshot does not count as mobile proof.
 
 **Fixing one page, not checking all pages**
 
@@ -191,10 +189,10 @@ cascading regressions. The screenshot folder covers all routes.
 
 **Fixing mobile overflow with `overflow-x: hidden` on body**
 
-This hides the overflow rather than resolving it. The layout defect is still there;
-it is just invisible. On some mobile browsers, hiding overflow on `body` also disables
+This hides the overflow instead of resolving it. The layout defect is still there, just
+no longer visible. On some mobile browsers, hiding overflow on `body` also kills
 scroll-momentum and breaks fixed-position elements. The correct fix is to find the
-element causing overflow and fix its width or transform.
+element causing the overflow and correct its width or transform.
 
 ```css
 /* Anti-pattern: masks the problem */
@@ -211,10 +209,10 @@ body {
 
 ## See also
 
-[Prove with production screenshots](/kb/process/prove-with-production-screenshots) —
-the broader process rule that mobile screenshots are an instance of: claims about
-production behaviour require production evidence.
+[Prove with production screenshots](/kb/process/prove-with-production-screenshots) is the
+broader process rule that mobile screenshots are an instance of: claims about production
+behaviour require production evidence.
 
-[Drive the real browser over MCP](/kb/tooling-runtime/drive-the-real-browser-over-mcp) —
-the tooling counterpart: when scripting browser tests, drive a real browser instance
+[Drive the real browser over MCP](/kb/tooling-runtime/drive-the-real-browser-over-mcp) is
+the tooling counterpart. When scripting browser tests, drive a real browser instance
 rather than a simulated one, for the same reasons that apply to mobile proofing.

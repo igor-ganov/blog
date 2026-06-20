@@ -20,40 +20,40 @@ order: 1
 updated: 2026-06-10
 ---
 
-A Lit `LitElement` is a class. Classes accumulate. Left unchecked, a custom element
+A Lit `LitElement` is a class, and classes accumulate. Left unchecked, a custom element
 grows a shadow DOM, a positioning engine, an animation scheduler, ARIA bookkeeping,
 keyboard handling, and external API methods all in one file. None of that logic is
 testable without a real browser, and none of it is reusable outside this one element.
 
-The discipline that prevents this was distilled from the headless web-component library
-(2026-06-06): treat the element class as a **thin shell** — a place to declare reactive
-properties, hold `@query` refs and one controller, and delegate lifecycle calls — and
-put every real decision in pure free functions that live in `src/element/*.ts`. Vitest
-runs against those functions with `happy-dom`; Playwright runs the E2E against the real
+The discipline that prevents this came out of the headless web-component library
+(2026-06-06). Treat the element class as a **thin shell**: a place to declare reactive
+properties, hold `@query` refs and one controller, and delegate lifecycle calls. Put
+every real decision in pure free functions that live in `src/element/*.ts`. Vitest runs
+against those functions with `happy-dom`, and Playwright runs the E2E against the real
 Vite demo. The two test layers never overlap.
 
 ## Why this matters
 
-The cost of a fat component class is invisible until you try to test it. Lit's
+The cost of a fat component class stays invisible until you try to test it. Lit's
 `@property()` and `@state()` tie values to `requestUpdate`, which needs the full custom
-element machinery, which needs a browser. A Vitest suite that imports a fat element must
-mount it (`fixture()` or `render()`), wait for updates, and then assert. Every test
-carries that overhead. When there are 30 tests, the mount/unmount cycle dominates the
-run time and every test that fails reports the component's wiring, not the logic.
+element machinery, which needs a browser. A Vitest suite that imports a fat element has
+to mount it (`fixture()` or `render()`), wait for updates, and then assert. Every test
+carries that overhead. With 30 tests, the mount/unmount cycle dominates the run time,
+and a failure reports the component's wiring rather than the logic you wanted to check.
 
-Pure free functions — `openMenu(host, event)`, `computeGeometry(trigger, menu)`,
-`trapFocus(container)` — are synchronous or return plain values. Vitest imports them,
-calls them, asserts on the return value. No DOM, no custom element registry, no async
-lifecycle. The component suite runs in a few hundred milliseconds and reports exactly
-the function that failed.
+Pure free functions like `openMenu(host, event)`, `computeGeometry(trigger, menu)`, and
+`trapFocus(container)` are synchronous or return plain values. Vitest imports them,
+calls them, and asserts on the return value. No DOM, no custom element registry, no
+async lifecycle. The component suite runs in a few hundred milliseconds and points at
+exactly the function that failed.
 
-The secondary gain is reuse. `computeGeometry` is testable with any pair of
-`DOMRect`-shaped objects. If the geometry algorithm needs to move to a different
+Reuse is the second payoff. `computeGeometry` is testable with any pair of
+`DOMRect`-shaped objects, so if the geometry algorithm has to move to a different
 component, it carries zero Lit dependency.
 
 ## How to apply
 
-The split is mechanical once you know the boundary. The class holds:
+Once you know the boundary, the split is mechanical. The class holds:
 
 - `@property()` / `@state()` declarations
 - `@query` refs to shadow DOM nodes that cannot exist outside a mounted element
@@ -194,9 +194,10 @@ describe('computeGeometry', () => {
 });
 ```
 
-Playwright covers the mounted element end-to-end — clicking the trigger, asserting the
-popup opens, focus trapping, keyboard dismiss — but it never tests geometry arithmetic
-or focus logic in isolation. Those are covered by Vitest and do not need a browser.
+Playwright covers the mounted element end-to-end: clicking the trigger, asserting the
+popup opens, checking the focus trap and keyboard dismiss. It never tests geometry
+arithmetic or focus logic in isolation, because Vitest already covers those without a
+browser.
 
 ## Anti-patterns
 
@@ -222,10 +223,10 @@ export class FloatingMenuElement extends LitElement {
 }
 ```
 
-The symptoms: unit test coverage is zero because `getBoundingClientRect()` always
-returns zeros in jsdom, so every geometry assertion either skips or asserts `0 === 0`
-uselessly. Playwright becomes the only safety net, and it runs against a browser, so
-feedback is slow. A geometry regression goes undetected until CI.
+The symptom is that unit test coverage drops to zero. `getBoundingClientRect()` always
+returns zeros in jsdom, so every geometry assertion either skips or uselessly asserts
+`0 === 0`. Playwright becomes the only safety net, and since it runs against a browser,
+feedback is slow. A geometry regression then goes undetected until CI.
 
 ```ts
 // ❌ Multiple controllers: the element has grown a FocusController, a
@@ -238,18 +239,18 @@ private readonly _keyCtl    = new KeyboardController(this);
 ```
 
 Controllers that compose into one coordinator belong inside a single controller, with
-the individual concerns expressed as free functions it calls.
+each separate concern expressed as a free function it calls.
 
 ## Enforcement
 
-Count the lines in the element class in CI: a shell that has grown past 60 lines
-including whitespace is a review signal that logic is leaking back in. The Vitest
-suite gives a mechanical enforcement: if coverage of `src/core/**` drops below a
+Count the lines in the element class in CI. A shell that has grown past 60 lines
+including whitespace is a review signal that logic is leaking back in. The Vitest suite
+adds a mechanical check on top of that: if coverage of `src/core/**` drops below a
 threshold, something that should be a free function is hiding inside the class.
 
 The split also pairs with the [one-function-per-file-folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)
-rule: each free function in `src/core/` lives in its own file, named for what it does,
-so the import graph is navigable and the test file is next to the source file.
+rule. Each free function in `src/core/` lives in its own file, named for what it does,
+so the import graph stays navigable and the test file sits next to the source file.
 
 ## See also
 
@@ -258,4 +259,4 @@ hardcoded sizes. That constraint is covered in
 [compute geometry from measured sizes](/kb/web-components/measured-geometry-not-hardcoded).
 The decorator configuration that keeps `@property()` and `@state()` working correctly
 with the class-field split is covered in
-[Lit legacy decorators — never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor).
+[Lit legacy decorators, never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor).

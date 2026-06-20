@@ -23,15 +23,15 @@ updated: 2026-06-10
 ---
 
 A lint rule runs on every commit, every PR, every CI invocation. A code review happens
-once, under time pressure, by a person who may be fatigued or context-switched. The two
-are not comparable. An architectural rule that lives only in review comments or team
-conventions will erode. An architectural rule that lives in lint will hold until someone
-deliberately removes the rule.
+once, under time pressure, by a person who may be tired or halfway into another task. So
+a rule that lives only in review comments or team convention erodes, while the same rule
+encoded in lint holds until someone deliberately deletes it. That asymmetry is the whole
+argument.
 
-The corollary is equally important: **no overrides, no suppressions**. A `biome-ignore`
-or `eslint-disable` comment is a hole in the architecture. Enough holes and the rules
-mean nothing. When a lint rule is fighting you, the correct response is to fix the
-design, not to suppress the warning.
+The other half of the rule is **no overrides, no suppressions**. A `biome-ignore` or
+`eslint-disable` comment is a hole in the architecture, and enough holes mean the rules
+no longer say anything. When a lint rule fights you, fix the design rather than silence
+the warning.
 
 ## Why this matters
 
@@ -44,9 +44,9 @@ the refactoring was dedicated entirely to lint cleanup:
 - **9 Biome override blocks** in `biome.json` removed.
 - **3 oxlint override blocks** removed.
 
-Each suppression represented either a real violation that was tolerated, or a rule so
-misconfigured that it fired falsely — both states are problems. After phase 8, the
-linter ran clean with no overrides. Every subsequent PR had to pass the same bar.
+Each suppression was one of two problems: a real violation someone decided to tolerate,
+or a rule misconfigured badly enough to fire on correct code. After phase 8 the linter
+ran clean with no overrides, and every PR after that had to clear the same bar.
 
 The engineering standard (2026-06-07) specified the exact rules that must be
 active:
@@ -58,11 +58,11 @@ active:
 - `@typescript-eslint/switch-exhaustiveness-check`.
 - One-export-per-file and filename-matches-export conventions.
 
-The multi-package monorepo decision (2026-04-11) added: **each repo ships its own `biome.json`
-and oxlint config**. Lint runs from a fresh checkout without relying on shared config
-that may drift between projects.
+The multi-package monorepo decision (2026-04-11) added a rule: **each repo ships its own
+`biome.json` and oxlint config**. Lint then runs from a fresh checkout without leaning on
+shared config that drifts between projects.
 
-This blog repository itself demonstrates the pattern: `biome.json` enforces
+This blog repository does the same thing. Its `biome.json` enforces
 `noEmptyBlockStatements`, `noExplicitAny`, and `noNonNullAssertion` at error severity
 with no overrides.
 
@@ -178,18 +178,18 @@ runs from a clean checkout.
   # No --max-warnings flag that lets warnings through.
 ```
 
-The lint step fails the build on the first error. `--max-warnings 0` is implicit in
-`bun run lint` because the config has no rules at `warn` severity — everything that
-matters is `error`.
+The lint step fails the build on the first error. There is no need for a `--max-warnings 0`
+flag because the config has no rules at `warn` severity in the first place. Anything worth
+enforcing is set to `error`.
 
 **What to do when a rule fires.**
 
-A lint error on a PR is not a negotiation. The options are:
+A lint error on a PR is not a negotiation. You have two options:
 
 1. Fix the design so it satisfies the rule.
-2. Submit an RFC to remove or modify the rule itself — a deliberate, reviewed decision.
+2. Submit an RFC to remove or change the rule, which is a deliberate and reviewed decision.
 
-There is no option 3 (`eslint-disable`). Suppressions are not merged.
+There is no third option. `eslint-disable` is not it, and suppressions do not get merged.
 
 ## Anti-patterns
 
@@ -210,12 +210,13 @@ let count = 0;
 //    on the next onboarding, the next late-night PR, the next deadline push
 ```
 
-Each pattern creates a gap between the written rule and the enforced rule. The gap widens
-over time. The content-admin SPA had 148 such gaps before phase 8 closed them.
+Every one of these opens a gap between the rule as written and the rule as enforced, and
+the gap only widens with time. The content-admin SPA had 148 such gaps before phase 8
+closed them.
 
 ## See also
 
-The no-branching rule, the file-size rule, and the one-export rule only have meaning if
-they are enforced. Lint enforcement is what converts a preference into an architectural
-constraint. The rules documented in the other `functional-architecture/` articles are
-the content; this article is the mechanism that makes them real.
+The no-branching rule, the file-size rule, and the one-export rule mean nothing unless
+something enforces them. Lint is what turns a stated preference into an architectural
+constraint. The other `functional-architecture/` articles describe the rules; this one
+describes the mechanism that makes any of them stick.

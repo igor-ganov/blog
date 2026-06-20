@@ -16,36 +16,36 @@ order: 2
 updated: 2026-06-10
 ---
 
-Traceability is the property that lets you start from a failing test and walk
-backwards to the requirement that demanded it, or start from a requirement and walk
-forwards to the test that proves it is satisfied. Without traceability you cannot tell
-whether an implementation is complete, whether a change is safe, or whether a test
-failure means the code is wrong or the spec is wrong. The spec-driven workflow
-(formalised in the engineering standard, 2026-06-02) treats traceability as mandatory, not optional documentation.
+Traceability lets you start from a failing test and walk back to the requirement that
+demanded it, or start from a requirement and walk forward to the test that proves it.
+Without it you can't tell whether an implementation is complete, whether a change is
+safe, or whether a failing test means the code is wrong or the spec is wrong. The
+spec-driven workflow (formalised in the engineering standard, 2026-06-02) treats
+traceability as mandatory rather than optional documentation.
 
-Phase reviews are the enforcement mechanism. A review is a deliberate pause at the
-boundary between phases — requirements → design, design → tasks, tasks → implementation
-— that checks completeness and correctness before the next phase begins. Fixing a
-spec is cheap. Fixing code that was built on a wrong spec is expensive.
+Phase reviews are how that gets enforced. A review is a deliberate pause at the
+boundary between phases (requirements → design, design → tasks, tasks →
+implementation) that checks completeness and correctness before the next phase begins.
+Fixing a spec is cheap; fixing code built on a wrong spec is not.
 
 ## Why this matters
 
-The cost asymmetry is not abstract. A requirements error discovered during code review
-means: the implementation is wrong, the tests are wrong (they validated the wrong
-behaviour), the design decisions that depended on the requirement may be wrong, and
-the PR needs to be unwound before the spec can be fixed and the cycle restarted. The
-same error caught at the requirements-to-design review costs a paragraph edit.
+The cost asymmetry is concrete. A requirements error found during code review means the
+implementation is wrong, the tests are wrong because they validated the wrong
+behaviour, the design decisions that depended on the requirement may be wrong, and the
+PR has to be unwound before the spec can be fixed and the cycle restarted. Caught at
+the requirements-to-design review, the same error costs a paragraph edit.
 
-The failure mode that traceability guards against is **spec drift**: the spec says one
+The failure mode traceability guards against is **spec drift**: the spec says one
 thing, the code gradually diverges, nobody updates the spec, and after a few
-increments nobody is certain what the system is supposed to do. The spec becomes
-decorative. The canonical fix is not to write better specs once — it is to maintain
-the discipline that the spec is authoritative and that divergence triggers a spec
-amendment, not a silent code accommodation.
+increments nobody is certain what the system is supposed to do. The spec turns
+decorative. The fix isn't writing better specs once. It's the standing discipline that
+the spec is authoritative and that divergence triggers a spec amendment rather than a
+silent code accommodation.
 
 A related failure is **hallucinated scope**: an implementation adds behaviour that was
-never in the spec, often with good intentions ("while I was here I also…"). This is
-invisible until it breaks something or until a code review catches a feature with no
+never in the spec, often with good intentions ("while I was here I also…"). It stays
+invisible until it breaks something, or until a code review catches a feature with no
 requirement behind it.
 
 ## How to apply
@@ -71,8 +71,8 @@ At the end of each phase, before proceeding to the next, answer these questions:
 - Is every requirement covered by at least one task?
 - Are tasks ordered so that each one is buildable and testable in isolation?
 
-Only pass the checkpoint when all questions have affirmative answers. If a question
-cannot be answered affirmatively, fix the artifact — do not proceed.
+Pass the checkpoint only when every question gets a yes. If one of them can't, fix the
+artifact before you proceed.
 
 ### The traceability chain
 
@@ -104,12 +104,12 @@ src/outbox/relay.test.ts
   });
 ```
 
-The backward direction works the same way: given a test, you can find the task, the
-design section, and the requirement that demanded it.
+The backward direction works the same way. Given a test, you can find the task, then
+the design section, then the requirement that demanded it.
 
 ### When the spec is wrong
 
-Implementation often reveals spec errors. The correct response is a fixed sequence:
+Implementation often reveals spec errors. The response is a fixed sequence:
 
 1. **Stop.** Do not work around the error in the code.
 2. **Document the finding.** Write a short note: what the spec says, what reality
@@ -122,17 +122,17 @@ Implementation often reveals spec errors. The correct response is a fixed sequen
    decisions), those sections are updated too.
 5. **Continue.** Only after the spec is correct does the implementation resume.
 
-This is not bureaucracy — it is the minimum work to keep the spec authoritative. A
-spec that is amended once and re-reviewed is still a source of truth. A spec that was
-silently contradicted by code is no longer a spec; it is a historical document.
+This isn't bureaucracy. It's the minimum work to keep the spec authoritative. A spec
+that gets amended once and re-reviewed is still a source of truth, whereas a spec that
+code silently contradicts has become a historical document.
 
 ### Versioning and location
 
-Specs live next to the code, in the repository, in a `docs/` or `specs/` directory
-at the relevant scope. They are versioned with the code — a spec amendment and the
-code change it authorises go in the same PR, or in adjacent commits with a clear
-reference. A spec that exists in a wiki or a separate system and is not versioned with
-the code will drift.
+Specs live next to the code, in the repository, in a `docs/` or `specs/` directory at
+the relevant scope. They are versioned with the code: a spec amendment and the code
+change it authorises go in the same PR, or in adjacent commits with a clear reference.
+A spec that lives in a wiki or some separate system, unversioned against the code, will
+drift.
 
 ### Code review as spec-adherence check
 
@@ -147,13 +147,13 @@ Every PR review includes a spec-adherence pass:
 ## Anti-patterns
 
 **Implementing past a failing checkpoint.** The checkpoint revealed that REQ-7 has no
-design section. The response is not to note it and continue — it is to add the design
-section and re-check before writing a line of code for REQ-7.
+design section. Noting it and continuing is the wrong move; add the design section and
+re-check before writing a line of code for REQ-7.
 
-**Amending the spec to match the code.** The implementation diverged; instead of
-understanding why and deciding what is correct, the spec is edited to say what the
-code does. This is not a spec amendment — it is retroactive rationalisation. The
-amendment must record the reasoning for the change, not just the change.
+**Amending the spec to match the code.** The implementation diverged, and instead of
+understanding why and deciding what is correct, someone edits the spec to say what the
+code does. That's retroactive rationalisation, not a spec amendment. The amendment has
+to record the reasoning for the change, not only the change.
 
 **Traceability as a trailing annotation.** Adding `// REQ-4` comments after the
 implementation is complete is better than nothing but does not replace the forward
@@ -162,17 +162,17 @@ the implementation is guided by the spec, not the other way around.
 
 **Scope creep under a plausible heading.** A design section for "Dead-letter handling"
 acquires a retry dashboard because "it was convenient." The dashboard has no
-requirement. This is hallucinated scope. Every design element needs a requirement
-reference; if the reference does not exist, either add a requirement (via the proper
+requirement, so it's hallucinated scope. Every design element needs a requirement
+reference. If the reference doesn't exist, either add a requirement (through the proper
 channel, including a review) or remove the element.
 
 ## Enforcement
 
-The phase-review checkpoints are enforced by the process, not by a tool. The practical
-enforcement is: no PR is opened for implementation work unless `tasks.md` exists and
-has passed its checkpoint. A PR that adds features with no corresponding tasks entry
-is incomplete by definition.
+The phase-review checkpoints are enforced by the process, not by a tool. In practice
+that means no PR is opened for implementation work unless `tasks.md` exists and has
+passed its checkpoint. A PR that adds features with no corresponding tasks entry is
+incomplete by definition.
 
-The spec drift check in code review is the last safety net. If a reviewer finds
-behaviour in the PR that has no requirement behind it, the PR is not merged until
-either the requirement is added (with a review) or the behaviour is removed.
+The spec-drift check in code review is the last safety net. If a reviewer finds
+behaviour in the PR with no requirement behind it, the PR doesn't merge until either
+the requirement is added (with a review) or the behaviour is removed.

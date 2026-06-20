@@ -17,29 +17,30 @@ order: 8
 updated: 2026-06-12
 ---
 
-"The deploy is slow" is a feeling; a per-step timing table is a plan. CI providers
-expose step durations through their APIs — pull them before touching anything,
-because intuition about where pipeline time goes is reliably wrong and a 30-second
-optimisation to a 30-second step is invisible inside a ten-minute run.
+"The deploy is slow" is a feeling. A per-step timing table is a plan. CI providers
+expose step durations through their APIs, so pull them before you touch anything.
+Intuition about where pipeline time goes is reliably wrong, and shaving 30 seconds
+off a 30-second step is invisible inside a ten-minute run.
 
 ## Why this matters
 
-A ten-minute deploy on the content-admin SPA (2026-06-12) decomposed like this:
+A ten-minute deploy on the content-admin SPA (2026-06-12) broke down like this:
 unit tests 70s, build 29s, browser install 25s, **E2E 6m55s**, deploy tail 30s. One
-step was 70% of the pipeline; nothing else mattered until it shrank. Parallelising
-the E2E workers took the step to 2m46s and the pipeline to 5m36s — and the smaller
-levers (caching, install bounds) only became worth doing after the big one landed.
+step was 70% of the pipeline, and nothing else mattered until it shrank.
+Parallelising the E2E workers cut the step to 2m46s and the pipeline to 5m36s. The
+smaller levers (caching, install bounds) only became worth doing once the big one
+had landed.
 
 Two incidental failures during the same work taught the operational half of the
 rule:
 
 - A `playwright install` step **hung for over an hour, twice**, burning runner
   minutes and blocking the queue, because Node 24 on PATH broke the installer.
-  An install step with no `timeout-minutes` turns a tool regression into an
-  hour-long silent stall; with a bound it becomes a red X in minutes.
-- The fix was pinning Node 22 — a pin that looks arbitrary unless the workflow
-  says why it is there. Unexplained pins get "cleaned up" by the next refactor
-  and the hang comes back.
+  With no `timeout-minutes`, a tool regression on that step turns into an hour-long
+  silent stall. Bound it and the same regression shows up as a red X in minutes.
+- The fix was pinning Node 22. That pin looks arbitrary unless the workflow says
+  why it is there. Unexplained pins get "cleaned up" by the next refactor, and then
+  the hang comes back.
 
 ## How to apply
 
@@ -50,7 +51,7 @@ gh run view <run-id> --json jobs \
   --jq '.jobs[].steps[] | {name, startedAt, completedAt}'
 ```
 
-Sort by duration, descending. Spend effort strictly top-down — the
+Sort by duration, descending, and spend effort strictly top-down. The
 [riskiest/biggest-first discipline](/kb/process/spike-riskiest-first) applies to
 pipelines too.
 
@@ -66,7 +67,7 @@ pipelines too.
     key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
 ```
 
-Keying by version (not by lockfile hash) means the cache survives unrelated
+Keying by version rather than by lockfile hash means the cache survives unrelated
 dependency bumps and invalidates exactly when the browsers change.
 
 **Step 3: Bound every install step.**
@@ -103,7 +104,7 @@ node-version: 22
 
 ## Enforcement
 
-After any pipeline change, pull the timing table again and write both numbers down
-(before/after) in the PR. Review checks: every install/download step has
+After any pipeline change, pull the timing table again and write both numbers
+(before/after) into the PR. Review checks: every install or download step has
 `timeout-minutes`, every cache key encodes the tool version it caches, and every
 version pin carries an in-file reason with a date.

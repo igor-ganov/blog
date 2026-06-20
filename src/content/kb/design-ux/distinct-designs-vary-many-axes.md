@@ -17,86 +17,84 @@ order: 2
 updated: 2026-05-12
 ---
 
-When someone asks for "six design directions", they mean six genuinely different answers
-to the question "what could this product be?" They do not mean one layout with six
-different `--color-primary` values. The difference is not subjective. A direction is a
-design hypothesis: a different model of what the product is for, who it is for, and what
-using it feels like. Recolouring does not change the hypothesis. It changes the paint.
+Ask for "six design directions" and you're asking for six genuinely different answers to
+"what could this product be?" You're not asking for one layout with six different
+`--color-primary` values, and the gap between those two things isn't a matter of taste. A
+direction is a design hypothesis about what the product is for, who it's for, and what
+using it feels like. Recolouring leaves the hypothesis untouched. It just changes the paint.
 
-On a real-estate listings site (2026-05-12) six design variants were delivered for a real
-estate listing platform. All six shared the same `MarketShell` component tree, the same
-information architecture, the same density, the same type scale, and the same components.
-They differed only in CSS custom properties controlled by `data-material`, `data-shape`,
-and `data-palette` attributes. The feedback was that they were disgustingly similar.
-That is the correct reaction to six variants that are structurally identical.
+On a real-estate listings site (2026-05-12) I shipped six design variants for a listing
+platform. All six shared the same `MarketShell` component tree, the same information
+architecture, the same density, the same type scale, and the same components. They differed
+only in CSS custom properties driven by `data-material`, `data-shape`, and `data-palette`
+attributes. The feedback came back: disgustingly similar. Which is the right reaction to
+six variants that are structurally the same thing.
 
-The second round that was accepted had three prototypes, each self-contained, each a different
+The second round got accepted. Three prototypes, each self-contained, each a different
 answer to "what is this product":
 
 - A magazine direction: a magazine model, Fraunces + Spectral, article-style
-  listings, editorial photo treatment, reading rhythm over scanning density.
-- A map-first direction: a map-first model, MapLibre GL as the primary surface,
-  listings as sidebar overlays, geographic metaphor, the city as the interface.
+  listings, editorial photo treatment, reading rhythm chosen over scanning density.
+- A map-first direction: MapLibre GL as the primary surface, listings as sidebar
+  overlays, a geographic metaphor, the city itself as the interface.
 - A bento-marketplace direction: a low-density bento grid, neo-brutalist-lite, high
-  contrast, bold cut typography, market stall metaphor.
+  contrast, bold cut typography, a market-stall metaphor.
 
-Three shells. Three fonts. Three information architectures. Three product metaphors. That
-is what "distinct directions" means.
+Different shells, different fonts, different information architectures, different product
+metaphors. That's what "distinct directions" buys you.
 
 ## Why this matters
 
 ### A token swap does not constitute a design decision
 
-CSS custom properties exist to allow theming within a single design system. Using them to
-generate "design alternatives" inverts their purpose. When a component uses
-`color: var(--color-primary)`, changing `--color-primary` from indigo to coral does not
-answer any design question — it changes surface appearance while leaving every substantive
-decision (layout, hierarchy, metaphor, density, interaction model) identical. A user
-comparing six such variants learns nothing about the range of design possibilities. They
-learn only what colours the tool knows about.
+CSS custom properties exist for theming inside a single design system. Press them into
+service generating "design alternatives" and you've inverted their purpose. When a component
+uses `color: var(--color-primary)`, flipping `--color-primary` from indigo to coral answers
+no design question; it repaints the surface while every substantive decision (layout,
+hierarchy, metaphor, density, interaction model) stays put. Someone comparing six such
+variants learns nothing about the range of possibilities open to them, only which colours the
+tool happens to know.
 
 ### The axes that actually matter
 
-A design direction is characterised by its position on all of the following simultaneously.
-Varying only one (usually colour) leaves the direction undefined:
+A design direction is fixed by where it sits on all of these at once. Vary only one of them
+(usually colour) and the direction stays undefined:
 
-**Layout model** — Is content displayed as a vertical feed, a map, a grid, a magazine
-spread, a dashboard, a single-focus canvas? Each implies different user intent and
-different information architecture.
+**Layout model** — Is content a vertical feed, a map, a grid, a magazine spread, a
+dashboard, a single-focus canvas? Each one implies a different user intent and a different
+information architecture.
 
-**Density** — How much information is visible per screen without scrolling? High density
-(data tables, dashboards) and low density (editorial, hero-first landing pages) imply
-different audiences and use cases.
+**Density** — How much shows on one screen without scrolling? High density (data tables,
+dashboards) points at one kind of audience and use case; low density (editorial, hero-first
+landing pages) points at another.
 
-**Typography** — The typeface is not decoration; it carries personality, sets reading
-rhythm, and signals register. A display serif (Fraunces, Playfair Display) says something
-fundamentally different from a geometric sans (DM Sans, Plus Jakarta) or a monospace-
-influenced hybrid. Load real fonts. Do not write "use a serif" in a comment and render
-everything in system-sans.
+**Typography** — The typeface isn't decoration. It carries personality, sets the reading
+rhythm, and signals register. A display serif (Fraunces, Playfair Display) reads completely
+differently from a geometric sans (DM Sans, Plus Jakarta) or a monospace-influenced hybrid.
+Load real fonts. Don't write "use a serif" in a comment and then render everything in
+system-sans.
 
-**Colour philosophy** — A near-monochrome palette with one accent behaves differently
-from a full-spectrum palette, which behaves differently from a duotone, which behaves
-differently from a dark-mode-first palette with neon accents. Colour philosophy includes
-the role of white space, the use of tint and shade, the relationship between background
-and foreground density.
+**Colour philosophy** — A near-monochrome palette with one accent behaves nothing like a
+full-spectrum palette, a duotone, or a dark-mode-first palette with neon accents. The
+philosophy also covers the role of white space, how you handle tint and shade, and the
+relationship between background and foreground density.
 
-**Imagery treatment** — Full-bleed photography, cropped thumbnail grids, illustrated
-icons, map tiles, data visualisations, schematic line art, and no images at all are each
-a different answer to "what is the product's visual register?" The imagery treatment
-determines what the product feels like at a glance.
+**Imagery treatment** — Full-bleed photography, cropped thumbnail grids, illustrated icons,
+map tiles, data visualisations, schematic line art, no images at all: each answers "what is
+the product's visual register?" differently. The imagery treatment is what the product feels
+like at a glance.
 
-**Interaction model and product metaphor** — What is the primary verb? Browse, search,
-map, curate, compare, read? The metaphor — marketplace, magazine, atlas, dashboard, tool
-— shapes every downstream decision about layout and interaction. Two products with the
-same data but different metaphors look nothing alike.
+**Interaction model and product metaphor** — What's the primary verb? Browse, search, map,
+curate, compare, read? The metaphor (marketplace, magazine, atlas, dashboard, tool) shapes
+every downstream call about layout and interaction. Two products with the same data but
+different metaphors look nothing alike.
 
 ## How to apply
 
-When a request for N distinct design directions arrives, start by generating N design
-hypotheses as prose — one sentence each — before touching any tooling. Each hypothesis
-names the metaphor, the primary audience posture, and the signature typographic choice.
-If the hypotheses are not clearly different from each other, the designs will not be
-either.
+When a request for N distinct directions lands, write N design hypotheses as prose first,
+one sentence each, before you touch any tooling. Each hypothesis names the metaphor, the
+primary audience posture, and the signature typographic choice. If the hypotheses don't read
+as clearly different from each other on the page, the designs won't be different either.
 
 ```
 // Example for a real estate platform:
@@ -120,10 +118,10 @@ either.
 // Density: medium — several listings visible; emphasis via card size, not colour.
 ```
 
-Once the hypotheses are distinct, each prototype is built as a self-contained page with
-its own `<head>` (own font imports), own global stylesheet (no shared reset or layout
-shell), own component structure, and own imagery. No shared layout component receives
-data-attribute theming.
+Once the hypotheses are distinct, build each prototype as a self-contained page: its own
+`<head>` with its own font imports, its own global stylesheet (no shared reset or layout
+shell), its own component structure, its own imagery. Nothing gets themed through
+data-attributes on a shared layout component.
 
 ### What a self-contained prototype looks like
 
@@ -153,7 +151,7 @@ data-attribute theming.
 </html>
 ```
 
-Contrast this with the anti-pattern:
+Set that against the anti-pattern:
 
 ```html
 <!-- WRONG — one shell, swapped via data-palette; this is not a separate direction -->
@@ -164,41 +162,40 @@ Contrast this with the anti-pattern:
 
 ### Typography: load actual fonts
 
-Do not use system fonts for design exploration unless the direction specifically calls
-for them. Load real, distinctive fonts from Google Fonts, Bunny Fonts, or local files.
-The rendering difference between Fraunces at `optical-sizing: auto` and a system sans-
-serif is not subtle — it is the entire register of the design. A prototype without real
-fonts is a wireframe, not a design direction.
+Skip system fonts for design exploration unless a direction specifically asks for them.
+Load real, distinctive fonts from Google Fonts, Bunny Fonts, or local files. The rendering
+gap between Fraunces at `optical-sizing: auto` and a system sans-serif isn't subtle; it's
+the whole register of the design. A prototype without real fonts is a wireframe.
 
-For each prototype, make the font choice load-bearing and specific. If the direction is
-"neo-brutalist market", the font is not "a bold sans" — it is Unbounded, or Space
-Grotesk, or Monument Extended. Name the font, load the font, render with the font.
+Make the font choice load-bearing and specific for every prototype. If the direction is
+"neo-brutalist market", the font isn't "a bold sans". It's Unbounded, or Space Grotesk, or
+Monument Extended. Name the font, load the font, render with the font.
 
 ## Anti-patterns
 
 **Token preset as direction**
 
-Six `<body data-theme="X">` variants are one design. Rename "direction 1–6" to
-"theme 1–6" and tell the user honestly that you have built a theme switcher, not a
-design exploration. Do not present a theme preset as a design direction.
+Six `<body data-theme="X">` variants are one design. Rename "direction 1–6" to "theme 1–6"
+and tell the user straight that you built a theme switcher, not a design exploration. Don't
+pass a theme preset off as a direction.
 
 **Identical layout with different accent colours**
 
-If every direction has the same card component, same grid columns, same navigation
-structure, same header height, and same footer — varying only accent colour — they are
-not distinct directions. Accent colour is the least informative design axis.
+If every direction shares the same card component, grid columns, navigation structure,
+header height, and footer, varying only the accent colour, they aren't distinct directions.
+Accent colour is the least informative axis you have.
 
 **"Font: sans-serif" in the CSS**
 
-Using `font-family: sans-serif` in a prototype for a direction described as "modern,
-clean, geometric" is not a design choice — it is a placeholder. It means the typography
-axis was not varied, which means the direction is under-specified. Load the font.
+`font-family: sans-serif` in a prototype for a direction described as "modern, clean,
+geometric" is a placeholder, not a design choice. It means the typography axis went
+unvaried, so the direction is under-specified. Load the font.
 
 **Density uniformity across directions**
 
-All six directions having the same 16-item grid at 1200px wide is a sign that density
-was not varied. A high-density direction should feel genuinely different from a low-
-density direction when you glance at them both at actual viewport size.
+Six directions all showing the same 16-item grid at 1200px wide tells you density never
+moved. Glance at a high-density direction and a low-density one side by side at real viewport
+size, and they should feel genuinely different.
 
 ## See also
 

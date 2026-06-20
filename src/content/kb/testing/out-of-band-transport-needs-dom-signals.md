@@ -19,40 +19,40 @@ updated: 2026-06-12
 
 Event-driven test waits lean on two observable surfaces: the DOM and the network.
 Playwright can intercept every HTTP request the page makes, so "wait for the
-response, then assert the DOM" covers most synchronisation. But the moment an
-application moves data through a transport the harness cannot tap —
-`MessageChannel` to a service worker, `BroadcastChannel` between tabs, a fetch
-performed *inside* a worker, WebTransport — the network half of that toolkit goes
-blind. Requests fly, data lands, and the test's request graph shows silence.
+response, then assert the DOM" covers most synchronisation. The network half of
+that toolkit goes blind the moment an application moves data through a transport
+the harness cannot tap: `MessageChannel` to a service worker, `BroadcastChannel`
+between tabs, a fetch performed *inside* a worker, WebTransport. Requests fly,
+data lands, and the test's request graph stays silent.
 
-The wrong conclusions follow fast: "there's no event to wait on, so I'll sleep" or
-"I'll wait for any list item to appear". Both produce a test that passes when the
-*previous* screen's data is still on screen.
+From there the wrong conclusions come fast. "There's no event to wait on, so I'll
+sleep." Or "I'll wait for any list item to appear." Either one gives you a test
+that passes while the *previous* screen's data is still sitting there.
 
 ## Why this matters
 
 The content-admin SPA routes all git/content traffic through a service worker
-acting as a backend-for-frontend. The client talks to it over `MessageChannel` —
-on WebKit under Playwright even ordinary fetches go through that bridge, because
-`navigator.serviceWorker.controller` is never exposed. Switching from the blog
-section to the positions section triggers no observable HTTP request at all.
+acting as a backend-for-frontend. The client talks to it over `MessageChannel`,
+and on WebKit under Playwright even ordinary fetches go through that bridge,
+because `navigator.serviceWorker.controller` is never exposed. Switching from the
+blog section to the positions section triggers no observable HTTP request at all.
 
 The test for section switching waited for content items to be visible after
-clicking the section link. Items *were* visible — the previous section's items,
-about to be replaced. Serially the replacement always won; with
-[4 parallel workers](/kb/testing/parallel-workers-surface-races) the assertion ran
-mid-replacement and the test failed honestly. No network wait could fix it: there
-is no request to wait for.
+clicking the section link. Items *were* visible: the previous section's items, the
+ones about to be replaced. Run serially, the replacement always won the race. With
+[4 parallel workers](/kb/testing/parallel-workers-surface-races) the assertion
+landed mid-replacement and the test failed honestly. No network wait could fix it,
+because there is no request to wait for.
 
-The fix changed the application, one attribute's worth: each rendered content item
+The fix lived in the application and cost one attribute. Each rendered content item
 exposes its repository path as `data-path`. The path encodes which section the
-item belongs to, so "the switch completed" becomes an observable DOM predicate.
+item belongs to, so "the switch completed" turns into an observable DOM predicate.
 
 ## How to apply
 
 Expose identity, not just presence. A list that renders `data-testid="content-item"`
-says "something is here"; a list that also renders `data-path="blog/2026/post.md"`
-says *what* is here — and "what" is the thing a navigation test needs.
+only says something is here. Add `data-path="blog/2026/post.md"` and it says *what*
+is here, which is exactly what a navigation test needs to assert on.
 
 ```html
 <li data-testid="content-item" :data-path="item.path">…</li>
@@ -76,15 +76,15 @@ export const waitForSection = async (page: Page, section: string) => {
 
 Two details carry the weight:
 
-- **The predicate distinguishes old data from new.** Presence-based waits
-  (`toBeVisible` on a generic item) cannot tell a stale list from a fresh one.
-  Identity-based waits can.
+- **The predicate distinguishes old data from new.** A presence-based wait
+  (`toBeVisible` on a generic item) cannot tell a stale list from a fresh one. An
+  identity-based wait can, because it reads what the item actually is.
 - **Empty is a state, not an absence.** If the target section can be empty, the
-  application must render an explicit empty-state element, or the wait has no
-  terminal condition and the test deadlocks on a healthy page.
+  application has to render an explicit empty-state element. Without it the wait
+  has no terminal condition and the test deadlocks on a perfectly healthy page.
 
-This is application-honesty work, not test trickery: the attribute is real
-rendered state, useful for debugging in devtools, and costs one binding.
+None of this is test trickery. The attribute is real rendered state, it helps when
+you are poking around in devtools, and it costs one binding.
 
 ## Anti-patterns
 
@@ -109,7 +109,7 @@ await page.evaluate(() => navigator.serviceWorker.controller!.postMessage(…));
 
 Code review: any feature whose data path crosses a worker boundary, channel, or
 other harness-invisible transport must expose completion as DOM state, and its
-tests must wait on identity, not presence. The
+tests must wait on identity rather than presence. The
 [three-run rule under parallel workers](/kb/testing/no-retries-no-flakes) is the
-backstop — presence-based waits over out-of-band data are exactly the class of
-race that parallelism flushes out.
+backstop. Presence-based waits over out-of-band data are exactly the class of race
+that parallelism flushes out into the open.

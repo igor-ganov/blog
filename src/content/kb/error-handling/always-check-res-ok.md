@@ -17,24 +17,24 @@ updated: 2026-04-29
 ---
 
 A `fetch` call returning a `4xx` or `5xx` does **not** throw. The `Promise` resolves
-normally; only `res.ok` tells you whether the server accepted the request. Every wrapper
-that ignores this and returns `{ success: true }` is fabricating a success signal from a
-failure — which is [swallowing the error](/kb/error-handling/never-swallow-errors) with
-extra steps. The caller believes the write landed. The UI refreshes and renders the old
-state. The user sees nothing wrong, retries, sees nothing wrong again, and eventually
-files a report: "nothing is saving."
+normally, and only `res.ok` tells you whether the server accepted the request. A wrapper
+that ignores this and returns `{ success: true }` is fabricating a success signal out of
+a failure, which is [swallowing the error](/kb/error-handling/never-swallow-errors) with
+extra steps. The caller believes the write landed, so the UI refreshes and renders the
+old state. The user sees nothing wrong, retries, sees nothing wrong again, and eventually
+files a report saying "nothing is saving."
 
 The rule is absolute: **any code that wraps `fetch` or `swFetch` must throw on
 `!res.ok`** before returning anything to its caller.
 
 ## Why this matters
 
-On 2026-04-29 the content-admin SPA's RBAC layer was audited after the failure was
-identified: saves silently did nothing. The symptom had been reproducible for an
-indeterminate stretch — the same operations had been retried visually for hours
-before escalation.
+On 2026-04-29 the content-admin SPA's RBAC layer was audited after someone finally pinned
+down the symptom: saves silently did nothing. It had been reproducible for an
+indeterminate stretch, and the same operations were retried by hand for hours before
+anyone escalated.
 
-The cause was found in four handlers covering the critical RBAC surface:
+The cause sat in four handlers covering the critical RBAC surface:
 
 - org membership `PUT`
 - team membership `PUT`
@@ -42,32 +42,32 @@ The cause was found in four handlers covering the critical RBAC surface:
 - revoke `DELETE`
 
 Each handler called the GitHub API via `swFetch`, read no property of the response, and
-returned `{ success: true }`. GitHub had been returning `4xx` responses — permission
-issues, stale tokens, malformed payloads — but the service worker reported success on
-every call. The UI received the success signal, triggered a re-fetch of the membership
-list, and displayed the unchanged state as if everything had applied. From the user's
-perspective the form worked but the data never changed.
+returned `{ success: true }`. GitHub had been returning `4xx` responses for permission
+issues, stale tokens, and malformed payloads, but the service worker reported success on
+every call. The UI received that success signal, triggered a re-fetch of the membership
+list, and displayed the unchanged state as if everything had applied. The form looked
+like it worked while the data never moved.
 
-The same fabricated-success pattern appeared in asset handlers in the same audit window:
-file upload, file delete, and bulk operations all returned `{ success: true }` without
-inspecting the response, meaning a CDN `503` or a storage `409` was silently accepted as
-a committed write.
+The same fabricated-success pattern turned up in asset handlers during the same audit
+window. File upload, file delete, and bulk operations all returned `{ success: true }`
+without inspecting the response, so a CDN `503` or a storage `409` was silently accepted
+as a committed write.
 
-The fix required two things. First, every handler gained an explicit `res.ok` check that
-throws a typed error carrying the status code and the response body. Second, two helper
-utilities — `ensureOk` in `src/sw/rbac/response-ok.ts` and `okOrThrow` in
-`src/views/SettingsView/org-invite-api.ts` — were promoted to the shared layer so future
-handlers have a single, auditable call point rather than inlining the check themselves.
+The fix had two parts. Every handler gained an explicit `res.ok` check that throws a
+typed error carrying the status code and the response body. Then two helpers, `ensureOk`
+in `src/sw/rbac/response-ok.ts` and `okOrThrow` in
+`src/views/SettingsView/org-invite-api.ts`, moved into the shared layer so future
+handlers have a single, auditable call point instead of inlining the check.
 
-The incident is a direct corollary of the never-swallow-errors principle: a fabricated
-`{ success: true }` is an implicit `catch (() => {})` on an HTTP failure.
+A fabricated `{ success: true }` is an implicit `catch (() => {})` on an HTTP failure,
+which makes this incident a direct corollary of the never-swallow-errors principle.
 
 ## How to apply
 
 ### The okOrThrow helper
 
-Centralise the check. Do not inline `if (!res.ok) throw ...` in every handler; that
-pattern will be missed or varied. Extract it once.
+Centralise the check. Inlining `if (!res.ok) throw ...` in every handler guarantees it
+gets missed or varied somewhere, so extract it once.
 
 ```ts
 // src/views/SettingsView/org-invite-api.ts  (canonical client-side helper)
@@ -104,9 +104,9 @@ export const ensureOk = async (res: Response): Promise<Response> => {
 };
 ```
 
-Both have the same contract: return the `Response` on success so callers can continue
-chaining `.json()` or `.text()`; throw a typed `HttpError` on failure so callers can
-inspect the status in a type-safe catch.
+Both share the same contract. They return the `Response` on success so callers can keep
+chaining `.json()` or `.text()`, and they throw a typed `HttpError` on failure so callers
+can inspect the status in a type-safe catch.
 
 ### Wrapping swFetch in a service-worker handler
 
@@ -137,14 +137,14 @@ const handleOrgMembershipPut = async (
 };
 ```
 
-The `event.ports[0].postMessage({ success: true })` line is now only reachable if
-`ensureOk` did not throw. Any `HttpError` propagates to the SW message handler's top-
-level catch, which posts `{ success: false, error: ... }` back to the client.
+The `event.ports[0].postMessage({ success: true })` line is now only reachable when
+`ensureOk` did not throw. Any `HttpError` propagates to the SW message handler's top-level
+catch, which posts `{ success: false, error: ... }` back to the client.
 
 ### Wrapping fetch on the client side
 
-The same discipline applies to non-SW code. Every function that calls `fetch` directly
-must pipe the response through `okOrThrow` before treating it as successful.
+The same discipline applies to non-SW code. Any function that calls `fetch` directly has
+to pipe the response through `okOrThrow` before treating it as successful.
 
 ```ts
 // ❌ Before — no status check; a 403 lands silently.
@@ -176,9 +176,9 @@ const data = await fetch(url)
 
 ### What the caller must do with the thrown error
 
-Throwing is only half the contract. The caller must catch `HttpError` and route it
-somewhere visible — a toast, an error ref, a retry queue — never an empty catch. Pair
-this rule with [never swallow errors](/kb/error-handling/never-swallow-errors).
+Throwing is only half the contract. The caller has to catch `HttpError` and route it
+somewhere visible, like a toast, an error ref, or a retry queue, and never an empty catch.
+Pair this rule with [never swallow errors](/kb/error-handling/never-swallow-errors).
 
 ```ts
 // In a Vue component handler:
@@ -227,15 +227,15 @@ const getRole = async (username: string): Promise<Role> => {
 };
 ```
 
-Each of these produces the same symptom at runtime: the write appears to succeed from the
-caller's perspective, the UI re-renders with stale state, and the failure is discovered
-only when the user notices the data did not change — potentially hours later.
+Each of these produces the same symptom at runtime. The write appears to succeed from the
+caller's perspective, the UI re-renders with stale state, and nobody notices the failure
+until a user spots that the data did not change, potentially hours later.
 
 ## Enforcement
 
-There is no single lint rule that detects "fetch result used without res.ok check"
-universally, because the response object is typed as `Response` whether or not you
-inspect it. The effective enforcement is structural:
+No single lint rule detects "fetch result used without res.ok check" universally, because
+the response object is typed as `Response` whether or not you inspect it. What works is
+structural enforcement:
 
 1. **Ban inline `!res.ok` checks** — require every handler to call `ensureOk` or
    `okOrThrow`. This makes the call site obvious in code review and makes it easy to
@@ -250,5 +250,5 @@ inspect it. The effective enforcement is structural:
 
 A fabricated `{ success: true }` is the HTTP-specific instance of the general principle
 at [never swallow errors](/kb/error-handling/never-swallow-errors). Telemetry helpers
-that send analytics via fire-and-forget face the same failure mode and are covered in
+that send analytics fire-and-forget hit the same failure mode, covered in
 [telemetry never crashes](/kb/backend-events/telemetry-never-crashes).

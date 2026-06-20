@@ -17,12 +17,11 @@ updated: 2026-06-10
 ---
 
 Angular Signals, introduced in Angular 17, replace the RxJS-first mental model for
-component state. The core principle is that state is a signal, derivations are computed
-values, and async resources are `resource()` calls — none of these require `effect`.
-`effect` is an escape hatch for side-effects that cannot be expressed as a pure
-transformation. Using it to write derived state back into another signal is an anti-
-pattern that recreates the timing and ordering problems that made imperative Angular code
-hard to reason about.
+component state. State lives in a signal, derivations are computed values, and async data
+comes from `resource()` calls. None of these need `effect`. `effect` is an escape hatch
+for side-effects you cannot express as a pure transformation, so reaching for it to write
+derived state back into another signal recreates exactly the timing and ordering problems
+that made imperative Angular code hard to reason about.
 
 The rule has three parts:
 1. Mutable state lives in `signal()`.
@@ -31,30 +30,28 @@ The rule has three parts:
 
 ## Why this matters
 
-The temptation to write `effect(() => { this.derived.set(transform(this.source())); })`
-comes from habit. In a world of `@Input()` properties and `ngOnChanges`, you wired up
-reactions manually. With signals, `computed` makes that entirely unnecessary — and the
-difference is not cosmetic.
+Writing `effect(() => { this.derived.set(transform(this.source())); })` comes from habit.
+With `@Input()` properties and `ngOnChanges`, you wired up reactions by hand. Signals make
+that work unnecessary, and the difference goes well past style.
 
 An `effect` that sets another signal creates an indirect dependency graph. Angular
-evaluates effects asynchronously after the change detection cycle. If two effects both
-read and write related signals, their execution order is not guaranteed. The canonical
-symptom is a template that renders an intermediate state — the first signal has updated
-but the effect that was supposed to update the second has not run yet, so the template
-sees an inconsistent pair. `computed` is synchronous and referentially transparent: it
-re-evaluates the moment its dependencies change, in the same tick, and never produces an
-observable intermediate state.
+evaluates effects asynchronously, after the change detection cycle. When two effects both
+read and write related signals, their execution order is not guaranteed. The usual symptom
+is a template that renders an intermediate state: the first signal has updated, the effect
+meant to update the second has not run yet, and the template sees an inconsistent pair.
+`computed` is synchronous and referentially transparent. It re-evaluates the moment its
+dependencies change, in the same tick, so it never produces an observable intermediate
+state.
 
-`resource` solves the same problem for async operations. Before `resource`, the pattern
-was `effect(() => { fetchData(this.id()).then(data => this.data.set(data)); })`. That
-effect ran every time `id` changed, but you had to manage cancellation manually — or
-accept that a slow first request could overwrite a fast second request. `resource` handles
-request lifecycle, cancellation (via `AbortSignal`), and loading/error states as first-
-class signal values.
+`resource` solves the same problem for async work. Before it existed, the pattern was
+`effect(() => { fetchData(this.id()).then(data => this.data.set(data)); })`. That effect
+ran every time `id` changed, but cancellation was on you, and a slow first request could
+overwrite a fast second one. `resource` handles request lifecycle, cancellation via
+`AbortSignal`, and loading and error states as first-class signal values.
 
 Properties must be `readonly` unless they are signals or outputs. Declaring a mutable
-class property and assigning to it from a lifecycle hook is the old pattern; it bypasses
-change detection tracking entirely with `OnPush`.
+class property and assigning to it from a lifecycle hook is the old pattern; under `OnPush`
+it bypasses change detection tracking entirely.
 
 ## How to apply
 
@@ -88,9 +85,9 @@ export class CounterComponent {
 }
 ```
 
-All properties are `readonly`. `count` is a `Signal<number>` — a readonly reference to
-a reactive container. `signal()` returns a `WritableSignal`; the `readonly` on the
-property prevents replacing the signal reference, not its value.
+All properties are `readonly`. `count` is a `Signal<number>`, a readonly reference to a
+reactive container. `signal()` returns a `WritableSignal`; the `readonly` on the property
+prevents replacing the signal reference, not its value.
 
 ### Derived values: computed()
 
@@ -131,15 +128,15 @@ export class CartComponent {
 }
 ```
 
-`computed` is lazy and memoized: it only recalculates when a dependency changes, and
-only when the computed value is actually read. An `effect`-based equivalent re-runs even
-if nothing reads `total`.
+`computed` is lazy and memoized. It recalculates only when a dependency changes, and only
+when something actually reads the computed value. An `effect`-based equivalent re-runs even
+when nothing reads `total`.
 
 ### Async data: resource()
 
-`resource` models the full lifecycle of an async operation — idle, loading, resolved,
-errored — as signals. The loader function receives a reactive context; Angular
-automatically re-runs it when any signal read inside it changes.
+`resource` models the full lifecycle of an async operation (idle, loading, resolved,
+errored) as signals. The loader function receives a reactive context, and Angular re-runs
+it automatically when any signal read inside it changes.
 
 ```typescript
 import { resource, signal, computed } from '@angular/core';
@@ -189,8 +186,8 @@ export class UserProfileComponent {
 }
 ```
 
-The `abortSignal` is provided by Angular and is cancelled automatically when `userId`
-changes before the previous fetch completes. The race condition disappears.
+Angular provides the `abortSignal` and cancels it automatically when `userId` changes
+before the previous fetch completes, so the race condition disappears.
 
 ### When effect is legitimate
 
@@ -216,8 +213,8 @@ export class MapComponent {
 ```
 
 Creating an `effect` outside the constructor is not supported by Angular's injection
-context rules unless you pass an explicit injector — and doing so is a smell that the
-effect belongs inside the constructor.
+context rules unless you pass an explicit injector, and passing one is usually a sign the
+effect belongs inside the constructor anyway.
 
 ## Anti-patterns
 
@@ -263,8 +260,8 @@ that, the constraint "effect only in constructor" is a code-review rule:
 - Any `effect` body containing a `.set()` or `.update()` call on a signal is a review
   blocker unless accompanied by a recorded justification.
 
-No automated lint rule currently covers the "no `.set()` inside `effect`" case in the
+No automated lint rule currently covers the "no `.set()` inside `effect`" case in its
 general form, but ESLint's `no-restricted-syntax` can approximate it for common patterns.
-The primary enforcement is architectural clarity: if you need to update a signal from a
-reactive source, the correct tool is `computed` or `resource`, and the difference is
-always obvious once the team knows to look.
+The main enforcement is architectural clarity: when you need to update a signal from a
+reactive source, the right tool is `computed` or `resource`, and once the team knows to
+look the difference is obvious.

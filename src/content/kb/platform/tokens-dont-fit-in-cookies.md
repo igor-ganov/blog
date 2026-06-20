@@ -17,52 +17,52 @@ updated: 2026-06-08
 ---
 
 Browser cookies have a hard size limit. The HTTP specification recommends at least
-4096 bytes per cookie; in practice, browsers enforce a limit in the range of 4 KB per
-cookie (the exact value varies: Chrome ≈ 4096 bytes for the value alone; Firefox and
-Safari are similar). When a `Set-Cookie` header exceeds this limit, the browser silently
-discards it. No error, no warning, no console message. The response completes normally.
-The cookie is not stored.
+4096 bytes per cookie, and in practice browsers enforce a limit around 4 KB per cookie.
+The exact value varies (Chrome allows about 4096 bytes for the value alone; Firefox and
+Safari land near the same number). Once a `Set-Cookie` header exceeds that, the browser
+discards it without any error, warning, or console message. The response completes
+normally and the cookie is just gone.
 
-Atlassian OAuth access tokens are large JWTs — typically 1–3 KB for the token itself,
-plus the refresh token, plus any metadata. A typical Atlassian access token stored in
-a single cookie exceeds 4 KB. On a Jira client app (2026-06-08) this produced the
-exact failure: the OAuth callback attempted to set the access token directly in a
-`Set-Cookie` header; the browser dropped it silently; every subsequent API request had
-no credentials; the user was redirected back to the login page. There was no console
-error. The only observable symptom was the authentication loop.
+Atlassian OAuth access tokens are large JWTs, usually 1–3 KB for the token alone, before
+you add the refresh token and any metadata. A single cookie holding one of these tokens
+runs past 4 KB. On a Jira client app (2026-06-08) that is exactly what broke: the OAuth
+callback set the access token directly in a `Set-Cookie` header, the browser dropped it
+silently, every following API request went out with no credentials, and the user landed
+back on the login page. No console error showed up. The only thing you could see was the
+authentication loop.
 
-The fix is architectural, not cosmetic: tokens belong in a server-side session store.
-The cookie carries only a session ID — a short random string — that points to the
-stored token. The session ID is small, safe for a cookie, and reveals nothing about
-the token's contents.
+The fix is architectural. Tokens belong in a server-side session store, and the cookie
+carries only a session ID, a short random string that points at the stored token. The
+session ID is small, fits a cookie comfortably, and gives away nothing about the token's
+contents.
 
 ## Why this matters
 
 ### Silent failure at the browser boundary
 
-The silent `Set-Cookie` drop is uniquely dangerous because:
+The silent `Set-Cookie` drop is hard to diagnose for a few reasons:
 
-1. The HTTP response returns 200 or 302 — success from the server's point of view.
+1. The HTTP response returns 200 or 302, so from the server's side it succeeded.
 2. No JavaScript error is raised.
-3. The subsequent state (missing cookie) looks identical to "user not logged in".
-4. Without knowing the 4 KB limit, the diagnosis is opaque — "auth works in local dev
-   but fails in preview" is a common symptom, because local dev tokens are smaller.
+3. The resulting state, a missing cookie, looks identical to "user not logged in".
+4. If you don't know about the 4 KB limit, the failure is opaque. "Auth works in local
+   dev but fails in preview" is a common report, since local dev tokens tend to be
+   smaller.
 
-A JWT grows with every claim added. An Atlassian access token includes the subject,
+A JWT grows with every claim you add. An Atlassian access token carries the subject,
 issuer, audience, expiry, scopes, and tenant-specific claims. A token that fits in dev
-with minimal scopes may overflow in staging with a full scope set.
+with minimal scopes can overflow in staging once the full scope set is attached.
 
 ### Why a pure static site is impossible for OAuth
 
 The OAuth authorization code flow requires a client secret. The code-to-token exchange
-(`POST /oauth/token` with `code`, `client_id`, and `client_secret`) must happen on a
-server — the client secret cannot be in the browser (it would be visible in source or
-DevTools). A static site with no server component cannot complete OAuth. This
-architecture requires at minimum a server-rendered page or a serverless function to
-handle the callback.
+(`POST /oauth/token` with `code`, `client_id`, and `client_secret`) has to run on a
+server, because the client secret cannot live in the browser where it would show up in
+source or DevTools. A static site with no server component cannot finish OAuth. You need
+at least a server-rendered page or a serverless function to handle the callback.
 
-The Astro adapter (`@astrojs/node` in dev, a Workers adapter in production) provides
-this server surface. The session store is the filesystem driver in development and
+The Astro adapter (`@astrojs/node` in dev, a Workers adapter in production) gives you
+that server surface. The session store is the filesystem driver in development and
 Workers KV (or Durable Objects) in production.
 
 ## How to apply
@@ -84,8 +84,8 @@ User browser                  Astro server                  External
 [5] Redirect 302 → /dashboard
 ```
 
-Step [4] is the only `Set-Cookie`. The 36-byte UUID session ID is safe from the size
-limit. The tokens never appear in a cookie.
+Step [4] is the only `Set-Cookie`. The 36-byte UUID session ID stays far under the size
+limit, and the tokens never appear in a cookie at all.
 
 ### Astro implementation
 
@@ -175,10 +175,10 @@ export const deleteSession = async (id: string): Promise<void> => {
 
 ### Signing the OAuth state parameter
 
-The `state` parameter in the OAuth flow must be unpredictable to prevent CSRF during
-the OAuth redirect. It should be HMAC-signed rather than stored in a session, because
-the OAuth state predates the session (there is no session yet when the user starts
-login).
+The `state` parameter in the OAuth flow has to be unpredictable so an attacker can't
+forge the redirect (CSRF). Sign it with HMAC rather than storing it in a session: the
+OAuth state predates the session, because there is no session yet when the user starts
+login.
 
 ```ts
 // src/auth/oauth-state.ts
@@ -215,8 +215,8 @@ export const verifyState = async (state: string, secret: string): Promise<boolea
 };
 ```
 
-The HMAC state goes into a short-lived cookie (`oauth_state`; `maxAge: 300`); the server
-verifies it on callback without any session lookup.
+The HMAC state goes into a short-lived cookie (`oauth_state`, `maxAge: 300`), and the
+server verifies it on callback without any session lookup.
 
 ## Anti-patterns
 
@@ -231,10 +231,10 @@ cookies.set('access_token', atlassianJWT, { httpOnly: true, secure: true });
 
 **Storing the access token in sessionStorage**
 
-The access token for a server-side API (like Atlassian's) should not be in the browser
-at all. If it is in sessionStorage, a single XSS vulnerability exfiltrates the full
-token and all permissions it represents. Keep the token on the server; expose only a
-session ID that can be revoked.
+The access token for a server-side API like Atlassian's should not be in the browser
+at all. Put it in sessionStorage and a single XSS bug exfiltrates the whole token along
+with every permission it grants. Keep the token on the server and expose only a session
+ID you can revoke.
 
 **Assuming the OAuth code flow works on a static site**
 
@@ -249,23 +249,24 @@ const res = await fetch('/oauth/token', {
 // This is also wrong because the fetch is to the page origin, not the auth server.
 ```
 
-OAuth authorization code flow requires a server. Plan for it from the start.
+The OAuth authorization code flow requires a server, so plan for one before you write
+the first line of the callback.
 
 **Using JWTs for session IDs**
 
-A JWT is not a session ID. A JWT is a self-contained signed token — the server can
-validate it without a database lookup. But for browser session management you want
-revocable, short, opaque IDs that cannot be validated without server state. If the
-session store is compromised or a session must be invalidated, a UUID in the store can
-be deleted. A signed JWT cannot be un-signed.
+A JWT is not a session ID. A JWT is a self-contained signed token that the server can
+validate without a database lookup, which is the opposite of what you want for browser
+sessions. There you want short, opaque IDs that can't be validated without server state
+and can be revoked. When the session store is compromised or a session needs to be
+killed, you delete the UUID from the store. There is no way to un-sign an issued JWT.
 
 ## See also
 
-[Cross-origin auth that survives third-party-cookie blocking](/kb/platform/cross-origin-auth-survives-cookie-blocking) —
-the complementary problem: even correctly-sized cookies do not work across different
-eTLD+1s in modern Chromium; the Bearer fallback pattern handles both cases.
+[Cross-origin auth that survives third-party-cookie blocking](/kb/platform/cross-origin-auth-survives-cookie-blocking)
+covers the next problem along: even correctly-sized cookies stop working across
+different eTLD+1s in modern Chromium, and the Bearer fallback pattern handles both cases.
 
-[Build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) — the related
-deployment concern: the `client_secret` is a runtime secret, not a build-time variable,
-and must be injected at runtime through the server environment, not embedded during the
-static build step.
+[Build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) covers the related
+deployment concern. The `client_secret` is a runtime secret, not a build-time variable,
+so inject it at runtime through the server environment instead of embedding it during
+the static build step.

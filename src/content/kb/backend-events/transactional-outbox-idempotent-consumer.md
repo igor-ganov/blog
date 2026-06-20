@@ -17,45 +17,45 @@ order: 1
 updated: 2026-05-12
 ---
 
-Distributed systems fail in the middle of writes. A producer commits a business row,
-then the process crashes before it can publish the event. Or the broker is briefly
-unavailable. Or the pod scales down. The naive pattern — write business state and then
-publish to a broker in two separate operations — cannot survive any of these. The
-transactional outbox + idempotent consumer pair is the smallest reliable fix: it
-converts the dual-write problem into a database concern and pushes broker interaction
-out of the hot path entirely.
+Distributed systems fail in the middle of writes. A producer commits a business row and
+then the process crashes before it can publish the event. Maybe the broker is briefly
+unavailable, maybe the pod scales down mid-request. The naive pattern of writing business
+state and then publishing to a broker in two separate operations cannot survive any of
+that. The transactional outbox + idempotent consumer pair is the smallest reliable fix I
+know of. It turns the dual-write problem into a database concern and keeps broker
+interaction out of the hot path.
 
 ## Why this matters
 
-An event-sourcing service (2026-05-12) routes all ingestion through SQS rather
-than accepting direct HTTP writes from producers at the moment of the business
-transaction. The explicit design note:
+An event-sourcing service (2026-05-12) routes all ingestion through SQS instead of
+accepting direct HTTP writes from producers at the moment of the business transaction.
+The design note spells it out:
 
 > Ingestion is queue-based and guaranteed under scaling: transactional outbox on the
 > producer, idempotent consumer on the consumer worker (insert with `_id = eventId` →
 > duplicate deliveries are no-ops).
 
-The consequence of not doing this is visible: without an outbox, a producer that writes
-its business row and then tries to POST to `/events` in the same request handler loses
-the event whenever the HTTP call fails, the process restarts, or a second pod races in.
-The service would show gaps — change events missing from the log with no
-error, because the gap is a non-event from the caller's perspective.
+Skip the outbox and the failure shows up fast. A producer that writes its business row
+and then tries to POST to `/events` in the same request handler loses the event whenever
+the HTTP call fails, the process restarts, or a second pod races in. The service ends up
+with gaps: change events missing from the log, and no error to point at, because from the
+caller's perspective the gap is a non-event.
 
-The idempotent consumer on the other end handles the complementary failure mode: SQS
-delivers a message at least once, which means the same event can arrive twice, especially
-after a network retry or a visibility-timeout expiry. Inserting with `_id = eventId`
-turns a duplicate delivery into a no-op: MongoDB's unique index on `_id` rejects the
-second insert and the worker catches the duplicate-key error and acks normally.
+The idempotent consumer on the other end handles the complementary failure. SQS delivers
+a message at least once, so the same event can arrive twice, usually after a network retry
+or a visibility-timeout expiry. Inserting with `_id = eventId` turns a duplicate delivery
+into a no-op. MongoDB's unique index on `_id` rejects the second insert, the worker
+catches the duplicate-key error, and it acks normally.
 
-Together the two halves give end-to-end exactly-once semantics from the application's
-point of view even though the transport is at-least-once.
+Put the two halves together and the application sees exactly-once semantics end to end,
+even though the transport underneath is at-least-once.
 
 ## How to apply
 
 ### Step 1 — atomic dual-write on the producer
 
-Within the same database transaction that commits the business change, insert a row into
-the outbox table. Both rows either commit together or neither does.
+In the same database transaction that commits the business change, insert a row into the
+outbox table. Both rows commit together or neither does.
 
 ```ts
 // producer-service/src/orders/create-order.ts
@@ -92,13 +92,13 @@ const createOrder = async (
   });
 ```
 
-The business handler never touches the broker. It only writes rows.
+The business handler never touches the broker. All it does is write rows.
 
 ### Step 2 — relay drains the outbox
 
-A background process (`runRelay`) polls the outbox for unpublished rows and POSTs each
-one to the event-sourcing service's `/events` endpoint. Only after a successful response (2xx) does it
-mark the row as published.
+A background process (`runRelay`) polls the outbox for unpublished rows and POSTs each one
+to the event-sourcing service's `/events` endpoint. It marks the row as published only
+after a successful response (2xx).
 
 ```ts
 // producer-service/src/relay/run-relay.ts
@@ -154,13 +154,13 @@ export const runRelay = (config: RelayConfig): NodeJS.Timeout =>
   );
 ```
 
-The relay is intentionally separate from the business path. It can be restarted, scaled
-independently, and retried without affecting the producer's write latency.
+Keeping the relay separate from the business path is deliberate. You can restart it, scale
+it on its own, and let it retry without any of that touching the producer's write latency.
 
 ### Step 3 — idempotent insert on the consumer
 
-The event-sourcing service worker receives events from SQS and inserts them with `_id = eventId`.
-MongoDB's unique index on `_id` ensures the second delivery of the same event is a
+The event-sourcing service worker receives events from SQS and inserts them with
+`_id = eventId`. The unique index on `_id` makes the second delivery of the same event a
 silent no-op.
 
 ```ts
@@ -196,9 +196,9 @@ export const handleEvent = async (event: InboundEvent): Promise<void> => {
 };
 ```
 
-If the insert throws a duplicate-key error, the handler returns normally. The SQS
-message is acknowledged and the duplicate is discarded. Any other error propagates,
-leaving the message in the queue for redelivery.
+When the insert throws a duplicate-key error, the handler returns normally, the SQS
+message is acknowledged, and the duplicate is discarded. Any other error propagates and
+leaves the message in the queue for redelivery.
 
 ### End-to-end trace across three services
 
@@ -221,9 +221,9 @@ COMMIT
                                                       ack message
 ```
 
-One OpenTelemetry trace propagates the `traceparent` header through the POST and into
-the SQS message attributes, so the three spans appear in a single trace in the OTLP
-viewer. See [telemetry must never crash the app](/kb/backend-events/telemetry-never-crashes).
+A single OpenTelemetry trace carries the `traceparent` header through the POST and into
+the SQS message attributes, so the three spans land in one trace in the OTLP viewer. See
+[telemetry must never crash the app](/kb/backend-events/telemetry-never-crashes).
 
 ## Anti-patterns
 
@@ -254,21 +254,22 @@ try {
 }
 ```
 
-The first two break delivery guarantees. The third breaks the error-handling contract:
-only `code === 11000` is a legitimate no-op; everything else must propagate.
+The first two break delivery guarantees. The third breaks the error-handling contract,
+since only `code === 11000` is a legitimate no-op and everything else has to propagate.
 
 ## Enforcement
 
-- Outbox presence can be enforced in code review with an architecture test: assert that
-  no service module imports a broker client directly from a business command handler.
-- The `publishedAt: null` query in the relay is the operational health signal — a growing
-  backlog here means the relay is stalled or the event-sourcing service endpoint is down.
-- Add an alert on `outbox.pending_count > threshold` to detect relay failures before they
-  grow into data loss.
+- Enforce outbox presence in code review with an architecture test that asserts no service
+  module imports a broker client directly from a business command handler.
+- The `publishedAt: null` query in the relay doubles as an operational health signal. A
+  growing backlog there means the relay has stalled or the event-sourcing service endpoint
+  is down.
+- Add an alert on `outbox.pending_count > threshold` to catch relay failures before they
+  turn into data loss.
 
 ## See also
 
 The per-engine adapter strategy that makes the outbox fit any database is covered in
 [Outbox in the service's own DB; per-engine adapters, never 2PC](/kb/backend-events/storage-in-service-db-per-engine-adapters).
-Retry and dead-letter handling for the relay is in
+Retry and dead-letter handling for the relay lives in
 [Retry and dead-letter are first-class library concerns](/kb/backend-events/retry-and-dlq-first-class).

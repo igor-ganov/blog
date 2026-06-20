@@ -17,28 +17,28 @@ updated: 2026-06-10
 
 ## Why this matters
 
-On 2026-05-27, during DDD research, the assistant reached for
-`python -m http.server` to spin up a quick static file server. The rule was rejected
-explicitly: there is no reason to invoke Python for a file-serving task when bun ships
-its own static server, executes TypeScript natively, and is already the bun binary on PATH.
+On 2026-05-27, during DDD research, the assistant reached for `python -m http.server`
+to spin up a quick static file server. That got rejected on the spot. There is no reason
+to invoke Python for a file-serving task when bun ships its own static server, runs
+TypeScript natively, and is already on PATH.
 
-The same principle applies to `node`, `npx`, and `npm`. Each of those requires an
-additional mental context switch, adds inconsistency to the dev environment, and in most
-cases does less than the equivalent bun command.
+`node`, `npx`, and `npm` get the same treatment. Each one is another mental context
+switch, another source of inconsistency in the dev environment, and in most cases it
+does less than the bun command it stands in for.
 
-Bun's advantages that make it the clear default:
+What makes bun the default:
 
 - **Native TypeScript execution** — `bun run script.ts` works without a compilation step
-  or `ts-node`/`tsx` wrapper.
-- **Built-in static server** — `bun x serve <dir>` or a one-file `server.ts` with
-  `Bun.serve()` replaces every ad-hoc Python/Node HTTP server.
-- **Faster installs** — `bun install` resolves and downloads packages significantly
-  faster than `npm install` due to binary lockfile and parallel fetching.
+  or a `ts-node`/`tsx` wrapper.
+- **Built-in static server** — `bun x serve <dir>`, or a one-file `server.ts` with
+  `Bun.serve()`, replaces every ad-hoc Python/Node HTTP server.
+- **Faster installs** — `bun install` resolves and downloads packages much faster than
+  `npm install`, thanks to a binary lockfile and parallel fetching.
 - **Single binary** — no version mismatch between the runner and the package manager.
-- **Hot reload** — `bun --hot ./server.ts` provides instant reload without `nodemon`.
+- **Hot reload** — `bun --hot ./server.ts` reloads instantly, no `nodemon` needed.
 
-This blog itself uses bun for everything: `bun install`, `bun run dev`, `bun run build`.
-An engineering standard encodes this as a project-wide rule.
+This blog runs on bun end to end: `bun install`, `bun run dev`, `bun run build`. An
+engineering standard encodes the same as a project-wide rule.
 
 ## How to apply
 
@@ -115,7 +115,7 @@ const isBun = typeof Bun !== 'undefined';
 const bunVersion = isBun ? Bun.version : undefined;
 ```
 
-The binary is available as the bun binary on PATH.
+The binary lives on PATH under the name `bun`.
 
 ## Anti-patterns
 
@@ -130,7 +130,7 @@ bun x serve . -p 8080
 ```
 
 The symptom: the project has no Python dependency, yet a stray `python -m http.server`
-appears in a script or in the assistant's tool calls. This was the exact incident that
+shows up in a script or in the assistant's tool calls. That is the exact incident that
 produced this rule (an engineering standard, 2026-05-27).
 
 ### Using node to run TypeScript
@@ -156,24 +156,24 @@ bun install
 bun x astro check
 ```
 
-The lockfile mismatch risk is real: if `npm install` writes a `package-lock.json`
-alongside `bun.lockb`, CI and other developers may resolve different versions.
+The lockfile mismatch is a real risk. If `npm install` writes a `package-lock.json`
+next to `bun.lockb`, CI and other developers can end up resolving different versions.
 
 ### Falling back without checking
 
-The only legitimate reasons to use a different runtime are:
+There are only two legitimate reasons to use a different runtime:
 
 1. A `package-lock.json` or `yarn.lock` is checked in and the project owner has not
-   migrated — respect the existing lockfile rather than silently switching.
+   migrated. Respect the existing lockfile rather than silently switching.
 2. Bun is genuinely absent from `$PATH` and cannot be installed in the current
    environment.
 
-Neither "I'm used to node" nor "npm is simpler to type" is a valid reason.
+"I'm used to node" and "npm is simpler to type" do not count.
 
 ## Enforcement
 
 The engineering standard contains the rule verbatim. The assistant reads it at session
-start and must apply it without being reminded. For CI, add a simple check to
+start and applies it without being reminded. For CI, add a check to
 `.github/workflows`:
 
 ```yaml

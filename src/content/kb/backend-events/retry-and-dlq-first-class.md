@@ -16,36 +16,34 @@ order: 4
 updated: 2026-05-14
 ---
 
-Retry and dead-letter handling are not application concerns. Every service that
-publishes or consumes events will need them, they always need the same shape, and the
-failure modes are identical across services. If retry logic lives in each adopting
-service, it will be implemented inconsistently: some services will cap retries at three,
-others at ten, some will use fixed backoff, others exponential, and most will forget the
-dead-letter path entirely. When a message permanently fails, it disappears with no
-record.
+Retry and dead-letter handling don't belong to the application. Every service that
+publishes or consumes events needs them, the shape is always the same, and the failure
+modes repeat across services. Push that logic into each adopting service and it drifts:
+one caps retries at three, another at ten, some pick fixed backoff and some exponential,
+and most forget the dead-letter path. Then a message fails for good and vanishes with no
+record of it.
 
-An event-sourcing service settled this on 2026-05-14 by making retry and DLQ
-first-class concerns of the library itself, configured once per sender/receiver pair and
-not left to each adopter.
+An event-sourcing service settled this on 2026-05-14 by making retry and DLQ concerns of
+the library itself, configured once per sender/receiver pair instead of per adopter.
 
 ## Why this matters
 
-A message that fails processing needs a defined fate. There are two outcomes at each
-retry boundary:
+A message that fails processing needs a defined fate. At each retry boundary there are
+two outcomes:
 
 1. The operation eventually succeeds within `maxAttempts` — normal path.
 2. The operation exhausts `maxAttempts` — the message must be preserved in a dead-letter
    store, not silently dropped.
 
-Without library-level enforcement of this contract, outcome 2 commonly becomes silent
-discard. A `console.error` and a return are not equivalent to a dead-letter queue.
-Silently dropped messages are invisible data loss — there is no record that the message
-existed, no way to replay it, and no alert that anything went wrong. See
+Without library-level enforcement of this contract, outcome 2 usually degrades into a
+silent discard. A `console.error` followed by a return is not a dead-letter queue.
+Dropped messages are invisible data loss: no record that the message existed, no way to
+replay it, no alert that anything went wrong. See
 [never swallow errors](/kb/error-handling/never-swallow-errors) for why this matters
 beyond messaging.
 
-The two sides of the delivery path have different retry mechanisms, which is why the
-library must handle both:
+The two sides of the delivery path use different retry mechanisms, so the library has to
+handle both:
 
 - **Sender side** — the relay controls retry. It retries the publish HTTP/broker call
   directly and, on exhaustion, moves the outbox row to `dlq_outbox_<svc>`.
@@ -146,15 +144,15 @@ export const runRelay = (deps: RelayDeps): NodeJS.Timeout => {
 };
 ```
 
-The relay never silently discards a message. Either the publish succeeds, or the message
+The relay never discards a message quietly. Either the publish succeeds or the message
 lands in `dlq_outbox_<svc>` with a failure reason and timestamp.
 
 ### Receiver side — visibility timeout + dlq_inbox
 
-SQS (and most brokers) implement server-side retry through visibility timeout: if the
-consumer does not ack within the timeout, the message becomes visible again and is
-redelivered. The library wraps this by counting receive attempts from the message
-attribute and acking + writing to DLQ when the limit is reached.
+SQS, like most brokers, does server-side retry through the visibility timeout: if the
+consumer doesn't ack within the timeout, the message becomes visible again and gets
+redelivered. The library wraps this by reading the receive count from the message
+attribute, then acking and writing to the DLQ once the limit is reached.
 
 ```ts
 // event-source/src/receiver/handle-message.ts
@@ -207,14 +205,14 @@ export const handleMessage =
   };
 ```
 
-The receiver never swallows errors silently. Before `maxAttempts` is reached, `nack`
-causes broker redelivery. After exhaustion, the message is written to `dlq_inbox_<svc>`
-and acked.
+The receiver never swallows errors quietly. Before `maxAttempts` is reached, `nack` tells
+the broker to redeliver. Once attempts run out, the message goes to `dlq_inbox_<svc>` and
+gets acked.
 
 ### High-level facades
 
-The library exports two factory functions that wire all pieces together. Adopters
-interact with the facades, not the individual components.
+The library exports two factory functions that wire everything together. Adopters work
+through the facades rather than the individual components.
 
 ```ts
 // event-source/src/index.ts
@@ -277,9 +275,9 @@ const sender = createSender({
 sender.start();
 ```
 
-The low-level pieces — `createMongoOutbox`, `runRelay`, `createSqsTransport` — remain
-exported for services that need direct access. The facades are a convenience, not a
-constraint.
+The low-level pieces (`createMongoOutbox`, `runRelay`, `createSqsTransport`) stay exported
+for services that need direct access. The facades are there for convenience and don't lock
+anyone out of the parts.
 
 ## Anti-patterns
 
@@ -313,24 +311,23 @@ const MAX_RETRIES = 10; // in payments-service — different, undocumented reaso
 }
 ```
 
-Each of these produces invisible permanent message loss. The absence of a DLQ means
-there is no way to identify how many messages were lost, what they contained, or when to
-replay them after the underlying issue is resolved.
+Each of these produces invisible, permanent message loss. With no DLQ you can't tell how
+many messages were lost, what they held, or when to replay them once the underlying issue
+is fixed.
 
 ## Enforcement
 
-- The library's `createSender` and `createReceiver` facades require a `RetryConfig`
-  including `deadLetter` — it is not optional. The TypeScript type enforces it at
-  compile time.
-- Alerting on `dlq_outbox_<svc>` and `dlq_inbox_<svc>` growth is the operational gate:
-  messages appearing in either DLQ mean a systematic failure that needs investigation,
-  not just a transient retry.
+- The `createSender` and `createReceiver` facades require a `RetryConfig` that includes
+  `deadLetter`. It isn't optional, and the TypeScript type enforces it at compile time.
+- Alerting on `dlq_outbox_<svc>` and `dlq_inbox_<svc>` growth is the operational gate.
+  Messages appearing in either DLQ mean a systematic failure worth investigating, not a
+  transient retry.
 - Code review: no `catch` block in a message handler may return `'ack'` or `undefined`
   without either writing to a DLQ or rethrowing.
 
 ## See also
 
-The outbox and idempotent consumer that the sender relay operates on are described in
+The outbox and idempotent consumer that the sender relay runs against are covered in
 [Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
-The general principle that errors must never be swallowed applies here too:
+The rule that errors must never be swallowed applies here too:
 [never swallow errors](/kb/error-handling/never-swallow-errors).

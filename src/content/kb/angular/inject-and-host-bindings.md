@@ -16,25 +16,24 @@ order: 4
 updated: 2026-06-10
 ---
 
-Angular has two dependency injection styles and two host-binding styles that are
-syntactically valid at the same time. The decorator-based style — constructor parameters
-annotated with `@Inject` or typed by class, and `@HostBinding` decorators on properties
-— is the older form. The function-based style — `inject()` called at the top of the
-class body, and `host` as a metadata key on the `@Component` decorator — is the modern
-form.
+Angular accepts two dependency injection styles and two host-binding styles at once, both
+syntactically valid. The older form is decorator-based: constructor parameters annotated
+with `@Inject` or typed by class, plus `@HostBinding` decorators on properties. The newer
+form calls `inject()` at the top of the class body and uses `host` as a metadata key on the
+`@Component` decorator.
 
-The preference is clear: **`inject()` and `host:{}` metadata everywhere**. The decorator
-forms are not forbidden but they are not the default.
+Use **`inject()` and `host:{}` metadata everywhere**. The decorator forms still work; they
+just aren't the default here.
 
 ## Why this matters
 
 ### inject() over constructor injection
 
-Constructor injection requires the constructor to exist. A class that uses `inject()`
-needs no constructor at all unless it has initialisation logic beyond dependency
-resolution. The boilerplate cost is real: every injected dependency means a parameter,
-a property declaration, and an assignment in the constructor body (or, with parameter
-properties, a compact but still syntactically distinct form).
+Constructor injection forces a constructor to exist. A class built on `inject()` needs no
+constructor at all unless it has real initialisation logic beyond resolving dependencies.
+The boilerplate adds up: each injected dependency is a parameter, a property declaration,
+and an assignment in the constructor body. Parameter properties shrink that, but they're
+still a separate syntactic form you have to read.
 
 ```typescript
 // Bad — constructor exists only to inject; three tokens of boilerplate per dependency
@@ -59,8 +58,8 @@ export class TicketListComponent {
 }
 ```
 
-With `inject()`, the constructor disappears and each dependency is a `readonly` property
-initialised at the point of declaration:
+With `inject()` the constructor disappears, and each dependency becomes a `readonly`
+property initialised right where it's declared:
 
 ```typescript
 // Good — no constructor; dependencies are properties with clear types
@@ -71,9 +70,9 @@ export class TicketListComponent {
 }
 ```
 
-This composes naturally with signals. Because `inject()` runs during the construction
-phase (inside the injection context), `computed` and `resource` that depend on injected
-services can also be initialised inline:
+This pairs well with signals. Since `inject()` runs during construction, inside the
+injection context, any `computed` or `resource` that depends on an injected service can be
+initialised inline too:
 
 ```typescript
 @Component({
@@ -95,21 +94,19 @@ export class TicketListComponent {
 }
 ```
 
-No constructor, no lifecycle hook, no subscription management.
+There's no constructor here, no lifecycle hook, and nothing to unsubscribe.
 
 ### host metadata over @HostBinding
 
-`@HostBinding` decorates a class property and links it to a host attribute or CSS
-class. It works, but it scatters host state across the class body in a way that requires
-reading both the decorator and the property to understand what is bound. The `host`
-metadata object in `@Component` or `@Directive` puts every host binding in one place —
-alongside `selector`, `template`, and `styles` — making the host surface area
-immediately visible.
+`@HostBinding` decorates a class property and ties it to a host attribute or CSS class. It
+works, but it scatters host state through the class body, so understanding what's bound
+means reading both the decorator and the property it sits on. The `host` metadata object on
+`@Component` or `@Directive` collects every host binding in one place, next to `selector`,
+`template`, and `styles`, so the whole host surface is right there.
 
-`@HostBinding` also does not compose well with signals. To reflect a signal value as a
-host class you still need to call the signal as a function in the binding expression.
-The `host` metadata supports arbitrary template expressions, so signal calls work
-directly.
+`@HostBinding` also handles signals awkwardly. Reflecting a signal value as a host class
+still means calling the signal as a function inside the binding expression. The `host`
+metadata accepts arbitrary template expressions, so signal calls just work.
 
 ```typescript
 // Bad — @HostBinding decorators scattered in the class body;
@@ -168,19 +165,19 @@ export class NavLinkComponent {
 }
 ```
 
-The entire host surface — what classes, attributes, and event listeners the host element
-exposes — is visible at a glance in the metadata object. No scanning the class body for
+Everything the host element exposes (classes, attributes, event listeners) sits in the
+metadata object where you can read it in one pass. You never scan the class body for stray
 decorators.
 
 ### Inline templates and styles
 
-All component templates and styles belong in the `@Component` decorator, not in
-separate `.html` and `.css` files. The reasoning is cohesion: a component is a unit, and
-splitting its template across two files does not improve modularity — it just makes you
-open two tabs to understand one thing.
+Component templates and styles belong in the `@Component` decorator, not in separate
+`.html` and `.css` files. The point is cohesion. A component is one unit, and spreading its
+template across two files buys you no modularity; it just makes you open two tabs to follow
+one thing.
 
-The engineering standard makes this mandatory. The `templateUrl` and `styleUrls` keys are
-not used.
+The engineering standard treats this as mandatory, so `templateUrl` and `styleUrls` go
+unused.
 
 ```typescript
 // Bad — split files require switching between tabs
@@ -249,10 +246,10 @@ someMethod(): void {
 
 ## Enforcement
 
-The Angular Language Service warns when `inject()` is called outside an injection
-context at development time. The `@angular-eslint` rule
-`@angular-eslint/prefer-inject` (available from angular-eslint v18) can be set to
-`error` to flag constructor injection in favour of `inject()`:
+At development time the Angular Language Service warns when `inject()` is called outside an
+injection context. Set the `@angular-eslint` rule `@angular-eslint/prefer-inject`
+(available from angular-eslint v18) to `error` to flag constructor injection in favour of
+`inject()`:
 
 ```jsonc
 {
@@ -264,6 +261,6 @@ context at development time. The `@angular-eslint` rule
 
 For the `@HostBinding` / `@HostListener` preference, the `@angular-eslint` rules
 `@angular-eslint/no-host-metadata-property` and `@angular-eslint/use-component-view-encapsulation`
-cover related concerns. The `host` metadata preference is currently a code-review
-convention rather than a lint-enforced rule: any PR that introduces `@HostBinding` or
-`@HostListener` requires an explicit justification.
+cover related concerns. The `host` metadata preference itself stays a code-review
+convention rather than a lint-enforced rule, so any PR that introduces `@HostBinding` or
+`@HostListener` has to justify it explicitly.

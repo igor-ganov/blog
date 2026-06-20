@@ -21,13 +21,13 @@ updated: 2026-06-10
 
 ## Why this matters
 
-TypeScript inherits two absence sentinels from JavaScript — `null` and `undefined` — and that inheritance is a trap. Every nullable value forces a double-check: `if (x !== null && x !== undefined)`, or the shorthand `x != null`. Double-checking is noise, but the real cost is inconsistency: one function returns `null`, another returns `undefined`, and the caller has to know which one. That knowledge does not compose.
+TypeScript inherits both of JavaScript's absence sentinels, `null` and `undefined`, and that inheritance is a trap. Every nullable value forces a double-check: `if (x !== null && x !== undefined)`, or the shorthand `x != null`. The check is noise, but the worse cost is inconsistency. One function returns `null`, another returns `undefined`, and now the caller has to remember which is which. That kind of knowledge doesn't compose across a codebase.
 
-The rule in this codebase is simple: **`null` does not exist in domain code**. Only `undefined` represents the absence of a value. One sentinel, one check, one mental model.
+So the rule here is blunt: `null` does not exist in domain code. Only `undefined` means a value is absent. One sentinel, one check.
 
-The concrete incident that made this rule non-negotiable happened in a Jira client app on 2026-06-08. The Jira REST API returns unassigned issues with `"assignee": null` in the JSON payload — a deliberate JSON `null`, not an omitted field. The internal `mapUser` helper was written defensively against `undefined` (the TypeScript absent value) but had no branch for `null`. When an unassigned issue arrived, `mapUser(issue.assignee)` received `null`, fell through the guard, and crashed at runtime while trying to access `.displayName` on it. The fix was two lines: normalize `null` to `undefined` at the deserialization boundary, then delete every `null` reference from the domain. The boundary absorbed the external world's conventions; the domain stayed clean.
+The incident that made this rule non-negotiable was a Jira client app on 2026-06-08. The Jira REST API returns unassigned issues with `"assignee": null` in the JSON payload, which is a deliberate JSON `null` rather than an omitted field. The internal `mapUser` helper guarded against `undefined` (TypeScript's absent value) but had no branch for `null`. When an unassigned issue came through, `mapUser(issue.assignee)` got `null`, slipped past the guard, and crashed at runtime trying to read `.displayName` off it. The fix was two lines: normalize `null` to `undefined` at the deserialization boundary, then strip every `null` reference out of the domain. The boundary swallowed the external convention so the domain never had to know about it.
 
-The secondary lesson is about richer absence. When `T | undefined` is not expressive enough — when you need to distinguish "not yet loaded" from "loaded but empty" from "loaded with data" — the temptation is to reach for `T | null | undefined` and assign each sentinel a meaning. That way lies madness; meanings are invisible to the type system and invisible to readers. The correct answer is a discriminated union.
+There's a second lesson here about richer absence. Sometimes `T | undefined` isn't expressive enough and you need to tell "not yet loaded" apart from "loaded but empty" and "loaded with data". The tempting move is to reach for `T | null | undefined` and hand each sentinel a meaning. Don't. Those meanings live nowhere the type system or a reader can see them. Use a discriminated union instead.
 
 ## How to apply
 
@@ -54,7 +54,7 @@ interface Issue {
 
 ### 2. Normalize null at the boundary
 
-External systems — REST APIs, databases, localStorage, third-party SDKs — emit `null`. Accept that reality at the single point where untyped data enters the system, convert it to `undefined`, and let nothing else know it ever existed.
+External systems emit `null`: REST APIs, databases, localStorage, third-party SDKs. Take that at the single point where untyped data enters, convert it to `undefined` there, and let nothing downstream know it ever existed.
 
 ```typescript
 // boundary/jira-api.ts
@@ -84,11 +84,11 @@ const mapIssue = (raw: JiraIssueRaw): Issue => ({
 });
 ```
 
-After `mapIssue`, every consumer checks `if (issue.assignee !== undefined)` and nothing else. The double-sentinel check (`!= null`) is quarantined to the one mapping function.
+After `mapIssue`, every consumer checks `if (issue.assignee !== undefined)` and nothing else. The double-sentinel check (`!= null`) stays quarantined inside that one mapping function.
 
 ### 3. Model richer absence with a discriminated union
 
-When the distinction between "no data yet", "empty result", and "data present" is semantically meaningful, encode it in the type rather than overloading two sentinels.
+When the difference between "no data yet", "empty result", and "data present" actually carries meaning, put it in the type instead of overloading two sentinels.
 
 ```typescript
 // Bad — null and undefined carry hidden meanings that only comments explain
@@ -114,7 +114,7 @@ const renderIssue = (loaded: Loaded<Issue>): string => {
 };
 ```
 
-The compiler will error if a new state is added to `Loaded` and `renderIssue` is not updated. No comment can do that.
+Add a new state to `Loaded` without updating `renderIssue` and the compiler errors out. A comment can't enforce that for you.
 
 ### 4. Enable strict null checks
 
@@ -144,7 +144,7 @@ const findUser = (id: string): User | null => {
 const findUser = (id: string): User | undefined => store.get(id);
 ```
 
-**Symptom**: call sites accumulate `!== null` checks next to `!== undefined` checks. One is always missing because developers forget which functions return which sentinel.
+**Symptom**: call sites pile up `!== null` checks next to `!== undefined` checks, and one of them is always missing because nobody remembers which functions return which sentinel.
 
 ### Using null and undefined as overloaded signals
 
@@ -165,7 +165,7 @@ type ConfigResult =
 const getConfig = (): ConfigResult => { /* ... */ };
 ```
 
-**Symptom**: the distinction between `null` and `undefined` is only documented in a comment. Comments rot; the type system does not.
+**Symptom**: the only record of what `null` means versus `undefined` is a comment, and comments rot away from the code they describe.
 
 ### Casting null away instead of normalizing it
 
@@ -178,7 +178,7 @@ const assignee = (raw.assignee as User | undefined) ?? undefined;
 const assignee = raw.assignee != null ? mapUser(raw.assignee) : undefined;
 ```
 
-**Symptom**: the cast succeeds at compile time but at runtime `raw.assignee` is `null`, so accessing `.displayName` on the "typed" value throws. This is exactly the Jira client app crash scenario from 2026-06-08.
+**Symptom**: the cast passes at compile time, then at runtime `raw.assignee` turns out to be `null`, so reading `.displayName` off the "typed" value throws. That's the Jira client app crash from 2026-06-08.
 
 ## Enforcement
 
@@ -204,7 +204,7 @@ For boundary files that must accept external `null`, disable the rule locally wi
 const mapIssue = (raw: JiraIssueRaw): Issue => ({ /* ... */ });
 ```
 
-The suppression comment is the explicit, recorded reason required by the `strong` severity rule.
+That suppression comment is the recorded justification the `strong` severity rule asks for.
 
 ## See also
 

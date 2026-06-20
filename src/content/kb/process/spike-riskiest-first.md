@@ -16,51 +16,51 @@ order: 6
 updated: 2026-06-10
 ---
 
-Every new architecture rests on at least one assumption that has not been validated in
-this specific combination of technology, scale, and environment. Building features on
-top of an unvalidated assumption means that if the assumption is wrong, all the feature
-work is waste. A spike is the minimum work required to validate the riskiest assumption
-before any feature work begins.
+Every new architecture rests on at least one assumption nobody has validated in this
+specific combination of technology, scale, and environment. If you build features on top
+of that assumption and it turns out to be wrong, all the feature work is waste. A spike
+is the minimum work needed to validate the riskiest assumption before any feature work
+begins.
 
-The trap on the other side is over-engineering the PoC: adding multi-user machinery,
-real billing, dashboards, and encryption before the core gamble has been validated.
-Both failure modes — skipping the spike and building too much in the PoC — waste time
-in different ways.
+There is an opposite trap, which is over-engineering the PoC. You add multi-user
+machinery, real billing, dashboards, and encryption before anyone has checked whether
+the core gamble pays off. Skipping the spike wastes time; so does building too much in
+the PoC.
 
 ## Why this matters
 
 A Cloudflare Workers service PoC (2026-05-22) made the architecture tradeoff explicit. The
-entire project rested on one technical bet: can `mtcute` (an MTProto client library)
-run on Cloudflare Workers' `workerd` runtime and hold a persistent MTProto session?
-If it could not, the hosting choice was wrong and everything built on top of it was
-built on sand.
+whole project rested on one technical bet: can `mtcute` (an MTProto client library) run
+on Cloudflare Workers' `workerd` runtime and hold a persistent MTProto session? If it
+could not, the hosting choice was wrong and everything built on top of it would collapse
+with it.
 
-The response was to make the spike task zero — not task three, not "we will cross that
-bridge when we get to it." The spike was defined concretely:
+So we made the spike task zero. Not task three, not "we will cross that bridge when we
+get to it." The spike was defined concretely:
 
 > Worker → mtcute → own Telegram session → read N messages
 
 Green means the architecture is valid. Red means switch hosting immediately, before
 any feature code has been written.
 
-The second lesson from the same project was the distinction between forward-compatible
+The second lesson from the same project was the difference between forward-compatible
 discipline and forward-compatible machinery. The PoC was designed to grow into a
-multi-user system, but it did not need to be a multi-user system on day one. The
-discipline — thread `userId` through every function signature, use user-scoped storage
-keys from day one (`user:<id>:cursor:<channel>`), keep the pipeline as a pure function
-— costs almost nothing. Building the multi-user machinery (auth flows, session
-encryption, billing checks, admin dashboards) before the core PoC is validated costs
-weeks and may be entirely wasted if the spike had failed.
+multi-user system, but it did not need to be one on day one. The discipline costs almost
+nothing: thread `userId` through every function signature, use user-scoped storage keys
+from day one (`user:<id>:cursor:<channel>`), and keep the pipeline as a pure function.
+Building the actual multi-user machinery (auth flows, session encryption, billing checks,
+admin dashboards) before the core PoC is validated costs weeks, and all of it is wasted
+if the spike fails.
 
 ## How to apply
 
 ### Define the spike
 
 A spike is not a prototype of the full feature. It is the minimum runnable code that
-answers one specific question. The question is always: is the riskiest assumption
-valid?
+answers one specific question, and the question is always whether the riskiest assumption
+holds.
 
-Before writing the spike, write the question explicitly:
+Before writing the spike, write the question down explicitly:
 
 ```markdown
 Spike goal: Confirm that mtcute runs on workerd and holds an MTProto session.
@@ -78,9 +78,9 @@ Failure criteria:
 Time box: half a day (4 hours).
 ```
 
-The time box is not negotiable. A spike that takes a week is either the wrong scope
-or it revealed that the assumption is more complex than expected — in which case the
-complexity itself is the finding and the architecture decision needs to be revisited.
+The time box is not negotiable. A spike that drags on for a week was either scoped wrong,
+or the assumption turned out to be more complex than expected. In the second case the
+complexity itself is the finding, and the architecture decision needs to be revisited.
 
 ### Identify the riskiest assumption
 
@@ -94,13 +94,13 @@ Common candidates for the riskiest assumption:
   not been tested.
 - An integration between two systems where the protocol documentation is ambiguous.
 
-The riskiest assumption is the one where being wrong invalidates the most work. Start
+The riskiest assumption is the one where being wrong throws away the most work. Start
 there.
 
 ### Forward-compatibility as discipline
 
-After the spike passes, resist the temptation to build supporting infrastructure that
-is "almost needed." The discipline approach:
+After the spike passes, resist the urge to build supporting infrastructure that is
+"almost needed." Here is what the discipline looks like in practice.
 
 **Thread the growth axis, do not build it.**
 
@@ -147,7 +147,7 @@ const buildDigest = async (config: DigestConfig) => {
 ```
 
 The forward-compatible versions cost one extra parameter or one extra namespace
-separator. They are not premature — they are the minimum investment to avoid a
+separator. That is not premature abstraction. It is the smallest investment that avoids a
 rewrite when the product grows.
 
 ### What the PoC must NOT build
@@ -160,34 +160,34 @@ The explicit list from that PoC decision (2026-05-22):
 - Admin dashboards.
 - Configuration UI.
 
-Each of these is a real concern — they each get their own small spec when the PoC has
+Each of these is a real concern, and each gets its own small spec once the PoC has
 validated the core bet and the product direction is confirmed. Building them before
-validation is over-engineering a prototype that may be discarded.
+validation means over-engineering a prototype that may well be discarded.
 
 ## Anti-patterns
 
-**Treating the spike as a prototype.** A spike answers one question. When the question
-is answered, the spike is done — even if the code is rough. The code may or may not
-become production code; that decision is made after the spike, not during it.
+**Treating the spike as a prototype.** A spike answers one question. Once the question is
+answered, the spike is done, even if the code is rough. Whether that code becomes
+production code is a decision you make after the spike, not during it.
 
 **Skipping the spike because "it will probably work."** The whole point of the spike is
-that you do not know whether it will work. "Probably" is not a validated architecture.
+that you do not actually know whether it will work. "Probably" is not a validated
+architecture.
 
-**Building forward-compatibility machinery instead of discipline.** Creating a full
-multi-tenant auth system "because we will need it eventually" before the core PoC
-works is not forward-compatible discipline — it is premature abstraction. The
-distinction is: discipline threads the data (userId in signatures, namespaced keys);
-machinery implements the flows (login, session management, billing).
+**Building forward-compatibility machinery instead of discipline.** Standing up a full
+multi-tenant auth system "because we will need it eventually" before the core PoC works
+is premature abstraction, not discipline. Discipline threads the data (userId in
+signatures, namespaced keys). Machinery implements the flows (login, session management,
+billing).
 
-**Expanding the PoC scope incrementally.** The PoC validates the core bet. Each new
-concern that enters the PoC ("while I am here I will also add…") delays validation of
-the core bet and risks the whole PoC needing to be scrapped if the core bet was wrong.
+**Expanding the PoC scope incrementally.** The PoC validates the core bet. Every extra
+concern that creeps in ("while I am here I will also add...") delays that validation and
+raises the odds that the whole PoC has to be scrapped if the bet was wrong.
 
 ## See also
 
-The spike-first approach and the forward-compatibility discipline are how the
-spec-driven workflow starts when the architecture itself is not yet settled. A spec for
-an architecture that has not been spiked is speculative — the requirements may be
-achievable and the design sections may be coherent, but neither has been tested against
-the actual runtime. The spike produces the evidence that makes the subsequent spec
-grounded.
+The spike-first approach and the forward-compatibility discipline are how the spec-driven
+workflow starts when the architecture itself is not yet settled. A spec for an
+architecture nobody has spiked is speculative. The requirements may be achievable and the
+design sections may read as coherent, yet neither has been tested against the actual
+runtime. The spike produces the evidence that makes the subsequent spec grounded.

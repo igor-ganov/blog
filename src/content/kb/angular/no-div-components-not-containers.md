@@ -19,35 +19,35 @@ order: 1
 updated: 2026-06-10
 ---
 
-The `<div>` is the blank canvas of HTML — it carries no meaning, no accessibility role,
-and no structural commitment. That absence of commitment is exactly the problem. When a
-component template is full of `<div>` wrappers, the template is describing layout, not
-semantics. The component has stopped being a self-contained UI unit and has become a bag
-of markup that only makes sense when you already understand the surrounding page.
+A `<div>` carries no meaning, no accessibility role, and no structural commitment, and
+that is precisely why it causes trouble. A template full of `<div>` wrappers describes
+layout rather than semantics. The component stops being a self-contained UI unit and turns
+into a bag of markup that only makes sense once you already understand the surrounding
+page.
 
-The rule is: **no `<div>` inside a component template, ever.** When layout requires a
-wrapper, that wrapper becomes a component — or it disappears because `:host` already
-provides the element to style.
+The rule is simple: **no `<div>` inside a component template, ever.** When layout needs a
+wrapper, that wrapper becomes a component, or it vanishes because `:host` already gives you
+an element to style.
 
 ## Why this matters
 
 During the content-admin SPA Grand Refactoring (completed 2026-03-24), phase 7
 was titled "Component Cleanup". The target was stated plainly: **zero `<div>` elements,
-all semantic HTML**. That was not a cosmetic goal. The preceding state had components
-that were really page sections disguised as components — a `UserCardComponent` whose
-template was `<div class="card"><div class="card__header">...` with the parent needing
-to know the inner layout in order to override any styles. The coupling ran in both
-directions: templates leaked structure to parents, and parents leaked padding assumptions
-back through deep CSS selectors.
+all semantic HTML**. This was not a cosmetic goal. Before the cleanup we had components
+that were really page sections wearing a component costume. Take `UserCardComponent`,
+whose template was `<div class="card"><div class="card__header">...`; any parent that
+wanted to override a style first had to learn the inner layout. The coupling went both
+ways. Templates leaked structure up to parents, and parents leaked padding assumptions
+back down through deep CSS selectors.
 
-Removing every `<div>` forced two disciplined outcomes:
+Removing every `<div>` forced two outcomes:
 
 1. **Real component boundaries appeared.** A `<div class="card__actions">` had to become
-   a `<card-actions>` component. That forced the question "what does this thing *do*?"
-   and the answer clarified the public API.
-2. **Semantic HTML became the default.** When `<div>` is not an option, you reach for
+   a `<card-actions>` component, which forced the question "what does this thing *do*?".
+   Answering it clarified the public API.
+2. **Semantic HTML became the default.** Once `<div>` is off the table, you reach for
    `<section>`, `<article>`, `<aside>`, `<nav>`, `<header>`, `<main>`. Assistive
-   technology and search engines can now traverse the document tree meaningfully.
+   technology and search engines can then traverse the document tree meaningfully.
 
 The application reached zero violations across more than 70 component files in a single
 refactoring phase and has held that state since.
@@ -56,8 +56,8 @@ refactoring phase and has held that state since.
 
 ### Use :host for container styles
 
-The host element is the component's root DOM node. It exists without any extra markup.
-Styling it with `:host` replaces every "outer wrapper" `<div>`.
+The host element is the component's root DOM node, and it already exists without any extra
+markup. Styling it with `:host` replaces every "outer wrapper" `<div>`.
 
 ```typescript
 // Bad — wrapping div exists solely to hold padding and display rules.
@@ -105,8 +105,8 @@ export class UserCardComponent {
 
 ### Extract layout groups into named components
 
-When a logical group of elements needs to be placed together inside a larger template,
-create a component for that group instead of wrapping it in a `<div>`.
+When a logical group of elements belongs together inside a larger template, make a
+component for that group instead of wrapping it in a `<div>`.
 
 ```typescript
 // Bad — three sibling divs inside a parent template. Changing layout of actions
@@ -173,8 +173,8 @@ export class TicketActionsComponent {
 ### Put shared components in the nearest common root under `common`
 
 When two or more feature folders need the same presentational component, it belongs in
-the nearest common ancestor directory's `common/` subfolder — not duplicated, not
-promoted to a global `shared/` module prematurely.
+the `common/` subfolder of their nearest common ancestor directory. Do not duplicate it,
+and do not promote it to a global `shared/` module before you have to.
 
 ```
 src/
@@ -193,9 +193,9 @@ src/
 
 ### Rely on semantic HTML elements
 
-Before creating a new component, ask whether a native element already carries the right
-meaning. `<section>`, `<article>`, `<nav>`, `<aside>`, `<header>`, `<footer>`,
-`<main>`, `<ul>`, `<ol>`, `<figure>` all communicate intent to assistive technology
+Before you create a new component, check whether a native element already carries the
+right meaning. `<section>`, `<article>`, `<nav>`, `<aside>`, `<header>`, `<footer>`,
+`<main>`, `<ul>`, `<ol>`, and `<figure>` all communicate intent to assistive technology
 without any extra ARIA work.
 
 ```typescript
@@ -269,9 +269,9 @@ template: `<div class="ticket-status-badge">{{ status() }}</div>`
 // Fix: the component IS the badge; :host carries the styles.
 ```
 
-The symptom these patterns share: parent templates break when the inner `<div>` is
-restructured, because the parent's CSS referenced `.card .card__header` and now that
-path does not exist. `:host` cuts that coupling entirely — the parent can only touch
+These patterns share one symptom. Parent templates break when the inner `<div>` is
+restructured, because the parent's CSS referenced `.card .card__header` and that path no
+longer exists. Styling through `:host` cuts the coupling, since the parent can only touch
 `app-user-card` as a black box.
 
 ## Enforcement
@@ -303,9 +303,9 @@ time:
 }
 ```
 
-Code review is the fallback: any PR that introduces a `<div>` in an Angular template
-requires an explicit, recorded justification. That justification almost always reveals a
-missing component boundary.
+Code review is the fallback. Any PR that introduces a `<div>` in an Angular template
+needs an explicit, recorded justification, and that justification almost always points
+to a missing component boundary.
 
 ## See also
 

@@ -19,30 +19,30 @@ order: 3
 updated: 2026-06-10
 ---
 
-Classes bundle state and behaviour to manage lifetime. In a functional codebase there is
-no lifetime to manage: pure functions have no state, and dependencies are either passed
-as arguments or captured once at the composition root. Currying and closures do this
-job with less machinery and more composability than a constructor.
+Classes bundle state and behaviour so something can manage their lifetime. A functional
+codebase has no lifetime to manage. Pure functions hold no state, and dependencies are
+either passed as arguments or captured once at the composition root. Currying and closures
+cover the same ground a constructor does, with less machinery and far better composability.
 
-The shape is `(config) => (data) => result`. The first call binds configuration once.
-The second call is the pure transformation. The result is a partially-applied function
-that can be passed around, composed with `pipe`, or stored in a strategy map — all
-without a class, `this`, or `new`.
+The shape is `(config) => (data) => result`. The first call binds configuration once, and
+the second call is the pure transformation. What you get back is a partially-applied
+function you can pass around, compose with `pipe`, or drop into a strategy map, with no
+class, no `this`, and no `new`.
 
 ## Why this matters
 
-A major refactoring of a content-admin SPA (2026-03-24) articulated two goals that
-currying directly serves: **"reuse via currying"** and **"treat the project as a unified
-system"** using **"currying/composition/pipe"**. Before the refactoring, reuse happened
-through subclassing and abstract base classes, each carrying its own constructor chain,
-field initialisation, and lifecycle. Every new variant required a new subclass. Adding a
-shared behaviour meant touching every class in the hierarchy.
+A major refactoring of a content-admin SPA (2026-03-24) set out two goals that currying
+serves directly: **"reuse via currying"** and **"treat the project as a unified system"**
+using **"currying/composition/pipe"**. Before the refactoring, reuse came from subclassing
+and abstract base classes, each dragging along its own constructor chain, field
+initialisation, and lifecycle. A new variant meant a new subclass, and adding one shared
+behaviour meant editing every class in the hierarchy.
 
-After the refactoring, shared behaviour was captured by a curried function returned from
-the composition root. New variants were new entries in a strategy map. No subclass, no
-constructor, no `this`.
+After the refactoring, shared behaviour lived in a curried function returned from the
+composition root, and new variants were just new entries in a strategy map. No subclass,
+no constructor, no `this`.
 
-The engineering standard (2026-06-07) formalised the pattern:
+The engineering standard (2026-06-07) wrote the pattern down:
 
 - Currying separates *configuration* from *data*: `(config) => (data) => result`.
 - Closures replace class fields: dependencies are captured in an outer scope, not stored
@@ -54,8 +54,8 @@ The engineering standard (2026-06-07) formalised the pattern:
 
 **Curried configured function, reused across call sites.**
 
-The outer call is done once at the composition root. Every downstream call site receives
-a pre-configured function with no knowledge of where the configuration came from.
+The outer call happens once at the composition root. Every downstream call site gets a
+pre-configured function and never has to know where the configuration came from.
 
 ```ts
 // Bad: class with constructor injection — callers must instantiate, carry a reference
@@ -82,13 +82,13 @@ const label = formatDate(new Date());
 const labels = dates.map(formatDate);          // composes directly with map
 ```
 
-The curried form composes with `map`, `pipe`, and strategy maps without adaptation. The
-class form requires `.format.bind(formatter)` or a wrapper lambda every time.
+The curried form drops straight into `map`, `pipe`, and strategy maps. The class form
+needs `.format.bind(formatter)` or a wrapper lambda every single time.
 
 **Closure capturing dependencies instead of class fields.**
 
 A closure is a function returned from another function that captures variables from the
-outer scope. It replaces `this.dep` without `this`.
+outer scope. It does the work of `this.dep` without `this`.
 
 ```ts
 // Bad: class capturing an HTTP client as a field
@@ -112,8 +112,8 @@ const getUser = makeUserRepository(httpClient);
 const user = await getUser('u-42');
 ```
 
-The closure form is directly testable by injecting a fake `http` argument in the outer
-call. No `TestBed`, no `providers`, no `spyOn(this.http)`.
+To test the closure form you inject a fake `http` in the outer call and you are done.
+No `TestBed`, no `providers`, no `spyOn(this.http)`.
 
 **Higher-order functions removing structural duplication.**
 
@@ -146,14 +146,14 @@ const fetchUser   = makeFetcher((id) => `/users/${id}`,   parseUser);
 const fetchTicket = makeFetcher((id) => `/tickets/${id}`, parseTicket);
 ```
 
-The structural contract — fetch, check, parse — is defined once. New resources are
-one-liners. Changing the error format means touching one place.
+The fetch-check-parse contract is written down once. New resources become one-liners, and
+changing the error format means editing a single place.
 
 **Strategy maps as higher-order lookup.**
 
 When a set of functions varies by a key known at runtime, a `Record<Key, Fn>` map is
-a higher-order structure: it is a function from keys to functions. Combined with
-currying, it extends naturally.
+itself a higher-order structure, a function from keys to functions. Pair it with currying
+and it extends without friction.
 
 ```ts
 type ExportFormat = 'csv' | 'json' | 'xlsx';
@@ -171,7 +171,7 @@ const exportData =
     EXPORTERS[format](rows);
 ```
 
-Adding `'parquet'` to `ExportFormat` and the `EXPORTERS` map is the entire change. No
+Adding `'parquet'` to `ExportFormat` and to the `EXPORTERS` map is the whole change. No
 `if`, no `switch`, no subclass.
 
 ## Anti-patterns
@@ -201,19 +201,18 @@ abstract class Renderer {
 }
 ```
 
-The symptom of each: a change to shared behaviour requires touching multiple classes or
-files, and testing requires constructing (and often mocking) the object graph rather than
-injecting a simple function argument.
+They share one symptom. A change to shared behaviour drags in multiple classes or files,
+and testing means constructing (and usually mocking) the object graph instead of injecting
+a plain function argument.
 
 ## Enforcement
 
-No dedicated lint rule enforces "no classes" as a hard ban in this codebase —
-`eslint-plugin-functional`'s `no-class` rule is available but is applied at the team's
-discretion because some framework integration points (Angular services, Web Component
-base classes) require classes. The preference is tracked in code review and architecture
-decision records, not in lint.
+No lint rule bans classes outright in this codebase. `eslint-plugin-functional` ships a
+`no-class` rule, but the team applies it at its own discretion, because some framework
+integration points (Angular services, Web Component base classes) genuinely need classes.
+The preference rides in code review and architecture decision records rather than in lint.
 
-What lint does enforce is the absence of `this` in pure modules and the absence of
-`let` / mutable assignment — `eslint-plugin-functional` with `no-let` and
-`immutable-data` flags the patterns that make classes necessary in the first place. When
-there is no mutable state, a class becomes a function.
+What lint does enforce is the absence of `this` in pure modules and the absence of `let`
+or mutable assignment. `eslint-plugin-functional` with `no-let` and `immutable-data` flags
+exactly the patterns that make a class feel necessary. Strip out the mutable state and the
+class collapses back into a function.

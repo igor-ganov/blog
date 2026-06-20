@@ -16,39 +16,39 @@ order: 6
 updated: 2026-05-12
 ---
 
-Observability tooling is infrastructure that exists to help debug production problems.
-If that tooling can itself crash the application, it has inverted its purpose: instead of
-revealing failures, it causes them. The rule is categorical — instrumentation code must
-never propagate exceptions to the application. Every call into the telemetry SDK is
-wrapped so that a failure becomes a logged warning at most, never a thrown error.
+Observability tooling exists to help you debug production problems. If that tooling can
+itself crash the application, it has inverted its purpose, causing the failures it was
+supposed to reveal. So the rule is absolute: instrumentation code must never propagate
+exceptions to the application. Every call into the telemetry SDK is wrapped so that a
+failure becomes, at most, a logged warning.
 
 The event-sourcing service implemented full OpenTelemetry tracing and logs over
 OTLP/HTTP and encoded this constraint explicitly on 2026-05-12.
 
 ## Why this matters
 
-The failure scenario is straightforward: the OTLP collector is unavailable (restarted,
+The failure scenario is easy to picture. The OTLP collector is unavailable (restarted,
 misconfigured, network partition), and a service method calls `span.end()` or
-`tracer.startSpan()`. If those calls throw — because the SDK's internal transport is in
-a bad state — and the exception propagates, a tracing outage becomes a service outage.
-The service was healthy and processing events correctly; the observability layer crashed
-it.
+`tracer.startSpan()`. If those calls throw because the SDK's internal transport is in a
+bad state, and the exception propagates, a tracing outage becomes a service outage. The
+service was healthy and processing events correctly, and the observability layer took it
+down.
 
-The second risk is subtler. Span design is not free-form. If spans are started
-carelessly — for every function call, for health checks, for broker internal operations —
-the trace volume explodes, the viewer becomes unreadable, and cost per event rises.
-Deliberate span design means knowing what deserves a span and what does not.
+The second risk is subtler. Span design is not free-form. Start spans carelessly (for
+every function call, for health checks, for broker internal operations) and the trace
+volume explodes, the viewer becomes unreadable, and cost per event climbs. Deliberate
+span design means knowing what deserves a span and what does not.
 
 The design decisions on this:
 
 - Telemetry failure is **always a no-op**, never a crash.
 - **Brokers do not emit spans.** The queue boundary is modelled as a PRODUCER/CONSUMER
-  span pair — the producer closes its span before enqueuing, the consumer starts a new
+  span pair: the producer closes its span before enqueuing, the consumer starts a new
   span on receive, and the two are linked via `traceparent` in the message attributes.
   The broker itself (SQS, RabbitMQ) does not participate in the trace.
 - **/health is not traced.** Health endpoints are polled at high frequency by load
   balancers and produce noise with zero signal.
-- The viewer is pluggable via `OTEL_EXPORTER_OTLP_ENDPOINT` — OpenObserve, Aspire,
+- The viewer is pluggable via `OTEL_EXPORTER_OTLP_ENDPOINT`: OpenObserve, Aspire,
   LGTM, Uptrace, or any OTLP-compatible backend. No SDK changes, no redeploy.
 
 OTel manual instrumentation works on Bun as of the time of this decision, which resolved
@@ -117,8 +117,8 @@ export const withSpan =
   };
 ```
 
-The function always runs and always returns its result or rethrows its error. The
-telemetry layer can fail at any point without affecting the outcome.
+The wrapped function always runs, and it always returns its result or rethrows its error.
+The telemetry layer can fail at any point without affecting the outcome.
 
 ### PRODUCER/CONSUMER span pair across a queue boundary
 
@@ -172,8 +172,8 @@ const receiveWithTrace = async (sqsMsg: SqsMessage): Promise<void> => {
 };
 ```
 
-The result is one trace with two linked spans — PRODUCER in the relay service, CONSUMER
-in the worker service — with the SQS hop invisible but the causality preserved.
+You get one trace with two linked spans, PRODUCER in the relay service and CONSUMER in
+the worker service. The SQS hop is invisible, but the causality is preserved.
 
 ### Do not trace /health
 
@@ -275,10 +275,10 @@ try {
 }
 ```
 
-The first crashes the app on a transient telemetry failure. The second inflates costs
-and trace noise. The third produces disconnected traces that are impossible to follow
-across a queue boundary. The fourth swallows the error in telemetry code — a direct
-violation of [never swallow errors](/kb/error-handling/never-swallow-errors).
+The first crashes the app on a transient telemetry failure. The second inflates cost and
+trace noise. The third produces disconnected traces that you cannot follow across a queue
+boundary. The fourth swallows the application error inside telemetry code, which directly
+violates [never swallow errors](/kb/error-handling/never-swallow-errors).
 
 ## Enforcement
 

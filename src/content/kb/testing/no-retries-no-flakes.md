@@ -19,37 +19,38 @@ order: 2
 updated: 2026-06-02
 ---
 
-A retry does not fix a test. It buries the failure long enough for CI to go green and
-lets a race condition reach production. `retries: 2` in `playwright.config.ts` is not
-a reliability setting — it is a lie that the suite is passing when it is not.
+A retry does not fix a test. It buries the failure long enough for CI to go green, and
+the race condition it was hiding sails straight into production. `retries: 2` in
+`playwright.config.ts` is not a reliability setting. It lets a failing suite report
+itself as passing.
 
-The rule is blunt: **configure zero retries, run the suite three consecutive times, and
+The rule is blunt. **Configure zero retries, run the suite three consecutive times, and
 if any single run fails the code is broken.** A test that needs a second chance is
-already reporting a real defect; the retry just drowns out the signal.
+already reporting a real defect, and the retry just drowns out the signal.
 
 ## Why this matters
 
 The no-retries standard was set on a desktop UI tool (2026-03-12) with explicit language: run
 tests three times; any failure means the code is broken; if the architecture cannot
-guarantee deterministic behaviour, the architecture is wrong — refactor it. Retries were
+guarantee deterministic behaviour, the architecture is wrong, so refactor it. Retries were
 never on the table as a mitigation. Passing CI with retries is not passing CI.
 
-The reason this is absolute rather than "minimise retries": a retry changes the
+This is absolute rather than "minimise retries" because a retry changes the
 *economics* of debugging. Without retries a flaky test fails loudly on the first bad run
-and blocks the merge. With retries, the same flake fails occasionally, sometimes in
-production at 2 AM, and the stack trace no longer points at a test. The retry removed
-the only signal that would have caught the race early.
+and blocks the merge. Turn retries on and the same flake fails occasionally, sometimes in
+production at 2 AM, by which point the stack trace no longer points at a test. The retry
+removed the one signal that would have caught the race while it was still cheap to fix.
 
 The engineering standard is equally direct (2026-06-02):
 
 - Programmatic test exclusion is forbidden.
 - The only definition of "green" is a full, stable pass.
 - Tests must pass in **all** specified browsers, not just Chromium.
-- No browser-specific hacks — if Chromium passes and WebKit does not, the app behaves
-  differently on WebKit and that is the bug.
+- No browser-specific hacks. If Chromium passes and WebKit does not, the app behaves
+  differently on WebKit and that difference is the bug.
 
 The development-cycle standard encodes this as a PR gate: **flaky tests or skipped tests are
-not allowed.** A PR with a `test.skip` or a test in the grep-exclusion list is not
+not allowed.** A PR carrying a `test.skip`, or a test parked in the grep-exclusion list, is not
 ready to merge, no matter how complete the feature is.
 
 ## How to apply
@@ -103,8 +104,8 @@ test('drag card to Done', async ({ page }) => {
 
 **Step 3: The three-run discipline in CI.**
 
-Run the full suite three times in sequence in the pipeline. If any run fails, the build
-fails. This is the only acceptance bar.
+Run the full suite three times in sequence in the pipeline. Any failing run fails the
+build. That is the only acceptance bar.
 
 ```yaml
 # .github/workflows/ci.yml (excerpt)
@@ -116,9 +117,9 @@ fails. This is the only acceptance bar.
   run: bun run playwright
 ```
 
-Running three times catches races that appear once per three runs — the failure
-probability a single run would miss. Three consecutive clean runs means the suite is
-stable at a confidence level that justifies merging.
+Running three times catches the race that surfaces roughly once every three runs, which a
+single run would happily miss. Three consecutive clean runs gives you enough confidence in
+the suite's stability to merge.
 
 **Step 4: When a test becomes flaky, treat it as a blocking defect.**
 
@@ -151,15 +152,15 @@ export default defineConfig({
 });
 ```
 
-Each of these has the same symptom: CI is green, production has races that only appear
-under load or on a specific browser, and the root cause is invisible because the test
-suite was configured to stop reporting it.
+Each of these produces the same symptom. CI shows green while production carries races that
+only surface under load or on one specific browser, and the root cause stays invisible
+because the suite was configured to stop reporting it.
 
 ## Enforcement
 
-The enforcement mechanism is the CI pipeline itself: zero retries configured, three
+Enforcement lives in the CI pipeline itself: zero retries configured, three
 sequential runs required, any failure blocks the build. No lint rule catches a
-suppressed test in every form, so code review must verify:
+suppressed test in every form, so code review still has to verify a few things by hand:
 
 - `retries` is absent from `playwright.config.ts`.
 - No `test.skip`, `test.fixme`, or `test.only` is committed.
@@ -171,7 +172,7 @@ push, making the check automatic.
 
 ## See also
 
-Retries and skips are often a symptom of the test waiting on time rather than events —
-see [event-driven waits](/kb/testing/event-driven-no-timeouts). The service worker
-race on the content-admin SPA is a concrete case where the fix was a correct wait, not a
+Retries and skips usually mean the test is waiting on time rather than on events; see
+[event-driven waits](/kb/testing/event-driven-no-timeouts). The service worker
+race on the content-admin SPA is a concrete case where the fix was a correct wait rather than a
 retry: [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).

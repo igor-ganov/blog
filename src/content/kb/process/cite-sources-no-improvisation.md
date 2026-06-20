@@ -16,39 +16,37 @@ order: 7
 updated: 2026-06-10
 ---
 
-An unattributed "best practice" is an opinion wearing a costume. Without a source,
-there is no way to evaluate the claim's age, context, or applicability to the current
-situation. The research that underpins a design decision is part of the decision: it
-records what was known when the choice was made, where to look when circumstances
-change, and what evidence would invalidate the decision.
+An unattributed "best practice" is just an opinion in a costume. Without a source you
+cannot judge how old the claim is, what context it came from, or whether it applies to
+the situation in front of you. The research behind a design decision is part of the
+decision. It records what was known when the choice was made, where to look when the
+circumstances change, and what evidence would invalidate it.
 
 This knowledge base follows the rule it documents. Every article carries a `sources`
-block with a project name, date, and note. That is not decoration — it is provenance.
+block with a project name, date, and note. That block is provenance, not decoration.
 
 ## Why this matters
 
-A DDD presentation effort (2026-05-27) established a hard editorial
-constraint: every substantive claim must rest on a canonical source. The specific
-failure modes that motivated it:
+A DDD presentation effort (2026-05-27) set a hard editorial constraint: every
+substantive claim must rest on a canonical source. Three failure modes motivated it.
 
-**Improvised "best practice."** A claim like "DDD aggregates should be small" without
-a citation could mean: the author's preference, a Stack Overflow answer from 2014 that
-misread Vernon, a pattern that applies in event-sourced systems but not in CRUD
-systems, or the actual guidance from Vaughn Vernon's _Implementing Domain-Driven
-Design_ (2013). The claim is the same; the applicability differs wildly. A citation
-makes the distinction.
+**Improvised "best practice."** Take a claim like "DDD aggregates should be small"
+with no citation. It could mean the author's preference, a Stack Overflow answer from
+2014 that misread Vernon, a pattern that holds in event-sourced systems but not in
+CRUD systems, or the actual guidance from Vaughn Vernon's _Implementing Domain-Driven
+Design_ (2013). Same wording, wildly different applicability. A citation tells you
+which one you are reading.
 
-**Menu of alternatives.** Presenting three options and asking the reader to choose
-is comfortable for the writer and unhelpful for the reader. It transfers the decision
-work without transferring the research. A strong proposal — one option, with the
-reasoning — is more useful than a survey. The reader can reject it and ask for
-alternatives; that is a different conversation from "here are three options, you
-decide."
+**Menu of alternatives.** Presenting three options and asking the reader to choose is
+comfortable for the writer and unhelpful for the reader, because it hands over the
+decision work without handing over the research. A strong proposal (one option, with
+the reasoning) beats a survey. The reader can still reject it and ask for alternatives,
+which is a different conversation from "here are three options, you decide."
 
 **Blaming individuals.** A critique that names a person ("the previous developer made
-a bad choice") is not actionable and creates defensiveness. A critique that names a
-system or a process ("the absence of a spec gate allowed scope creep to accumulate")
-identifies the root cause and points at the fix.
+a bad choice") gives you nothing to act on and puts everyone on the defensive. Name
+the system or the process instead ("the absence of a spec gate let scope creep
+accumulate"), and you have the root cause and a place to apply the fix.
 
 ## How to apply
 
@@ -69,8 +67,8 @@ For each such claim, identify the source before writing the claim. The source ma
   casts.")
 - An official documentation page with a URL.
 
-If you cannot identify a source, the claim needs to be reclassified as an opinion
-and framed as such, or dropped.
+If you cannot identify a source, reclassify the claim as an opinion and frame it as
+one, or drop it.
 
 ### Propose one option
 
@@ -98,8 +96,8 @@ in this codebase (signals-resource-compute). Source: Angular Signals RFC, 2023;
 this repo's angular/signals-resource-compute article.
 ```
 
-The reader may disagree and ask for alternatives. That is fine. The default is a
-single strong recommendation, not a buffet.
+The reader may disagree and ask for alternatives, and that is fine. The default stays
+a single strong recommendation rather than a buffet.
 
 ### Critique systems, not people
 
@@ -117,9 +115,9 @@ pressure. The Grand Refactoring added the Biome rule and zero-tolerance CI gate 
 fix the process gap.
 ```
 
-The system critique identifies what was missing (the lint gate), why it mattered (the
-stated preference eroded), and how it was fixed (CI gate). It is actionable and
-non-defensive.
+The system critique says what was missing (the lint gate), why it mattered (the stated
+preference eroded without it), and how it was fixed (the CI gate). You can act on it,
+and nobody has to defend themselves.
 
 ### The provenance block in this knowledge base
 
@@ -132,9 +130,9 @@ sources:
     note: 'What specifically this source contributes to the article.'
 ```
 
-The date is the date of the project decision or document, not the date the article
-was written. The note is specific enough that a reader can understand what evidence
-the source provides without reading it.
+The date is the date of the project decision or document, not the date the article was
+written. Write the note specific enough that a reader can tell what evidence the source
+provides without going and reading it.
 
 When a newer decision overrides an older one, both appear in the sources block with
 their dates, and the article body says explicitly which supersedes which and why.
@@ -147,9 +145,9 @@ small" is weaker than "On a legacy admin panel (2026-03-24), aggregates that
 crossed two bounded contexts produced coupling that took three sprints to unwind; the
 Grand Refactoring resolved this by aligning aggregate boundaries with BC boundaries."
 
-**Citing a secondary source when the primary source is available.** Citing a blog post
-that summarises Vernon is not the same as citing Vernon. Reach for the primary source.
-If the primary source is a book, cite the book.
+**Citing a secondary source when the primary source is available.** A blog post that
+summarises Vernon is not the same as Vernon. Reach for the primary source. If it is a
+book, cite the book.
 
 **A list of options with no selection.** See above. A list without a recommendation
 transfers indecision rather than resolving it.

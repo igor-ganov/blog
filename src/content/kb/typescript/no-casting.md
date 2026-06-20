@@ -23,36 +23,36 @@ order: 1
 updated: 2026-05-23
 ---
 
-A type assertion (`value as Thing`) does not convert anything. It switches off the
-compiler for one expression and asserts — on your authority, not the type system's —
-that you know better. Every `as` is a place where a future refactor can change the
-real shape of the data while the types keep claiming the old shape. The same goes for
-the non-null assertion `!`: it tells the compiler "trust me, not undefined" exactly
-where the compiler was trying to protect you.
+A type assertion (`value as Thing`) converts nothing. It switches off the compiler for
+one expression and declares, on your authority rather than the type system's, that you
+know better. Every `as` is a spot where a later refactor can change the real shape of
+the data while the types go on claiming the old shape. The non-null assertion `!` does
+the same trick: it tells the compiler "trust me, not undefined" at the exact point where
+the compiler was trying to protect you.
 
-The rule is absolute: **no `as`, no `!`.** Not "minimise". Not "only in tests". None.
+The rule is absolute. No `as`, no `!`. Not "minimise", not "only in tests", none.
 
 ## Why this matters
 
-On a content-admin SPA, the Grand Refactoring (completed 2026-03-24) set an
-explicit target of **zero `as` casts across the entire codebase** and **no linter
-overrides** — and hit it. That was not aesthetic. The preceding state had 148
-suppressed lint violations and a class of bugs that only existed because casts and
-non-null assertions let malformed data flow past the type checker until it crashed at
-runtime, far from the cast that allowed it.
+On a content-admin SPA, the Grand Refactoring (completed 2026-03-24) set an explicit
+target of **zero `as` casts across the entire codebase** with **no linter overrides**,
+and hit it. The motivation was not aesthetic. The state before the refactoring carried
+148 suppressed lint violations and a whole class of bugs that existed only because casts
+and non-null assertions let malformed data slip past the type checker, crashing at
+runtime far from the cast that let it through.
 
-The deeper reason: a cast is **non-local**. When you write `data as Ticket`, the bug it
-enables does not surface at that line. It surfaces three modules away when something
-reads `ticket.assignee.login` and `assignee` was actually `null`. The type system's
-entire value is locality — it points at the real problem. A cast trades that away for a
-moment's convenience and pays it back as a production incident.
+The deeper reason is that a cast is **non-local**. When you write `data as Ticket`, the
+bug it enables does not surface at that line. It surfaces three modules away when
+something reads `ticket.assignee.login` and `assignee` was actually `null`. The whole
+value of a type system is locality: it points at the real problem. A cast trades that
+away for a moment's convenience and pays it back later as a production incident.
 
 ## How to apply
 
-When the types do not line up, the fix is one of three things — never a cast.
+When the types do not line up, the fix is one of three things, never a cast.
 
-**1. Design the types so inference works.** Most casts are a symptom of a type that was
-described too loosely or in the wrong place.
+**1. Design the types so inference works.** Most casts are a symptom of a type described
+too loosely, or declared in the wrong place.
 
 ```ts
 // Bad: the function returns `unknown`, so callers cast.
@@ -77,14 +77,14 @@ const isTicket = (value: unknown): value is Ticket =>
   typeof value.id === 'number';
 ```
 
-**3. Validate at the boundary.** The only place a cast is tempting and legitimate is
-where untyped data enters the system — a network response, `JSON.parse`, `localStorage`.
-There, run a real runtime validator (a hand-written guard, or `effect/Schema` / `zod`)
-and return a typed value or an error. Inside the boundary, everything is already typed,
-so there is nothing to cast. This is [validate at the boundary](/kb/typescript/validate-at-the-boundary).
+**3. Validate at the boundary.** The one place a cast feels tempting is where untyped
+data enters the system: a network response, `JSON.parse`, `localStorage`. There, run a
+real runtime validator (a hand-written guard, or `effect/Schema` / `zod`) and return a
+typed value or an error. Inside the boundary everything is already typed, so there is
+nothing left to cast. This is [validate at the boundary](/kb/typescript/validate-at-the-boundary).
 
-For absent values, reach for `undefined` and model the absence in the type, never a
-non-null `!` — see [no null, use undefined](/kb/typescript/no-null-use-undefined).
+For absent values, reach for `undefined` and model the absence in the type rather than a
+non-null `!`. See [no null, use undefined](/kb/typescript/no-null-use-undefined).
 
 ## Anti-patterns
 
@@ -104,21 +104,21 @@ const handler = genericHandler as unknown as SpecificHandler;
 //    confuse it with the above. The ban is on type *assertions*, not const assertions.
 ```
 
-Each of the first three compiles cleanly and ships a bug. The symptom is always the
-same: a runtime error whose stack trace points nowhere near the cast that caused it.
+Each of the first three compiles cleanly and ships a bug. The symptom is always a
+runtime error whose stack trace points nowhere near the cast that caused it.
 
 ## Enforcement
 
-This is a lint rule, not a review convention — reviews do not catch what lint can. In
-Biome, `noExplicitAny` and `noNonNullAssertion` are set to `error` (see the repository's
-`biome.json`); in the typescript-eslint stack, `@typescript-eslint/no-explicit-any`,
-`consistent-type-assertions` (`assertionStyle: 'never'`) and `no-non-null-assertion`
-do the same. CI runs the linter and fails the build on a violation. No overrides, no
-`biome-ignore`, no `eslint-disable` — if a rule is fighting you, the design is wrong;
-fix the design.
+Make this a lint rule rather than a review convention, because reviews do not catch what
+lint can. In Biome, `noExplicitAny` and `noNonNullAssertion` are set to `error` (see the
+repository's `biome.json`). In the typescript-eslint stack,
+`@typescript-eslint/no-explicit-any`, `consistent-type-assertions`
+(`assertionStyle: 'never'`) and `no-non-null-assertion` do the same. CI runs the linter
+and fails the build on a violation. No overrides, no `biome-ignore`, no `eslint-disable`.
+When a rule is fighting you, the design is wrong, so fix the design.
 
 ## See also
 
 The refactoring that proved this at scale also removed every `<div>` and every
-imperative loop in the same pass — type safety, functional decomposition and
-declarative components are one consistent stance, not three separate preferences.
+imperative loop in the same pass. Type safety, functional decomposition and declarative
+components come from one consistent stance, not three separate preferences.

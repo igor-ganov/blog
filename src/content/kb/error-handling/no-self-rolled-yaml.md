@@ -17,24 +17,24 @@ order: 3
 updated: 2026-05-05
 ---
 
-YAML has nineteen special characters. A template literal knows about zero of them. Every
-hand-rolled `${key}: ${value}` serializer works correctly until someone types a colon in
-a title, a quotation mark in a summary, or a pound sign in a tag — at which point it
-emits structurally broken YAML that a downstream parser treats as multiple keys, an
-unquoted block scalar, or a comment. The breakage is silent at write time and explosive
-at read time, often in CI or in a browser where the full stack trace points at the parser
-rather than at the template string that produced the file.
+YAML has nineteen special characters. A template literal knows about none of them. Every
+hand-rolled `${key}: ${value}` serializer works fine until someone types a colon in a
+title, a quotation mark in a summary, or a pound sign in a tag, and then it emits
+structurally broken YAML that a downstream parser reads as multiple keys, an unquoted
+block scalar, or a comment. Nothing complains at write time. The blow-up happens at read
+time, usually in CI or in a browser, where the stack trace points at the parser instead
+of the template string that produced the file.
 
-The rule: **never write a YAML or frontmatter serializer by hand.** Use
-[`yaml`](https://github.com/eemeli/yaml) (the `eemeli/yaml` package); let it quote,
-escape, and wrap values correctly.
+So: **never write a YAML or frontmatter serializer by hand.** Use
+[`yaml`](https://github.com/eemeli/yaml) (the `eemeli/yaml` package) and let it quote,
+escape, and wrap values for you.
 
 ## Why this matters
 
-On 2026-05-05 a content-admin SPA went into a production red that lasted two days,
-then recurred the next day with a different file.
+On 2026-05-05 a content-admin SPA went red in production for two days, then recurred the
+next day on a different file.
 
-Two separate utilities were responsible for writing frontmatter to content files:
+Two separate utilities wrote frontmatter to content files:
 
 - `src/utils/frontmatter` — the admin UI's client-side helper
 - `src/sw/handlers/shared/frontmatter` — the service-worker handler used by bulk
@@ -50,36 +50,35 @@ const serialize = (fields: Record<string, unknown>): string =>
     .join('\n');
 ```
 
-The serializer emitted `${key}: ${value}` with no quoting, no escaping, no awareness of
-YAML syntax. This is correct for `title: My Post` and wrong the moment the value
+The serializer emitted `${key}: ${value}` with no quoting, no escaping, and no awareness
+of YAML syntax at all. That works for `title: My Post`. It falls apart the moment a value
 contains a special character.
 
-The triggering content: an Italian article with the phrase **"predatoria: ha"** in its
-summary field, and a Russian article with a title containing a colon followed by quoted
-text. Both contain a colon followed by a space — the YAML mapping indicator. The
-serializer emitted:
+What triggered it: an Italian article with the phrase **"predatoria: ha"** in its summary
+field, and a Russian article whose title contained a colon followed by quoted text. Both
+have a colon followed by a space, which is the YAML mapping indicator. The serializer
+emitted:
 
 ```yaml
 summary: La risposta predatoria: ha portato il progetto
 ```
 
 A conforming YAML parser reads this as two keys: `summary` with value `La risposta
-predatoria` and then an attempt to parse `ha portato il progetto` as a bare mapping key,
-which either produces a parse error or silently discards the continuation depending on
-the parser's error recovery mode. The static content site's build consumed this file,
+predatoria`, then an attempt to parse `ha portato il progetto` as a bare mapping key.
+Depending on the parser's error recovery mode, that either throws a parse error or
+silently drops the continuation. The static content site's build consumed this file,
 failed to parse the frontmatter, and halted. Production went red.
 
-The fix was PR #189, which replaced both utilities with `yaml.parse` / `yaml.stringify`
-from the `eemeli/yaml` package, added `lineWidth: 0` to keep prose values on one line
-(critical for regex-based tooling downstream that expects single-line frontmatter values),
-and introduced `parseFrontmatterStrict` — a stage-time guard that parses every file
-before committing, so unparseable YAML never reaches git. The recurrence the following
-day came from a file that had already been committed before the fix deployed; the guard
-would have caught it at write time.
+PR #189 fixed it. It replaced both utilities with `yaml.parse` / `yaml.stringify` from
+the `eemeli/yaml` package, added `lineWidth: 0` to keep prose values on one line (the
+downstream regex-based tooling expects single-line frontmatter values), and introduced
+`parseFrontmatterStrict`, a stage-time guard that parses every file before committing so
+unparseable YAML never reaches git. The next-day recurrence came from a file already
+committed before the fix deployed; the guard would have caught it at write time.
 
-A second finding during the same incident: the reader half of the old utility used
-`line.split(':')[1]` to extract values. This produces the wrong result for any value
-containing a colon and silently truncates the field rather than throwing.
+The same incident turned up a second problem. The reader half of the old utility used
+`line.split(':')[1]` to extract values, which returns the wrong result for any value
+containing a colon and truncates the field silently instead of throwing.
 
 ## How to apply
 
@@ -91,7 +90,7 @@ bun add yaml
 
 The `yaml` package (npm: `yaml`, eemeli/yaml on GitHub) is the reference pure-JS YAML
 1.2 implementation. It handles all nineteen special characters, multi-line strings, and
-Unicode correctly.
+Unicode for you.
 
 ### Serialize frontmatter
 
@@ -122,8 +121,8 @@ becomes:
 summary: 'La risposta predatoria: ha portato il progetto'
 ```
 
-The library auto-quotes strings that require it; you do not decide when to add quotes —
-the library does.
+The library auto-quotes strings that need it. You never decide when to add quotes; the
+library decides.
 
 ### Parse frontmatter
 
@@ -151,8 +150,8 @@ const parseFrontmatter = (raw: string): Record<string, unknown> => {
 
 ### Add a stage-time guard
 
-Validate every file before writing it to disk or committing it. The guard that was
-missing before PR #189:
+Validate every file before writing it to disk or committing it. Here is the guard that
+was missing before PR #189:
 
 ```ts
 // src/utils/frontmatter/parse-strict.ts
@@ -179,13 +178,13 @@ export const parseFrontmatterStrict = (raw: string): Record<string, unknown> => 
 };
 ```
 
-Plug this into the save path, not the display path. If `parseFrontmatterStrict` throws,
-surface the error to the editor before writing anything.
+Wire this into the save path, not the display path. If `parseFrontmatterStrict` throws,
+surface the error to the editor before anything gets written.
 
 ### CRLF note
 
-YAML parsers interpret `\r\n` line endings differently from `\r\n`-agnostic tools.
-Normalise line endings to `\n` before handing content to the parser or the serializer.
+YAML parsers interpret `\r\n` line endings differently from `\r\n`-agnostic tools, so
+normalise line endings to `\n` before handing content to the parser or the serializer.
 See [CRLF/LF discipline](/kb/build-ci-deploy/crlf-lf-discipline).
 
 ```ts
@@ -230,9 +229,10 @@ const silentFail = (raw: string): Record<string, unknown> => {
 };
 ```
 
-The symptom of all of the above is the same: the file is written successfully (no error
-at write time), the downstream build or parser fails on the corrupted output, and the
-stack trace points at the parser — not at the serializer that produced the bad data.
+Every one of these has the same symptom. The file is written successfully, with no error
+at write time. Later the downstream build or parser chokes on the corrupted output, and
+the stack trace points at the parser rather than at the serializer that produced the bad
+data.
 
 ## Enforcement
 
@@ -248,8 +248,8 @@ stack trace points at the parser — not at the serializer that produced the bad
 
 ## See also
 
-The same instinct that produces hand-rolled YAML serializers also produces
-[swallowed errors](/kb/error-handling/never-swallow-errors) in the catch path: both are
-"it is just a quick utility" shortcuts that turn into multi-day production incidents.
-The colon incident directly triggered [restore-prod-first incident order](/kb/build-ci-deploy/restore-prod-first-incident-order)
-because the team had to triage while production was red.
+The instinct that produces hand-rolled YAML serializers is the same one that produces
+[swallowed errors](/kb/error-handling/never-swallow-errors) in the catch path. Both start
+as "it is just a quick utility" shortcuts and end as multi-day production incidents. The
+colon incident directly triggered [restore-prod-first incident order](/kb/build-ci-deploy/restore-prod-first-incident-order),
+since the team had to triage while production was red.

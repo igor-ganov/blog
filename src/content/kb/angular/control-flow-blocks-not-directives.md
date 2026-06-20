@@ -16,24 +16,23 @@ order: 2
 updated: 2026-06-10
 ---
 
-Angular 17 shipped built-in control-flow syntax as a first-class language feature.
-The structural directives `*ngIf`, `*ngFor`, and `*ngSwitch` remain in the framework
-for backwards compatibility but are strictly inferior: they require module imports, they
-bypass the template type-checker in subtle ways, and they add visual noise that the
-block syntax eliminates. The same argument applies to `ngClass` and `ngStyle` — both
-are attribute-directive wrappers around binding capabilities that the template already
-has natively.
+Angular 17 made control flow part of the template language. The old structural
+directives `*ngIf`, `*ngFor`, and `*ngSwitch` still ship for backwards compatibility,
+but there's no reason to reach for them anymore. They need a module import, they confuse
+the template type-checker in ways that bite you later, and they clutter the markup that
+block syntax keeps clean. `ngClass` and `ngStyle` are the same kind of baggage:
+attribute directives wrapping bindings the template already supports on its own.
 
-The rule is categorical: **use `@if`, `@for`, and `@switch` always; use `[class]` and
-`[style]` always; import nothing structural**.
+So the rule has no exceptions. **Use `@if`, `@for`, and `@switch` everywhere, use
+`[class]` and `[style]` everywhere, and import nothing structural.**
 
 ## Why this matters
 
-Structural directives were designed for a world before the Angular template type-checker
-was as capable as it is today. Their `*` microsyntax desugars into `ng-template` plus a
-directive, which means the template compiler reasons about them indirectly. In practice
-this meant `*ngIf="user"` inside a template did not automatically narrow `user` to its
-non-undefined type inside the block — you needed `*ngIf="user; let u"` and then use `u`.
+Structural directives predate today's template type-checker. The `*` microsyntax
+desugars into an `ng-template` plus a directive, so the compiler only reasons about them
+at one remove. The practical fallout: `*ngIf="user"` never narrowed `user` to its
+non-undefined type inside the block. You had to write `*ngIf="user; let u"` and then
+reference `u`.
 
 The `@if` block narrows the type directly:
 
@@ -49,21 +48,21 @@ The `@if` block narrows the type directly:
 }
 ```
 
-Beyond type safety, the block syntax reads as control flow, not as attribute decoration.
-A developer coming from any template language recognises `@if`/`@for`/`@switch` without
-consulting Angular documentation.
+There's a readability win too. Block syntax looks like control flow instead of attribute
+decoration, so anyone who has used another template language reads `@if`/`@for`/`@switch`
+without opening the Angular docs.
 
-The `ngClass` and `ngStyle` directives are a different problem. Both accept objects —
-`[ngClass]="{ active: isActive, disabled: isDisabled }"` — which look convenient until
-you need to refactor the key strings. The object keys are unchecked strings. `[class.active]`
-is a typed binding that the compiler can verify against the template's context; if `isActive`
-changes type, the build fails. `[ngClass]` silently accepts the wrong value.
+`ngClass` and `ngStyle` fail in a different way. Both take objects, like
+`[ngClass]="{ active: isActive, disabled: isDisabled }"`, which feels handy right up to
+the moment you rename one of those keys. The keys are unchecked strings. Compare that to
+`[class.active]`, a typed binding the compiler verifies against the template context: if
+`isActive` changes type, the build breaks. `[ngClass]` just swallows the wrong value.
 
-The engineering standard mandates inline templates and inline styles. Every `@Component`
-carries its template as a string in the `template` field and its styles as an array in
-the `styles` field. There are no separate `.html` or `.css` files — the component is one
-file. This constraint pairs directly with the control-flow block preference: the template
-is readable as pure TypeScript context, control flow included.
+The standard also requires inline templates and styles. Every `@Component` keeps its
+template as a string in the `template` field and its styles as an array in the `styles`
+field, with no separate `.html` or `.css` files. The whole component lives in one file,
+which is exactly why the block syntax fits: you read the template, control flow and all,
+as plain TypeScript context.
 
 ## How to apply
 
@@ -104,13 +103,13 @@ export class AppShellComponent {
 }
 ```
 
-The `@else if` branch works without any additional syntax: `@else if (isAdmin()) { ... }`.
+An `@else if` branch needs no extra ceremony: `@else if (isAdmin()) { ... }`.
 
 ### @for with track
 
-`@for` requires an explicit `track` expression. This is not optional syntax — the
-compiler enforces it. The expression must uniquely identify each item; using `$index` is
-a last resort, not a default.
+`@for` requires an explicit `track` expression, and the compiler enforces it. The
+expression has to uniquely identify each item. Falling back to `$index` is a last
+resort, not a default.
 
 ```typescript
 // Bad — *ngFor without trackBy; every change re-creates all DOM nodes
@@ -143,9 +142,9 @@ export class TicketListComponent {
 }
 ```
 
-The `@empty` block replaces a secondary `*ngIf` that was commonly paired with `*ngFor`
-to handle the empty state. It is structurally part of the `@for` block — no auxiliary
-directive, no extra `ng-template`.
+The `@empty` block replaces the secondary `*ngIf` people used to pair with `*ngFor` for
+the empty case. It belongs to the `@for` block itself, so there's no auxiliary directive
+and no extra `ng-template`.
 
 ### @switch
 
@@ -229,15 +228,14 @@ export class ButtonComponent {
 }
 ```
 
-For CSS custom properties and arbitrary style values, `[style.--prop]` works the same
-way:
+CSS custom properties and arbitrary style values bind the same way through `[style.--prop]`:
 
 ```typescript
 // Drive a CSS custom property from a signal — no ngStyle object needed
 template: `<span [style.--progress]="progress() + '%'">{{ progress() }}%</span>`
 ```
 
-The `[style.width.px]` unit suffix form also eliminates string concatenation:
+The `[style.width.px]` unit-suffix form drops the string concatenation entirely:
 
 ```typescript
 // Bad
@@ -290,9 +288,9 @@ template: `
 `
 ```
 
-Each of the above has the same underlying failure: the template expresses intent through
-directives instead of language constructs. The directives are strings to the compiler;
-the block syntax is syntax.
+All four share one root cause: the template states intent through directives rather than
+language constructs. To the compiler those directives are opaque strings, whereas the
+block syntax is parsed as real syntax it can check.
 
 ## Enforcement
 
@@ -302,8 +300,8 @@ Angular's own migration CLI can automate the conversion:
 ng generate @angular/core:control-flow
 ```
 
-This migrates every `*ngIf`/`*ngFor`/`*ngSwitch` in the project to block syntax in one
-pass. Run it once; guard the new state with lint.
+It rewrites every `*ngIf`/`*ngFor`/`*ngSwitch` in the project to block syntax in a
+single pass. Run it once, then guard the result with lint so nothing regresses.
 
 The `@angular-eslint/template` plugin provides the
 `@angular-eslint/template/no-legacy-template-syntax` rule that rejects structural
@@ -318,8 +316,8 @@ directive syntax. Add it to the template lint config:
 }
 ```
 
-For `ngClass`/`ngStyle`, the same plugin's
-`@angular-eslint/template/no-ngClass-and-ngStyle` rule (custom or community) covers the
-binding side. If no packaged rule exists yet for your version, a code-review checklist
-entry is the backstop: any PR that imports or uses `NgClass`, `NgStyle`, `NgIf`,
-`NgFor`, or `NgSwitch` requires justification.
+The binding side is covered by the same plugin's
+`@angular-eslint/template/no-ngClass-and-ngStyle` rule (custom or community). When no
+packaged rule exists for your version yet, fall back to a code-review checklist entry:
+any PR that imports or uses `NgClass`, `NgStyle`, `NgIf`, `NgFor`, or `NgSwitch` has to
+justify it.

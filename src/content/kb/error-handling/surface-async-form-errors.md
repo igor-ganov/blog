@@ -16,29 +16,27 @@ order: 4
 updated: 2026-04-12
 ---
 
-When a form dialog emits an event to trigger an async parent handler, there is a tempting
-pattern: call `reset()` immediately after `emit(...)` so the form looks clean while the
-parent does its work. The problem is ordering. `emit` is synchronous — it invokes the
-parent's handler on the current call stack. If the parent handler is `async`, it returns
-a `Promise` immediately. The child never sees that `Promise`, so it cannot await it.
-`reset()` runs before the handler's first `await` has resolved. When the handler
-subsequently throws — network error, validation failure, API rejection — the parent has
-no catch clause, the rejection becomes unhandled, the form has already been blanked, and
-the user sees neither the error nor the data they typed.
+A form dialog emits an event to trigger an async parent handler, and the tempting move is
+to call `reset()` right after `emit(...)` so the form looks clean while the parent works.
+The trap is ordering. `emit` is synchronous: it runs the parent's handler on the current
+call stack. An `async` parent returns a `Promise` immediately, and the child never sees
+that `Promise`, so it can't await it. So `reset()` runs before the handler's first `await`
+has even resolved. If the handler then throws (network error, validation failure, an API
+rejection), the parent has no catch clause, the rejection goes unhandled, the form is
+already blanked, and the user sees neither the error nor the data they typed.
 
-The rule: **never reset form state synchronously right after emitting to an async parent
-handler.** Move the reset into a `watch` tied to the dialog's `show` prop. Wrap every
-parent handler that the dialog can trigger in `try/catch` that routes failures to a
-visible error state.
+So the rule is: **never reset form state synchronously right after emitting to an async parent
+handler.** Move the reset into a `watch` tied to the dialog's `show` prop, and wrap every
+parent handler the dialog can trigger in `try/catch` that routes failures to a visible
+error state.
 
 ## Why this matters
 
-On 2026-04-12 the content-creation flow on a content-admin SPA stopped surfacing
-errors. Editors reported that the "Create" dialog would sometimes close instantly with a
-blank form and no confirmation that the content had been saved — and no error to explain
-what went wrong.
+On 2026-04-12 the content-creation flow on a content-admin SPA stopped surfacing errors.
+Editors reported that the "Create" dialog would sometimes close instantly with a blank
+form, no confirmation that anything had saved, and no error to explain what went wrong.
 
-The root cause was in `CreateContentDialog`:
+The root cause sat in `CreateContentDialog`:
 
 ```ts
 // Simplified reproduction of the 2026-04-12 state.
@@ -71,9 +69,9 @@ Execution order:
    - Nothing in the UI changes — the dialog may or may not have closed, the form is
      blank, the error is gone.
 
-The editor had no way to know whether the content was saved. Debugging required listening
-to `window.addEventListener('unhandledrejection', ...)` in the browser console to even
-see the error class, which in turn led to the underlying
+The editor had no way to know whether the content was saved. Debugging meant wiring up
+`window.addEventListener('unhandledrejection', ...)` in the browser console just to see the
+error class, which then pointed at the underlying
 [IDB structured-clone boundary](/kb/platform/idb-structured-clone-boundary) issue in the
 same feature.
 
@@ -81,8 +79,8 @@ same feature.
 
 ### Move reset into a visibility watcher
 
-Tie `reset()` to the event that actually signals completion: the dialog becoming hidden.
-That event only fires after the parent finishes its async work and sets `show = false`.
+Tie `reset()` to the event that actually signals completion: the dialog going hidden. That
+fires only after the parent finishes its async work and sets `show = false`.
 
 ```ts
 // ❌ Before — reset fires synchronously while the async handler is mid-flight.
@@ -115,9 +113,9 @@ This guarantees three things:
 
 ### Wrap every parent handler in try/catch
 
-An `async` handler that is invoked by a child `emit` call is never awaited by the child.
-The `Promise` it returns is invisible to the child. If it rejects, nothing catches the
-rejection unless the parent does so explicitly.
+An `async` handler invoked by a child `emit` call is never awaited by the child, and the
+`Promise` it returns is invisible there. If it rejects, nothing catches the rejection
+unless the parent does so explicitly.
 
 ```ts
 // ❌ Before — unhandled rejection on any service error.
@@ -142,8 +140,8 @@ const handleCreate = async (data: ContentData): Promise<void> => {
 };
 ```
 
-The `error` ref is rendered in the parent template (or passed as a prop to the dialog)
-so the user sees the failure without losing their form state.
+Render the `error` ref in the parent template, or pass it down to the dialog as a prop, so
+the user sees the failure without losing their form state.
 
 ### Full corrected dialog + parent pair
 
@@ -199,9 +197,9 @@ window.addEventListener('unhandledrejection', (ev) => {
 });
 ```
 
-An unhandled rejection here almost always means an async handler invoked via `emit` has
-no `try/catch`. Pair with the Vue devtools component inspector to confirm whether the
-`error` ref is being set.
+An unhandled rejection here almost always means an async handler invoked via `emit` has no
+`try/catch`. Cross-check with the Vue devtools component inspector to confirm whether the
+`error` ref is actually being set.
 
 ## Anti-patterns
 
@@ -237,9 +235,9 @@ const handleCreate = (): void => {
 };
 ```
 
-Each of these produces the same user-visible symptom: the dialog closes (or blanks),
-there is no error message, the operation may or may not have succeeded, and the user
-retries in the dark.
+Every one of these lands the same user-visible symptom: the dialog closes or blanks, no
+error message appears, the operation may or may not have succeeded, and the user retries in
+the dark.
 
 ## Enforcement
 
@@ -254,8 +252,8 @@ This is a code-review check, not a lint rule:
 
 ## See also
 
-The unhandled rejection this pattern produces is a specific instance of
-[never swallow errors](/kb/error-handling/never-swallow-errors): the `Promise` returned
-by an async `emit` handler is dropped implicitly, which is the `void asyncFn()` variant
-of a swallowed error. The IDB structured-clone issue discovered in the same debugging
-session is covered in [IDB structured-clone boundary](/kb/platform/idb-structured-clone-boundary).
+The unhandled rejection this pattern produces is one case of
+[never swallow errors](/kb/error-handling/never-swallow-errors): the `Promise` returned by
+an async `emit` handler is dropped implicitly, the `void asyncFn()` variant of a swallowed
+error. The IDB structured-clone issue found in the same debugging session is covered in
+[IDB structured-clone boundary](/kb/platform/idb-structured-clone-boundary).

@@ -16,24 +16,23 @@ order: 3
 updated: 2026-04-11
 ---
 
-A submodule or standalone repo that works on a developer's machine but fails in CI is
-one of the most expensive categories of false negatives: the CI runner checks out only
-that repo, on a clean Linux VM, with no parent directory. If the repo depends on anything
-outside its own tree — a shared tsconfig, a biome config in `../`, a package installed in
-a workspace root — the CI run fails at a step that has nothing to do with the actual change
-being tested.
+A submodule or standalone repo that builds on your machine but fails in CI is an
+expensive kind of false negative. The CI runner checks out only that repo, on a clean
+Linux VM, with no parent directory. If the repo reaches for anything outside its own tree
+(a shared tsconfig, a biome config in `../`, a package installed in a workspace root) the
+run fails at a step that has nothing to do with the change you were actually testing.
 
-The rule is simple: if you can check out the repo into an empty directory, run
-`bun install` and then `tsc --build` and `bunx biome ci .`, and all three succeed, the
-repo is standalone. If any step fails without the parent directory present, the repo is
-not standalone and must be fixed before the CI pipeline is reliable.
+Here is the test. Check the repo out into an empty directory, run `bun install`, then
+`tsc --build`, then `bunx biome ci .`. If all three pass, the repo is standalone. If any
+step fails because the parent directory is gone, it isn't, and you need to fix that before
+the pipeline can be trusted.
 
 ## Why this matters
 
 **A multi-package monorepo, 2026-04-11.**
 
-The library was developed as part of a monorepo on the developer's machine.
-The `tsconfig.json` used `extends`:
+The library grew up inside a monorepo, on a developer's machine. Its `tsconfig.json`
+extended a base config two levels up:
 
 ```json
 {
@@ -72,21 +71,20 @@ Cross-repo dependencies used workspace protocol:
 }
 ```
 
-On the developer's machine all of this worked: the parent directory existed, the workspace
-was installed, and the shared package resolved. In CI, the runner cloned only the repo
-into `/home/runner/work/`. The parent directory `../../` did not exist.
-Every command failed with a different error message, none of which pointed at the
-configuration as the root cause:
+All of this worked locally, because the parent directory was there, the workspace was
+installed, and the shared package resolved. In CI the runner cloned only the repo into
+`/home/runner/work/`, so `../../` simply did not exist. Each command failed with its own
+error message, and none of them pointed back at the config as the cause:
 
 - `tsc --build` — "Cannot find file '../../tsconfig.base.json'"
 - `bunx biome ci .` — "Failed to load config: ../../biome.json not found"
 - `bun run lint` — "Cannot open config file: ../../.oxlintrc.json"
 - `bun install` — workspace shared package not found in registry
 
-Four separate failures, four separate debugging sessions, before the pattern became
-obvious: every failure traced back to a path that escaped the repo root.
+It took four failures and four debugging sessions before the pattern was obvious: every
+one traced back to a path that escaped the repo root.
 
-The fix addressed each category:
+The fix dealt with each category in turn:
 
 1. Inline all TypeScript compiler options — no `extends` to an outside path.
 2. Add a self-contained `biome.json` with the full configuration inline.
@@ -133,9 +131,9 @@ The fix addressed each category:
 }
 ```
 
-Copy the compiler options from the shared base at the time of extraction. The copy may
-diverge over time — that is acceptable. Divergence is visible and intentional; a broken
-`extends` path is invisible and unintentional.
+Copy the compiler options from the shared base at the moment you extract the repo. The
+copy will drift from the base over time, and that's fine. Drift is visible and something
+you can review; a broken `extends` path is invisible until CI trips over it.
 
 ### biome.json — self-contained with correct schema
 
@@ -165,9 +163,9 @@ diverge over time — that is acceptable. Divergence is visible and intentional;
 }
 ```
 
-The `files.includes` pattern is the Biome 2.x negation syntax. Using `"!!"` to exclude
-`dist/` prevents Biome from linting compiled output. Without this exclusion, Biome lints
-generated files and produces errors that are irrelevant to the source.
+The `files.includes` pattern uses the Biome 2.x negation syntax. The `"!!"` prefix
+excludes `dist/` so Biome doesn't lint compiled output. Skip it and Biome will lint the
+generated files and report errors that have nothing to do with your source.
 
 ### package.json — devDeps present, no workspace refs
 
@@ -194,8 +192,8 @@ generated files and produces errors that are irrelevant to the source.
 ```
 
 The `github:org/repo#ref` format resolves without a registry lookup or a local workspace.
-The ref should be a tag or a commit hash — a branch name is mutable and is not
-reproducible.
+Pin the ref to a tag or a commit hash. A branch name is mutable, so it won't reproduce
+the same install twice.
 
 ### .gitattributes — enforce LF line endings
 
@@ -204,8 +202,8 @@ reproducible.
 * text=auto eol=lf
 ```
 
-This ensures that every text file in the repo uses LF line endings in the git object
-store, regardless of the developer's platform. See
+This keeps every text file in the repo on LF line endings in the git object store, no
+matter which platform the committer is on. See
 [CRLF/LF discipline](/kb/build-ci-deploy/crlf-lf-discipline) for the full rationale.
 
 ### CI workflow — no --frozen-lockfile for submodule repos
@@ -232,13 +230,13 @@ jobs:
       - run: bunx biome ci .
 ```
 
-Lockfiles for submodule repos are not committed to git (they contain absolute paths and
-workspace-relative hashes that are meaningless outside the developer's machine). The
-`--frozen-lockfile` flag requires a committed lockfile and fails without one.
+Submodule repos don't commit lockfiles to git, because the lockfile holds absolute paths
+and workspace-relative hashes that mean nothing outside the machine that wrote them. The
+`--frozen-lockfile` flag wants a committed lockfile and fails when there isn't one.
 
 ### Verify standalone checkout
 
-Before opening a PR, verify the repo builds from scratch:
+Before you open a PR, confirm the repo builds from scratch:
 
 ```sh
 # In a temp directory — not inside the monorepo

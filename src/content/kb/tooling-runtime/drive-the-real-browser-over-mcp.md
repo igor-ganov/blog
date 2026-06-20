@@ -18,29 +18,28 @@ updated: 2026-06-10
 
 ## Why this matters
 
-On 2026-06-09, during work on a Jira client app, the task required inspecting a deployed
-Jira board with an active authenticated session — not a local dev build. Playwright
-against a test environment would not see the real data. The only way to inspect the
+On 2026-06-09, working on a Jira client app, I needed to inspect a deployed Jira board
+that had an active authenticated session behind it, not a local dev build. Playwright
+pointed at a test environment would never see the real data. The only way to look at the
 actual state was to drive the browser the user was already logged in to.
 
-The chrome-devtools MCP server provides a stable bridge: it attaches to Chrome's remote
-debugging endpoint on port 9222 and exposes tools like `list_pages`, `navigate`,
-`screenshot`, `evaluate`, and `querySelector` to the assistant.
+The chrome-devtools MCP server bridges that gap. It attaches to Chrome's remote debugging
+endpoint on port 9222 and exposes `list_pages`, `navigate`, `screenshot`, `evaluate`, and
+`querySelector` to the assistant.
 
-Two non-obvious constraints emerged during that session:
+Two constraints bit me during that session, and neither is obvious from the docs.
 
-1. **Vivaldi does not work.** Vivaldi's internal architecture exposes many
-   `worker` and `service_worker` targets alongside the visible tab targets. When the
-   MCP server calls `Network.enable` on one of those background targets, Chrome DevTools
-   Protocol hangs waiting for a response that never arrives. The session times out.
-   Use Google Chrome, not Vivaldi (or Brave, or any Chromium fork that injects its own
-   service workers).
+1. **Vivaldi does not work.** It exposes a pile of `worker` and `service_worker` targets
+   alongside the visible tab targets. When the MCP server calls `Network.enable` on one
+   of those background targets, Chrome DevTools Protocol sits there waiting for a response
+   that never comes, and the session times out. Use Google Chrome. Brave and any other
+   Chromium fork that injects its own service workers will fail the same way.
 
-2. **Chrome 136+ blocks remote debugging on the default profile.** Starting with
-   Chrome 136, Google disabled `--remote-debugging-port` on the user's default profile
-   as a security measure. A separate `--user-data-dir` is required. Because the profile
-   directory persists on disk, the user logs in once and subsequent sessions find the
-   cookies already present.
+2. **Chrome 136+ blocks remote debugging on the default profile.** Starting with Chrome
+   136, Google disabled `--remote-debugging-port` on the user's default profile for
+   security reasons, so you have to pass a separate `--user-data-dir`. The profile
+   directory persists on disk, which is what you want here: the user logs in once and
+   later sessions find the cookies already there.
 
 ## How to apply
 
@@ -71,7 +70,7 @@ Verify the endpoint is live:
 curl http://127.0.0.1:9222/json/version
 ```
 
-A JSON response with `"Browser": "Chrome/..."` confirms the connection.
+A JSON response carrying `"Browser": "Chrome/..."` means the connection is live.
 
 ### Free port 9222 before launching
 
@@ -90,9 +89,9 @@ Then re-launch Chrome as above.
 
 ### Connect and list open pages
 
-Once Chrome is up, the MCP tools are available. The `list_pages` tool returns the open
-targets. It may return an empty array if no tab has been interacted with yet — in that
-case, use `new_page` to navigate to the target URL, which selects a tab or opens one.
+Once Chrome is up, the MCP tools work. `list_pages` returns the open targets. It can come
+back as an empty array if no tab has been touched yet. When that happens, call `new_page`
+with the target URL, which selects an existing tab or opens a new one.
 
 ```
 list_pages        → []              # nothing selected yet
@@ -102,8 +101,8 @@ list_pages        → [{ id: "...", url: "https://app.example.com/board", ... }]
 
 ### Inspect shadow DOM
 
-Many modern web components use shadow DOM. Standard `querySelector` does not pierce it.
-Use `evaluate` with a manual traversal:
+Most web components hide their internals in shadow DOM, and plain `querySelector` won't
+reach inside it. Use `evaluate` and walk the shadow root by hand:
 
 ```typescript
 // MCP evaluate call — pierce one level of shadow DOM
@@ -112,7 +111,7 @@ document
   ?.shadowRoot?.querySelector('.issue-card[data-issue-id="PROJ-123"]');
 ```
 
-For deeper nesting, traverse each shadow root in turn.
+For deeper nesting, repeat the hop through each shadow root.
 
 ### Taking a screenshot for evidence
 
@@ -120,16 +119,15 @@ For deeper nesting, traverse each shadow root in turn.
 screenshot        → base64 PNG of the current viewport
 ```
 
-Per the `process/prove-with-production-screenshots` rule, always screenshot the real
-state before and after a fix to document that the change worked against the live
-environment.
+Per the `process/prove-with-production-screenshots` rule, screenshot the real state before
+and after a fix so you have proof the change worked against the live environment.
 
 ### User first login
 
-The first time you use a new `--user-data-dir`, Chrome opens a fresh profile with no
-cookies. Navigate to the app and log in manually. The session is then stored in the
-profile directory and survives Chrome restarts. The user never needs to log in again
-on that machine unless the session expires or the profile directory is deleted.
+The first time you point Chrome at a new `--user-data-dir`, it opens a fresh profile with
+no cookies. Navigate to the app and log in by hand. Chrome stores the session in the
+profile directory and it survives restarts, so the user won't log in again on that machine
+unless the session expires or someone deletes the profile directory.
 
 ## Anti-patterns
 
@@ -140,11 +138,11 @@ on that machine unless the session expires or the profile directory is deleted.
 "C:\...\Vivaldi\Application\vivaldi.exe" --remote-debugging-port=9222 ...
 ```
 
-Symptom: `Network.enable timed out` after a few seconds. The MCP session appears to
-connect (port 9222 responds to `/json`) but every tool call that requires network data
-hangs and eventually throws a timeout error.
+Symptom: `Network.enable timed out` after a few seconds. The MCP session looks connected,
+since port 9222 answers `/json`, but every tool call that needs network data hangs and
+eventually throws a timeout.
 
-Fix: use Google Chrome only for the debug target.
+Fix: use Google Chrome for the debug target.
 
 ### Using the default Chrome profile with Chrome 136+
 
@@ -154,17 +152,17 @@ chrome.exe --remote-debugging-port=9222
 # Result: curl http://127.0.0.1:9222/json/version → Connection refused
 ```
 
-Fix: always pass `--user-data-dir` pointing to a non-default directory.
+Fix: pass `--user-data-dir` pointing at a non-default directory.
 
 ### Performing destructive writes on the real board without asking
 
-The MCP tools can click buttons, fill forms, and trigger state changes on the live
-board. Because the session is real (not a test environment), any write — changing an
-issue status, dragging cards, updating a field — affects production data immediately.
+The MCP tools can click buttons, fill forms, and push state changes on the live board.
+The session is real, not a test environment, so any write — changing an issue status,
+dragging cards, updating a field — hits production data right away.
 
-Rule: before executing any write operation (navigate to a form, click a status
-transition, trigger a DnD), explicitly confirm with the user. Read-only operations
-(screenshot, evaluate, querySelector) are safe to run unilaterally.
+Rule: before any write (navigating to a form, clicking a status transition, triggering a
+DnD), confirm with the user first. Read-only operations like screenshot, evaluate, and
+querySelector are safe to run on your own.
 
 ```
 # Bad — assistant changes issue status without asking
@@ -177,11 +175,10 @@ status in Jira. Proceed?"
 
 ## Enforcement
 
-This is a workflow preference, not something a linter can check. Enforce it through
-the development cycle rule: whenever the task involves inspecting or modifying a
-deployed app with real data, the chrome-devtools MCP workflow is the first-class path.
-Using Playwright against a test environment is an acceptable alternative only when a
-real session is not needed.
+A linter can't check this; it's a workflow preference. Enforce it through the development
+cycle rule: whenever a task involves inspecting or modifying a deployed app with real
+data, reach for the chrome-devtools MCP workflow first. Playwright against a test
+environment is fine only when you don't actually need a real session.
 
 ## See also
 

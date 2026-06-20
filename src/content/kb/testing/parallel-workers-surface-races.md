@@ -18,22 +18,21 @@ order: 7
 updated: 2026-06-12
 ---
 
-A serial E2E suite is slow, and its slowness is load-bearing: each test gets the
-whole machine, pages settle leisurely, and races hide in the slack. Turn the workers
-up and two things happen at once — the suite gets dramatically faster, and every
-test that was passing by accident starts failing honestly. Both outcomes are the
-point.
+A serial E2E suite is slow, and that slowness is doing work you don't want it to do.
+Each test gets the whole machine, pages settle at a leisurely pace, and races hide in
+the slack. Turn the workers up and the suite gets much faster while every test that
+was passing by accident starts failing honestly. You want both of those.
 
-The rule: **CI runs the suite with parallel workers, and any failure that
-parallelism provokes is treated as a real defect in the application or in the wait
-signal.** Reducing workers to "stabilise" the suite is the same lie as adding
-retries — it buys green by removing the stress that exposes the race.
+The rule: CI runs the suite with parallel workers, and any failure that parallelism
+provokes is a real defect in the application or in the wait signal. Reducing workers
+to "stabilise" the suite is the same lie as adding retries. It buys green by removing
+the stress that exposes the race.
 
 ## Why this matters
 
 On the content-admin SPA (2026-06-12) the deploy pipeline ran E2E with `workers: 1`
-in CI. Raising it to 4 cut the E2E step from 6m55s to 2m46s — the single biggest
-lever in a 9.5-minute pipeline. It also broke three tests within the first runs.
+in CI. Raising it to 4 cut the E2E step from 6m55s to 2m46s, the single biggest
+saving in a 9.5-minute pipeline. It also broke three tests within the first few runs.
 None of the three was a test problem:
 
 1. A post-login navigation intermittently died with `net::ERR_ABORTED` — fresh
@@ -46,9 +45,9 @@ None of the three was a test problem:
    nothing about the SW lifecycle. See
    [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
 
-Each fix was event-shaped and made the application's behaviour more honest. The
-suite then passed 271/271 three consecutive times locally and stayed green in CI —
-faster *and* more trustworthy than before.
+Each fix was event-shaped and made the application's behaviour more honest. After
+that the suite passed 271/271 three consecutive times locally and stayed green in CI,
+faster than before and worth trusting.
 
 ## How to apply
 
@@ -67,7 +66,7 @@ export default defineConfig({
 Four workers on four shared vCPUs make a healthy cold start legitimately slower
 than on a dedicated local machine. That changes the *ceiling* a wait may block
 before failing, not the wait itself. Make the ceiling an environment override in
-the shared wait helpers, keep the strict default locally:
+the shared wait helpers and keep the strict default locally:
 
 ```ts
 // wait helper (shared toolkit)
@@ -81,17 +80,17 @@ env:
   E2E_MAX_WAIT_MS: '30000'
 ```
 
-Waits remain event-driven and resolve the instant the condition is true; only the
+Waits stay event-driven and resolve the instant the condition is true; only the
 failure deadline moves. When random tail tests start timing out on CI, raise this
-one knob — do not sprinkle `{ timeout: 30000 }` over individual specs, because each
-sprinkle hides whether the spec is slow or broken.
+one knob. Do not sprinkle `{ timeout: 30000 }` over individual specs, because each
+of those hides whether the spec is slow or broken.
 
 **Step 3: Audit what the serial suite was silently not running.**
 
-Speed work forces you to read the suite, and what you find matters as much as the
-timing. A test that uploads a PDF had its fixture as an **absolute path to the
-author's machine** with a `test.skip` guard when the file is missing — it had
-silently skipped in CI for months while the suite reported green. Fixtures live in
+Speed work forces you to read the suite, and what you find there can matter as much
+as the timing. A test that uploads a PDF pointed its fixture at an **absolute path on
+the author's machine**, guarded by `test.skip` when the file is missing. It had
+quietly skipped in CI for months while the suite reported green. Fixtures belong in
 the repository (`e2e/fixtures/`), and a conditional skip on a missing fixture is a
 [skipped test, which is a failing test](/kb/testing/no-retries-no-flakes).
 
@@ -115,7 +114,8 @@ test.skip(!fs.existsSync(PDF), 'fixture missing');
 
 ## Enforcement
 
-The pipeline itself enforces this: parallel workers configured in CI, zero retries,
-and the three-run rule. Review checks: `workers` is not 1 in CI, no `mode: 'serial'`
-without a written justification, no literal timeout overrides in specs (the ceiling
-lives in the shared helper), and every fixture path resolves inside the repository.
+The pipeline itself enforces most of this: parallel workers configured in CI, zero
+retries, and the three-run rule. The rest goes into review. Check that `workers` is
+not 1 in CI, that no `mode: 'serial'` appears without a written justification, that
+no literal timeout overrides live in specs (the ceiling belongs in the shared
+helper), and that every fixture path resolves inside the repository.

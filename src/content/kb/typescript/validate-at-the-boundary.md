@@ -22,17 +22,17 @@ updated: 2026-06-10
 
 ## Why this matters
 
-TypeScript's type system covers every line of code it can see. It cannot see what arrives over the network, out of `localStorage`, from a CLI argument, or from a third-party webhook. At those entry points, the runtime value is `unknown`. The instinctive response is to cast it: `const config = JSON.parse(raw) as Config`. The cast makes the red squiggle disappear and introduces a silent lie — the type annotation says `Config` but the runtime value might be anything.
+TypeScript's type system covers every line of code it can see. What it cannot see is anything that arrives over the network, comes out of `localStorage`, gets passed as a CLI argument, or lands in a third-party webhook. At those entry points the runtime value is `unknown`, and the reflex is to cast it away: `const config = JSON.parse(raw) as Config`. The red squiggle disappears, and you've planted a lie. The annotation promises `Config` while the actual value could be anything at all.
 
-When the lie survives long enough to reach a function that depends on a specific shape, the failure is far from the bad cast, the stack trace is confusing, and the true cause is invisible.
+That lie tends to travel. It survives until it reaches some function that depends on a specific shape, and by then the failure is nowhere near the bad cast. The stack trace points at the wrong place, and the real cause stays hidden.
 
-The correct response is to **validate once, at the edge**. Parse the unknown value into a typed one, or produce an explicit error. After that single checkpoint, every internal function receives a type it can trust — no casts, no defensive `typeof` checks, no `as unknown as T` chains.
+So validate once, at the edge. Parse the unknown value into a typed one, or fail loudly with an explicit error. Past that single checkpoint, every internal function gets a type it can actually trust, with no casts, no defensive `typeof` sprinkled around, and none of those `as unknown as T` chains.
 
-Two projects codified this rule with real infrastructure:
+Two projects baked this rule into real infrastructure.
 
-**A content-admin SPA (2026-03-24/25)**: a grand refactoring introduced `src/validation/` containing Effect.Schema decoders for every external data shape — API responses, form submissions, persisted state. The design note reads: "validate at boundaries / compute internally; deterministic type transformations." Every API layer passes its response through a decoder before returning to domain code. Violating this was the root cause of a class of silent data corruption bugs the refactoring fixed.
+**A content-admin SPA (2026-03-24/25)**: a big refactoring introduced `src/validation/` with Effect.Schema decoders for every external data shape, covering API responses, form submissions, and persisted state. The design note reads: "validate at boundaries / compute internally; deterministic type transformations." Every API layer runs its response through a decoder before handing it to domain code. Skipping that step was the root cause of a whole class of silent data corruption bugs the refactoring went on to fix.
 
-**An edge bot (Cloudflare Workers) (2026-05-23)**: a lightweight CLI tool with no framework dependency. Rather than pulling in Effect, the team wrote manual runtime guards in `src/util/json.ts`. The constraint was the same: no `any`, no `as`. The guards returned typed results or threw descriptive errors. Internal code had zero type assertions.
+**An edge bot (Cloudflare Workers) (2026-05-23)**: a lightweight CLI tool with no framework dependency. Rather than pull in Effect, the team wrote manual runtime guards in `src/util/json.ts`. The constraint was identical: no `any`, no `as`. The guards returned typed results or threw descriptive errors, and internal code carried zero type assertions.
 
 ## How to apply
 
@@ -101,11 +101,11 @@ const session = parseStoredSession(JSON.parse(localStorage.getItem('session') ??
 // session is StoredSession — no assertion needed downstream
 ```
 
-The one `as string` after the explicit `typeof` check is legitimate: the guard already proved the type; the cast reflects a known fact rather than an assumption. Compare this to casting the whole parsed object at once.
+The single `as string` after the explicit `typeof` check is fine. The guard has already proved the type, so the cast records a fact you've checked rather than an assumption you're hoping holds. That's a different thing from casting the whole parsed object in one shot.
 
 ### 3. Centralise decoders in one layer
 
-Place all boundary decoders in a dedicated module (`src/validation/`, `src/boundary/`, or `src/decoders/`). Domain code imports typed values from that layer; it never imports `Schema` or guard utilities directly.
+Put all boundary decoders in a dedicated module (`src/validation/`, `src/boundary/`, or `src/decoders/`). Domain code imports typed values out of that layer and never reaches for `Schema` or guard utilities directly.
 
 ```
 src/
@@ -117,11 +117,11 @@ src/
     issue.ts        ← uses Issue type; no decoding logic
 ```
 
-This makes it trivial to audit: if a schema changes, there is exactly one file to update.
+Auditing gets cheap: when a schema changes, there's exactly one file to touch.
 
 ### 4. Return typed errors instead of throwing where appropriate
 
-For code that uses Effect or Result types, decode into an `Either` rather than throwing. This makes validation failures part of the explicit return type and forces callers to handle them.
+When you're already using Effect or Result types, decode into an `Either` instead of throwing. That puts validation failures into the explicit return type, so callers have to deal with them.
 
 ```typescript
 import { Schema, Either } from 'effect';
@@ -156,7 +156,7 @@ const config = JSON.parse(raw) as Config;
 // The error appears in domain code, not at the parse site.
 ```
 
-The cast is a deferred runtime exception with a misleading origin.
+The cast is just a runtime exception you've deferred, and it lands somewhere that doesn't point back to the cause.
 
 ### Validating deep inside domain logic
 
@@ -183,7 +183,7 @@ const config: Config = raw; // no error, no check
 // Symptom: identical to the cast case — silent lie, remote failure.
 ```
 
-`any` disables the type checker entirely. Once a value is `any`, there is no recovery; the lie propagates to every function it touches.
+`any` switches the type checker off. Once a value is `any` there's no walking it back, and the lie spreads to every function the value reaches.
 
 ### Partial validation
 
@@ -195,12 +195,12 @@ const parseConfig = (raw: unknown): Config => {
 };
 ```
 
-**Symptom**: the unchecked fields blow up in domain code. Partial validation is worse than no validation because it gives a false sense of safety.
+**Symptom**: the unchecked fields blow up in domain code. Partial validation is worse than no validation, because it hands you a false sense of safety on top of the same failure.
 
 ## Enforcement
 
 - Enable `@typescript-eslint/no-explicit-any` and `@typescript-eslint/no-unsafe-assignment` — both flag the patterns above at lint time.
-- In CI, run `tsc --noEmit` with `strict: true`. A properly parsed value never needs `as`; if a cast appears, it is a signal the boundary was bypassed.
+- In CI, run `tsc --noEmit` with `strict: true`. A properly parsed value never needs `as`, so a cast showing up is a sign someone bypassed the boundary.
 - Code review checklist: any function that calls `JSON.parse`, `res.json()`, `localStorage.getItem`, `process.env`, or `process.argv` must pipe its result through a decoder in the same file before returning.
 
 ## See also

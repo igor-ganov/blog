@@ -19,32 +19,32 @@ order: 1
 updated: 2026-06-10
 ---
 
-User stories were invented to give a cross-functional team a shared vocabulary across
-roles. On a solo project there is one role. Writing "As a developer, I want the
-delivery queue to retry on failure so that messages are not lost" adds no information
-that plain prose does not carry and wraps a simple fact in a sentence structure
-designed for a conversation that is not happening. The feedback from the event-sourcing service (2026-05-14) was direct: no user stories — what is needed is a normal human README.
-EARS criteria are the correct format for the functional part.
+User stories exist to give a cross-functional team shared vocabulary across roles. On a
+solo project there is one role. Writing "As a developer, I want the delivery queue to
+retry on failure so that messages are not lost" carries nothing that plain prose
+wouldn't, and it wraps a simple fact in a sentence structure built for a conversation
+that isn't happening. The feedback from the event-sourcing service (2026-05-14) said as
+much: drop the user stories, write a normal human README. EARS criteria handle the
+functional part.
 
 ## Why this matters
 
-The spec-driven workflow (formalised in the engineering standard, 2026-06-02) sequences three artifacts in strict
-order: **requirements.md → design.md → tasks.md**. Each artifact gates the next. The
-spec is not a formality that exists alongside the code — it is the source of truth;
-the code is derived from it. When the implementation and the spec disagree, the spec
-is interrogated first.
+The spec-driven workflow (formalised in the engineering standard, 2026-06-02) sequences
+three artifacts in strict order: **requirements.md → design.md → tasks.md**. Each
+artifact gates the next. The spec is the source of truth and the code is derived from
+it, so when the implementation and the spec disagree, you interrogate the spec first.
 
-The concrete failure mode that motivated this: work proceeded straight from a vague
-ticket into code, discovering requirements mid-implementation and encoding them as
-implicit decisions in the codebase. Those decisions were invisible to review and
-invisible to future maintenance. Pulling them back into a written spec retroactively
-cost more than writing the spec first would have.
+Here is the failure that motivated it. Work went straight from a vague ticket into code,
+discovering requirements mid-implementation and encoding them as implicit decisions in
+the codebase. Those decisions were invisible to review and to anyone maintaining the
+thing later. Pulling them back into a written spec after the fact cost more than writing
+the spec up front would have.
 
 The user-story format was a second, separate problem. On a private, single-person
-project the persona prose is corporate overhead with no benefit. The format survived
-long enough to trigger an explicit rejection in the project decision record: functional requirements
-written as user stories are harder to read as a spec, harder to map to tests, and
-harder to group by capability.
+project the persona prose is corporate overhead and buys you nothing. It survived long
+enough to earn an explicit rejection in the project decision record: functional
+requirements written as user stories are harder to read as a spec, harder to map to
+tests, and harder to group by capability.
 
 ## How to apply
 
@@ -52,13 +52,13 @@ harder to group by capability.
 
 A `requirements.md` file has exactly three parts:
 
-**1. Short overview** — one paragraph explaining what the feature is, why it exists,
-and what it deliberately does not do. This is the "human README" part: direct prose,
-not persona fiction.
+**1. Short overview** — one paragraph on what the feature is, why it exists, and what it
+deliberately does not do. This is the "human README" part: direct prose, not persona
+fiction.
 
 **2. Locked decisions** — a bullet list of constraints that are not open for debate
 during implementation: technology choices, integration contracts, data ownership,
-non-functional bounds. Locking them here prevents scope creep during design.
+non-functional bounds. Locking them here keeps scope from creeping during design.
 
 **3. Capability-grouped functional requirements** — EARS criteria, numbered, grouped
 under headings that name the capability.
@@ -73,8 +73,8 @@ WHERE <feature is enabled> THE SYSTEM SHALL <response>
 THE SYSTEM SHALL <unconditional requirement>
 ```
 
-A capability group collects 4–8 criteria. If you have more than 8, split the
-group — one bloated group is a sign that two capabilities are being mixed.
+A capability group collects 4–8 criteria. If you have more than 8, split the group. One
+bloated group usually means two capabilities are being mixed.
 
 **Example — Producer-side reliable delivery:**
 
@@ -98,16 +98,16 @@ REQ-5: IF the outbox relay crashes mid-delivery THE SYSTEM SHALL detect the
 ```
 
 Each criterion is:
-- Unambiguous — "mark delivered on 2xx" is a test condition, not a wish.
-- Independently testable — each maps to exactly one or a few tests.
-- Not a solution — REQ-1 says "persist to outbox table" because that is a locked
-  decision; absent the locked decision it would say "persist durably" and leave the
+- Unambiguous. "Mark delivered on 2xx" is a test condition, not a wish.
+- Independently testable. Each maps to one or a few tests.
+- Not a solution. REQ-1 says "persist to outbox table" because that is a locked
+  decision. Without the locked decision it would say "persist durably" and leave the
   mechanism to design.
 
 ### Phase 2: design.md
 
 Design resolves the how. It maps each REQ-N to a component, a data structure, or a
-protocol decision, and records trade-offs where alternatives were considered. Every
+protocol decision, and records trade-offs wherever alternatives were considered. Every
 section references the requirements it satisfies. See
 [traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
 
@@ -119,11 +119,11 @@ section and the REQ-N items it delivers. Tasks are the input to the dev cycle �
 
 ### When user stories are appropriate
 
-The user-story format is not banned in all contexts. Use it when the work is
-explicitly cross-functional or UI-facing and the team genuinely needs to reason from
-the user's perspective: onboarding flows, multi-persona screens, accessibility work.
-In those contexts "As a screen-reader user…" carries real information. For a backend
-pipeline, a CLI, or a solo-project service, skip the persona wrapper entirely.
+The user-story format isn't banned everywhere. Use it when the work is cross-functional
+or UI-facing and the team genuinely needs to reason from the user's perspective:
+onboarding flows, multi-persona screens, accessibility work. There, "As a screen-reader
+user…" carries real information. For a backend pipeline, a CLI, or a solo-project
+service, skip the persona wrapper.
 
 ## Anti-patterns
 
@@ -158,23 +158,23 @@ REQ-3: WHILE a message remains undelivered THE SYSTEM SHALL retry with
 REQ-1 … REQ-12
 ```
 
-More than 8 EARS items under one heading is a sign the heading covers two distinct
+More than 8 EARS items under one heading usually means the heading covers two distinct
 capabilities. Split into "Producer-side reliable delivery" and "Consumer-side
 idempotent processing" and re-number.
 
 ## Enforcement
 
-The spec gates code. There is no CI check that prevents you from writing code before
-a spec, but the dev cycle starts with "retrieve the spec" not "open the code". The
-review check is simple: if a PR references a feature with no `requirements.md` entry
-for it, it is incomplete regardless of test coverage.
+The spec gates code. No CI check stops you from writing code before a spec, but the dev
+cycle starts with "retrieve the spec", not "open the code". The review check is simple:
+if a PR references a feature with no `requirements.md` entry for it, the PR is incomplete
+regardless of test coverage.
 
-The event-sourcing service entry (2026-05-14) is the standing record of why the user-story format
-was rejected. When a future template or AI default tries to reintroduce user stories,
-point back to that entry and this article.
+The event-sourcing service entry (2026-05-14) is the standing record of why the
+user-story format was rejected. When a future template or AI default tries to reintroduce
+user stories, point back to that entry and this article.
 
 ## See also
 
-EARS was originally described by Alistair Mavin et al. in "EARS (Easy Approach to
-Requirements Syntax)" (2009 IEEE International Requirements Engineering Conference).
-The syntax here follows that specification directly.
+EARS was first described by Alistair Mavin et al. in "EARS (Easy Approach to
+Requirements Syntax)" (2009 IEEE International Requirements Engineering Conference). The
+syntax here follows that specification directly.

@@ -16,25 +16,24 @@ order: 8
 updated: 2026-06-10
 ---
 
-The dev cycle is the operational sequence that takes a backlog item from "ready to
-start" to "merged PR." It is the execution layer below the spec-driven workflow: the
-spec (requirements → design → tasks) produces tasks; the dev cycle executes each task
-as a consistent, repeatable sequence. Consistency matters because it eliminates the
-cognitive overhead of "what do I do next?" and because reviewers know exactly what to
-expect in a PR.
+The dev cycle is the sequence that moves a backlog item from "ready to start" to
+"merged PR." It sits one layer below the spec-driven workflow. The spec produces tasks
+through requirements, design, and tasks; the dev cycle runs each task the same way
+every time. Running it the same way every time kills the "what do I do next?" overhead,
+and it means reviewers know in advance what a PR from this cycle will contain.
 
 ## Why this matters
 
-A consistent cycle produces consistent outputs. A PR from this cycle always has: a
-named branch, traceable commits, a failing test that became passing, verified
-behaviour in the real runtime, and up-to-date documentation. A PR without these is
-visibly incomplete — the checklist is public knowledge.
+A consistent cycle gives you consistent output. A PR that came out of this cycle has a
+named branch, commits you can trace back to a task, a test that started red and ended
+green, behaviour verified in the real runtime, and documentation that matches the code.
+When one of those is missing the PR reads as incomplete, because everyone already knows
+the checklist.
 
-The cycle also encodes priorities. Documentation is not "done after the sprint" — it
-is part of the cycle, done before the PR is opened. Desktop-first verification is not
-optional — it is a named step in the cycle. A failing test before the implementation
-is not TDD ceremony — it is the proof that the test was capable of failing and
-therefore capable of catching a regression.
+The cycle also bakes in the priorities. Documentation gets written before the PR opens,
+not after the sprint. Desktop-first verification is a named step, not something you do
+if there's time. And the failing test up front is the proof that the test could fail at
+all, which is the only thing that makes it useful for catching a regression later.
 
 ## How to apply
 
@@ -46,8 +45,9 @@ Before writing a line of code, retrieve:
 - The parent epic or spec phase the task belongs to.
 - Related items: dependent tasks, linked design sections, referenced requirements.
 
-This is not research for its own sake — it surfaces the contracts (API shape, data
-schema, event types) that the implementation must honour and that tests must verify.
+You're not reading for the sake of reading. You're pulling out the contracts the
+implementation has to honour and the tests have to check: API shape, data schema,
+event types.
 
 ### Step 2: Branch
 
@@ -81,7 +81,7 @@ Write (or confirm) the execution plan in the task's issue or in a scratch note:
 - E2E (if applicable): admin panel shows DLQ count
 ```
 
-The test plan is not written to be filed — it determines what tests are written in
+You don't write the test plan to file it away. It decides which tests you write in
 step 4.
 
 ### Step 4: Write the failing test first
@@ -102,8 +102,7 @@ it('promotes message to DLQ after 10 consecutive failures', async () => {
 });
 ```
 
-A test that was never red is a test that has never been proven capable of catching a
-regression. Red-first is not optional.
+A test that was never red has never been shown to catch anything. Make it fail first.
 
 ### Step 5: Implement
 
@@ -127,15 +126,14 @@ TASK-7: Promote message to DLQ after 10 consecutive failures
 TASK-7: Emit dlq.moved metric on promotion
 ```
 
-The work-item prefix makes every commit traceable to its task, its design section,
-and its requirements.
+The work-item prefix is what lets you trace any commit back to its task, the design
+section behind it, and the requirements it came from.
 
 ### Step 6: Check in the IDE
 
 After each logical change, check the IDE for type errors, lint violations, and
-warnings. Do not accumulate a backlog of IDE issues to fix at the end — fix them
-as they appear. A PR that introduces new type errors or lint violations is not ready
-for review.
+warnings. Don't let a backlog of IDE issues pile up for the end; fix each one as it
+shows up. A PR that adds new type errors or lint violations isn't ready for review.
 
 ### Step 7: Ensure it builds
 
@@ -143,7 +141,7 @@ for review.
 bun run build
 ```
 
-The build must be clean. A PR that fails the build is not a PR.
+The build must be clean. A PR that doesn't build isn't a PR.
 
 ### Step 8: Desktop-first verification
 
@@ -156,8 +154,8 @@ via the MCP, not the dev server alone.
 
 ### Step 9: Run Playwright E2E
 
-Run the full Playwright suite. All tests must pass with zero flakes, three runs in a
-row. No skipped tests, no known failures.
+Run the full Playwright suite. Everything passes, three runs in a row, with zero
+flakes. No skipped tests, no known failures.
 
 ```bash
 bun run test:e2e
@@ -172,8 +170,8 @@ Every PR that changes behaviour must update documentation:
 - **README.md in each affected folder** — purpose, structure, key decisions.
 - **documentation/user/** — feature guide if the change is user-visible.
 
-Documentation is part of the cycle, not a trailing nicety. A PR that changes an
-API without updating the README for that module is incomplete.
+Documentation belongs in the cycle, not tacked on afterward. A PR that changes an API
+without updating that module's README is incomplete.
 
 ### Step 11: Final cleanup
 
@@ -217,30 +215,30 @@ The PR description follows this structure:
 
 ## Anti-patterns
 
-**Starting with the implementation.** Writing code before the failing test means the
-test was written to pass the existing code, not to validate a requirement. The test
-will pass on first run and provides weaker coverage guarantees.
+**Starting with the implementation.** Write code before the failing test and the test
+ends up shaped to pass the code you already wrote, not to check a requirement. It goes
+green on the first run and tells you almost nothing about coverage.
 
-**Batching multiple tasks into one PR.** Each task in `tasks.md` maps to one PR. Batching
-makes review harder, bisection harder, and rollback harder. The only exception is when
-tasks are trivially small (a rename, a config change) and have no design complexity —
-in that case, group them with a note in the PR description.
+**Batching multiple tasks into one PR.** Each task in `tasks.md` maps to one PR.
+Batching makes review, bisection, and rollback all harder. The exception is tasks that
+are trivially small with no design complexity, like a rename or a config change; group
+those with a note in the PR description.
 
-**Deferring documentation.** Documentation written a week after the implementation
-reflects the implementation as recalled, not as understood. Documentation written
-during the cycle, with the code in front of you, is accurate.
+**Deferring documentation.** Docs you write a week later describe the implementation as
+you remember it, not as you understood it while building it. Write them during the
+cycle, with the code in front of you, and they come out accurate.
 
-**Opening a draft PR and forgetting the checklist.** A draft PR is for early feedback
-on direction, not for work in progress where the checklist is unanswered. If you open
-a draft, note explicitly what is missing and by when you expect to complete it.
+**Opening a draft PR and forgetting the checklist.** A draft is for early feedback on
+direction. It is not a parking spot for work-in-progress with an unanswered checklist.
+If you open one, spell out what's missing and when you expect to finish it.
 
-**Skipping the build step.** "The tests passed, so the build is fine." Tests run in
-a module-resolved environment; the build may fail on an import path, a missing asset,
-or a bundler configuration. Build separately, verify separately.
+**Skipping the build step.** "The tests passed, so the build is fine." Tests run in a
+module-resolved environment, and the build can still break on an import path, a missing
+asset, or a bundler config. Build separately, verify separately.
 
 ## See also
 
-This cycle is the execution layer of the spec-driven workflow. The input is a task
-from `tasks.md`. The spec-driven workflow that produces tasks is documented in
+This cycle runs the spec-driven workflow. Its input is a task from `tasks.md`. The
+workflow that produces those tasks is documented in
 [spec-driven-ears-not-user-stories](/kb/process/spec-driven-ears-not-user-stories)
 and [traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).

@@ -25,29 +25,29 @@ order: 4
 updated: 2026-06-11
 ---
 
-`throw` is a goto. It exits the current call stack and transfers control to whatever
-`catch` happens to be further up — or to the process error handler if there is none.
-The type system knows nothing about it: a function that throws has the same signature as
-one that does not. Callers cannot reason about what can go wrong without reading the
-implementation. Ad-hoc `Promise` chains compound this: `.catch` is optional, rejections
-are untyped, and any `await` can silently swallow an error.
+`throw` is a goto. It exits the current call stack and hands control to whatever `catch`
+sits further up, or to the process error handler when nothing catches it. The type system
+knows nothing about it. A function that throws has the same signature as one that does not,
+so callers cannot reason about what can go wrong without reading the implementation. Ad-hoc
+`Promise` chains make it worse: `.catch` is optional, rejections are untyped, and any
+`await` can swallow an error without a trace.
 
-Effect models fallible and async logic as values. An `Effect<A, E, R>` is a description
-of a computation that, when run, may succeed with `A`, fail with `E`, or require
-services `R`. The error type `E` is in the signature; it cannot be ignored; and the
-composition operators (`pipe`, `Effect.gen`, `Effect.map`, `Effect.flatMap`) ensure that
-error paths are handled before the pipeline is complete.
+Effect models fallible and async logic as values. An `Effect<A, E, R>` describes a
+computation that, when run, may succeed with `A`, fail with `E`, or require services `R`.
+The error type `E` sits in the signature where it cannot be ignored, and the composition
+operators (`pipe`, `Effect.gen`, `Effect.map`, `Effect.flatMap`) force you to handle the
+error paths before the pipeline finishes.
 
 ## Why this matters
 
-The invariant — the part that is **never** up for debate — is that errors and absence
-are *values in the type*, composed in pipelines, not thrown. `throw` erases the error
-from the signature; a `Result`/`Either`/`Effect` puts it back. That much is settled.
+The invariant that is **never** up for debate: errors and absence are *values in the type*,
+composed in pipelines, not thrown. `throw` erases the error from the signature, and a
+`Result`/`Either`/`Effect` puts it back. That much is settled.
 
-What *is* a judgement call is **the vehicle**, and the axis that decides it is the
-bundle. Effect is not an error-handling library; it is a runtime — a fiber scheduler,
-an interpreter loop, interruption, scope/resource-safety, and a `Layer` dependency
-graph. When you run an `Effect`, you pay for that runtime whether or not you use it.
+The judgement call is **the vehicle**, and the bundle is what decides it. Effect is a
+runtime, not an error-handling library: a fiber scheduler, an interpreter loop,
+interruption, scope/resource-safety, and a `Layer` dependency graph. When you run an
+`Effect`, you pay for that runtime whether or not you use it.
 
 **Measured (`bun build --minify`, gzipped):**
 
@@ -58,23 +58,23 @@ graph. When you run an `Effect`, you pay for that runtime whether or not you use
 | Full Effect (`Effect.gen` + `runPromise`) | **62 KB** | ~217× |
 
 Each case runs the *same* trivial parse-double-validate program. The 62 KB in the last
-row is a floor, not a function of program size — it is the fiber runtime, pulled in the
-moment you call `runPromise`.
+row is a floor rather than a function of program size. It is the fiber runtime, pulled in
+the moment you call `runPromise`.
 
 **Why tree-shaking does not rescue the runtime.** Tree-shaking is reachability-based
-dead-code elimination: it drops exports nothing references. It works — the middle row
-proves it: using only `Either` keeps the runtime out and stays at 4.2 KB. But in the
+dead-code elimination: it drops exports nothing references. The middle row proves it
+works, since using only `Either` keeps the runtime out and stays at 4.2 KB. But in the
 full-Effect case the runtime is *reachable*. Effect is an interpreter, and Effect values
-are data, not a static call graph — which fiber features fire is decided at run time by
-the node tags, so the bundler cannot prove you never interrupt, fork, or open a scope.
-The whole interpreter stays. You tree-shake the leaves (`Effect.map`, `Either.*`); you
-cannot tree-shake the trunk.
+are data rather than a static call graph, so which fiber features fire is decided at run
+time by the node tags. The bundler cannot prove you never interrupt, fork, or open a
+scope, so the whole interpreter stays. You can tree-shake the leaves (`Effect.map`,
+`Either.*`), but not the trunk.
 
-**The decision, with dates.** A 2026-03-24 content-admin SPA adopted Effect at scale —
+**The decision, with dates.** A 2026-03-24 content-admin SPA adopted Effect at scale:
 `Effect.gen`/`tryPromise`/`forEach`/`Match` across the service-worker core, `useAuth`/
 `useSWBridge` on the client. There the runtime was *used*, so the bundle cost bought
-something and was correctly accepted. A later 2026-06-10 frontend app went the other way:
-it needed only error-as-value, so it shipped custom result functions and skipped the
+something and was correctly accepted. A later 2026-06-10 frontend app went the other way.
+It needed only error-as-value, so it shipped custom result functions and skipped the
 62 KB. **Both are right, because the rule is conditional, not absolute:**
 
 - Using Effect's runtime — structured concurrency, interruption, retries/scheduling,
@@ -83,16 +83,16 @@ it needed only error-as-value, so it shipped custom result functions and skipped
 - Need only "errors and absence are values"? **Use a custom `Result`.** Effect's runtime
   is then dead weight you cannot tree-shake away, and 286 B does the job.
 
-The earlier "always use Effect" framing was too strong: it generalised one project where
+The earlier "always use Effect" framing was too strong. It generalised one project where
 the runtime happened to be used into a universal default. The corrected rule is the
-conditional above — which is why this article is `context`, not `strong`.
+conditional above, which is why this article is `context` rather than `strong`.
 
 ## How to apply
 
 **The lightweight path — a custom `Result` (use this when you only need error-as-value).**
 
 A discriminated union plus three pure functions covers map/chain/fold. It is fully
-tree-shakeable, has no runtime, and costs a few hundred bytes:
+tree-shakeable, carries no runtime, and costs a few hundred bytes:
 
 ```ts
 // result.ts — the whole "errors as values" toolkit, ~30 lines, no dependency.
@@ -120,9 +120,9 @@ const match =
 ```
 
 The error type is still in the signature, the caller still cannot ignore the failure
-path, and `match` still forces both branches. You get the invariant — errors as values —
-without the 62 KB runtime. This is the default for plain fallible logic. Reach for Effect
-below only when the project already uses its runtime.
+path, and `match` still forces both branches. You get the invariant, errors as values,
+without the 62 KB runtime. This is the default for plain fallible logic. Reach for the
+Effect version below only when the project already uses its runtime.
 
 **Effect pipeline vs try/catch.**
 
@@ -175,8 +175,8 @@ const fetchUserProfile = (
 ```
 
 The signature tells the caller that `fetchUserProfile` can fail with `HttpError` or
-`ParseError`. There is no implicit throw path. Handling both cases before running is
-enforced by the type system.
+`ParseError`. There is no implicit throw path, and the type system enforces handling both
+cases before the pipeline runs.
 
 **Effect.gen for sequential async logic.**
 
@@ -193,14 +193,14 @@ const syncUserData = (userId: string): Effect.Effect<void, HttpError | ParseErro
   });
 ```
 
-Each `yield*` is a typed bind. If `fetchUserProfile` fails, execution stops at that
-line and the error propagates with its type intact — no try/catch, no `.catch` callback.
+Each `yield*` is a typed bind. If `fetchUserProfile` fails, execution stops at that line
+and the error propagates with its type intact, with no try/catch and no `.catch` callback.
 
 **Schema validation at the boundary.**
 
 Effect's `Schema` module replaces hand-written type guards and `as` casts at the system
-boundary. The decoder either returns the parsed value or fails the `Effect` with a
-structured `ParseError`:
+boundary. The decoder returns the parsed value, or it fails the `Effect` with a structured
+`ParseError`:
 
 ```ts
 import { Schema } from 'effect';
@@ -220,8 +220,8 @@ type UserProfile = Schema.Schema.Type<typeof UserProfileSchema>;
 **Run at the edge only.**
 
 `Effect.runPromise` and `Effect.runSync` are the imperative shell. They belong in event
-handlers, service-worker message listeners, or application bootstrap — never inside a
-pure pipeline step:
+handlers, service-worker message listeners, or application bootstrap, never inside a pure
+pipeline step:
 
 ```ts
 // Composition root / event handler (imperative shell)
@@ -236,7 +236,7 @@ to Promises or runs them synchronously.
 **Absence as Option, not null.**
 
 For values that may or may not exist, `Option` from `effect` makes absence explicit in
-the type without using `null` or `undefined`:
+the type, with no `null` or `undefined`:
 
 ```ts
 import { Option } from 'effect';

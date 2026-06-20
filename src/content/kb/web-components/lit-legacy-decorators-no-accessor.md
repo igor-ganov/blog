@@ -20,17 +20,17 @@ updated: 2026-06-10
 ---
 
 TypeScript has two decorator systems. The legacy system (enabled by
-`"experimentalDecorators": true`) has been the only one supported by Lit since Lit 2.
+`"experimentalDecorators": true`) has been the only one Lit fully supports since Lit 2.
 The standard (TC39 Stage 3) system uses the `accessor` keyword and auto-accessor class
-fields. Lit 3 added partial support for standard decorators, but esbuild — the
-transformer that powers Vite's production build — does not transform standard
-auto-accessors. The result is a component that works in `vite dev` (where esbuild
-transforms less aggressively) and crashes at runtime in the production build with a
-cryptic `TypeError` about an accessor descriptor.
+fields. Lit 3 added partial support for standard decorators, but esbuild, the
+transformer behind Vite's production build, does not transform standard auto-accessors.
+So you get a component that works in `vite dev` (where esbuild transforms less
+aggressively) and then dies at runtime in the production build with a cryptic
+`TypeError` about an accessor descriptor.
 
-Both the headless web-component library (2026-06-06) and the Jira client app (2026-06-08) hit this. The fix is
-unambiguous: use legacy decorators everywhere Lit is involved, and never write the
-`accessor` keyword.
+Both the headless web-component library (2026-06-06) and the Jira client app (2026-06-08) ran into this.
+The fix has one shape: use legacy decorators everywhere Lit is involved, and never write
+the `accessor` keyword.
 
 ## Why this matters
 
@@ -43,25 +43,25 @@ class Example {
 ```
 
 Babel and the TypeScript compiler can transform this. esbuild cannot, as of mid-2026.
-When Vite runs in production mode it uses esbuild for minification and final
-transformation. If an auto-accessor field passes through esbuild untransformed,
-esbuild emits it as-is and the browser engine receives a class with a syntax it may
-or may not support. In Chromium the field is silently dropped. In other engines or
-strict contexts it throws. Either way the Lit `@property()` decorator never intercepts
-the field and `requestUpdate` is never called.
+When Vite runs in production mode it uses esbuild for minification and the final
+transform. An auto-accessor field that passes through esbuild untransformed gets emitted
+as-is, and the browser engine then receives a class with syntax it may or may not
+support. Chromium silently drops the field; other engines or strict contexts throw. In
+both cases the Lit `@property()` decorator never intercepts the field and `requestUpdate`
+is never called.
 
-The timeline matters: the bug does not appear in `vite dev` because Vite uses esbuild
-for dependency bundling but runs your own source through its native transform pipeline
-where standard decorators are handled. In `vite build` the path is different. You
-ship, it breaks, and the error message — if there is one — does not mention decorators.
+The timeline is the trap. The bug stays hidden in `vite dev` because Vite uses esbuild
+for dependency bundling but runs your own source through its native transform pipeline,
+which handles standard decorators. `vite build` takes a different path. You ship, it
+breaks, and the error message (if you even get one) says nothing about decorators.
 
 The second half of the rule is `"useDefineForClassFields": false`. TypeScript's class
-field semantics changed between TS 3.7 and TS 4+ to match the TC39 spec: class fields
+field semantics changed between TS 3.7 and TS 4+ to match the TC39 spec, so class fields
 are now defined via `Object.defineProperty` rather than assignment. Lit's legacy
 decorator system relies on assignment semantics to intercept the field declaration. With
 `useDefineForClassFields: true` (the TypeScript default when `target` is `ES2022` or
-later), the class field definition runs after the decorator and overwrites the
-descriptor that `@property()` set up. The reactive property never fires. Setting
+later), the class field definition runs after the decorator and overwrites the descriptor
+that `@property()` set up, so the reactive property never fires. Setting
 `useDefineForClassFields: false` restores the assignment semantics that Lit expects.
 
 Both projects set these two flags in tandem in their `tsconfig.json`.
@@ -109,10 +109,10 @@ export class MyCounter extends LitElement {
 }
 ```
 
-The `private` modifier on `@state()` fields is purely for TypeScript's visibility
-check — it does not affect the runtime. Lit accesses the field by name internally and
-does so correctly regardless of access modifier. Using `private` on internal state and
-leaving `@property()` fields unmodified (public) is the readable convention.
+The `private` modifier on `@state()` fields only feeds TypeScript's visibility check and
+has no runtime effect. Lit accesses the field by name internally and does so correctly
+regardless of access modifier. The readable convention is to mark internal state
+`private` and leave `@property()` fields public.
 
 **What the accessor keyword looks like — and why to avoid it:**
 
@@ -127,10 +127,10 @@ export class MyCounter extends LitElement {
 ```
 
 The `accessor` keyword tells TypeScript and Babel to generate a getter/setter pair with
-backing storage. Lit's standard `@property()` decorator wraps that getter/setter to
-call `requestUpdate`. When esbuild strips or mishandles the auto-accessor transform,
-the getter/setter pair vanishes and the property becomes a plain field — Lit's decorator
-has nothing to wrap, and reactivity is silent.
+backing storage. Lit's standard `@property()` decorator wraps that getter/setter to call
+`requestUpdate`. When esbuild strips or mishandles the auto-accessor transform, the
+getter/setter pair vanishes and the property collapses back to a plain field. Now Lit's
+decorator has nothing to wrap, and reactivity goes silent.
 
 **vite.config.ts** — no special esbuild plugin is needed; the tsconfig flags are
 sufficient as long as you do not use `accessor`:
@@ -149,10 +149,10 @@ export default defineConfig({
 ```
 
 Vite invokes `tsc` (or its own TS transform) first, then passes the output to esbuild.
-Legacy decorators are lowered to ES5-compatible property definitions by the TS
-transform, so esbuild never encounters them. This is why the legacy path is safe and
-the standard path is not: the standard `accessor` keyword requires a transform that
-only exists post-TS-emit if esbuild supports it. It currently does not.
+The TS transform lowers legacy decorators to ES5-compatible property definitions, so
+esbuild never encounters them. That is the whole difference between the two paths. The
+standard `accessor` keyword needs a transform that only runs post-TS-emit if esbuild
+supports it, and esbuild currently does not.
 
 ## Anti-patterns
 
@@ -191,10 +191,9 @@ export class BrokenElement extends LitElement {
 
 ## Enforcement
 
-Add a CI step that type-checks with `tsc --noEmit` — it will catch `accessor` keyword
-usage in the project's source. Searching for the literal string `accessor ` (with
-trailing space to avoid matching in comments) in the codebase as a pre-commit hook is
-also effective:
+Add a CI step that type-checks with `tsc --noEmit`. It catches `accessor` keyword usage
+in the project's source. A pre-commit hook that searches for the literal string
+`accessor ` (with a trailing space to avoid matching in comments) works too:
 
 ```bash
 # .git/hooks/pre-commit or a Biome custom rule
@@ -203,7 +202,7 @@ exit 0
 ```
 
 The Biome or ESLint rule `@typescript-eslint/no-accessor-pairs` does not cover this
-specific case; a custom rule or grep is currently the most reliable gate.
+specific case, so a custom rule or grep is the most reliable gate right now.
 
 ## See also
 

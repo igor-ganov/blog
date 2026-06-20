@@ -15,44 +15,45 @@ order: 2
 updated: 2026-06-10
 ---
 
-Hardcoded pixel values in a positioning algorithm are a bet on the future content never
-changing. That bet loses. A FAB (floating action button) that is coded as "48 px wide"
-stays correct until someone changes the icon, adds a label, or the user increases their
-system font size. At that point the menu either overlaps its trigger or leaves a gap,
-and the fix is a code change rather than a style change.
+Hardcoded pixel values in a positioning algorithm are a bet that the content never
+changes, and that bet loses. A FAB (floating action button) coded as "48 px wide"
+stays correct until someone swaps the icon, adds a label, or the user bumps their
+system font size. After that the menu overlaps its trigger or leaves a gap, and fixing
+it means a code change instead of a style change.
 
-The rule is absolute: **every coordinate is derived from a live `getBoundingClientRect()`
-call, never from a constant**. The headless web-component library (2026-06-06) encodes this as
-its positioning contract and adds one further constraint that most components miss:
-wrappers that will be measured must declare `width: max-content; height: max-content`
-before the measurement, or `position: fixed` shrink-to-fit behaviour will collapse them
-to zero and produce garbage geometry.
+So the contract is simple: **every coordinate is derived from a live
+`getBoundingClientRect()` call, never from a constant**. The headless web-component
+library (2026-06-06) encodes this in its positioning code and adds one constraint that
+most components miss. Any wrapper you intend to measure must declare
+`width: max-content; height: max-content` before the measurement, otherwise
+`position: fixed` shrink-to-fit behaviour collapses it to zero and you get garbage
+geometry.
 
 ## Why this matters
 
 The failure mode is subtle. A `position: fixed` element whose size has not been
-explicitly constrained collapses to fit its content when first painted — but if it is
-measured before the browser has laid out its content (which is often the case when you
-call `getBoundingClientRect()` during `connectedCallback` or early in `hostUpdated`),
-the reported rect has zero width and height. The positioning algorithm then places the
-popup at coordinates that are correct for a zero-size element, which is wrong for a
-real-size element. The bug only manifests near viewport edges where the flip heuristic
-kicks in, so it hides in normal testing and surfaces in production, near corners.
+explicitly constrained collapses to fit its content when first painted. If you measure
+it before the browser has laid out that content (which is what happens when you call
+`getBoundingClientRect()` during `connectedCallback` or early in `hostUpdated`), the
+reported rect comes back with zero width and height. The positioning algorithm then
+places the popup at coordinates that would be correct for a zero-size element and wrong
+for the real one. You only see it near viewport edges where the flip heuristic kicks in,
+so it slips through normal testing and shows up in production, near corners.
 
-The fix in the component library was to set `width: max-content; height: max-content` on the
-popup wrapper in the component's shadow styles before measuring. This forces the browser
-to size the popup to its content before the measurement, giving reliable rects
-regardless of where on the page the component lives.
+The fix in the component library was to set `width: max-content; height: max-content` on
+the popup wrapper in the component's shadow styles before measuring. That forces the
+browser to size the popup to its content first, so the rect is reliable wherever on the
+page the component sits.
 
-The secondary lesson: measure the trigger too, not just the popup. Any approach that
-stores the trigger size at mount time will be wrong the moment the slotted content
-changes (a label appearing, an icon swapping, a responsive font size shifting).
-Re-measure both rects on every open.
+There is a second thing to measure: the trigger, not only the popup. Storing the trigger
+size at mount time goes stale the moment the slotted content changes, whether a label
+appears, an icon swaps, or a responsive font size shifts. Re-measure both rects on every
+open.
 
 ## How to apply
 
-Three steps: declare `max-content` sizing on the wrapper that will be measured, call
-`getBoundingClientRect()` on both the trigger and the popup after open, and feed those
+Declare `max-content` sizing on the wrapper you will measure, call
+`getBoundingClientRect()` on both the trigger and the popup after open, then feed those
 rects into a pure function that handles edge-snapping.
 
 ```ts
@@ -238,6 +239,6 @@ openMenu(): void {
 
 ## See also
 
-The geometry tests above depend on `computeGeometry` being a pure free function
-isolated from the element class. That organisation is described in
+The geometry tests above only work because `computeGeometry` is a pure free function
+kept out of the element class. That organisation is described in
 [A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
