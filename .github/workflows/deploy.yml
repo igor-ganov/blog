@@ -30,6 +30,7 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run lint
+      - run: bun run lint:prose
       - run: bun run test
       - run: bunx playwright install --with-deps chromium
       - run: bun run test:e2e

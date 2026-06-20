@@ -36,10 +36,22 @@ A practice changes by adding a **newer, dated source**, not by silently editing 
 4. Verify locally:
 
    ```bash
-   bun run build      # validates frontmatter against the schema
-   bun run test       # pure-function unit tests
-   bun run test:e2e   # site still renders and the islands work
-   bun run lint       # Biome
+   bun run build       # validates frontmatter against the schema
+   bun run test        # pure-function unit tests
+   bun run test:e2e    # site still renders and the islands work
+   bun run lint        # Biome
+   bun run lint:prose  # LLM-smell linter — no machine-generated tells in articles
+   ```
+
+   The prose linter (`scripts/llm-smell.ts`) scans every Markdown file under
+   `src/content` for the lexical and rhetorical tells of machine-generated text —
+   filler verbs ("delve", "leverage the"), throat-clearing ("it's worth noting"),
+   marketing ("unlock the potential", "game-changer"), the "not just X, it's Y"
+   cadence, chat-assistant register, and emoji. Code fences and frontmatter are
+   skipped. A genuine, unavoidable use can be exempted on a single line:
+
+   ```md
+   <!-- llm-smell-disable-line plethora -->
    ```
 
 ## House rules this repo follows
@@ -47,4 +59,4 @@ A practice changes by adding a **newer, dated source**, not by silently editing 
 The code here is held to the same standards it documents — so contributions should be too:
 strict TypeScript (no `any`/`as`/`null`), small pure functions with unit tests, no `if`/
 ternary in `src/lib`, event-driven tests with no timeouts or retries, and a clean Biome
-pass. The CI bar is `bun run lint && bun run build && bun run test && bun run test:e2e`.
+pass. The CI bar is `bun run lint && bun run lint:prose && bun run build && bun run test && bun run test:e2e`.

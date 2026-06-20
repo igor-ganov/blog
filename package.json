@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "lint": "biome ci .",
+    "lint:prose": "bun run scripts/llm-smell.ts",
     "format": "biome format --write .",
     "test": "vitest run",
     "test:e2e": "playwright test --reporter=list",

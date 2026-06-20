@@ -50,6 +50,11 @@ updated: 2026-03-25 # optional
 - Code blocks are TypeScript unless the topic is otherwise; show the bad case and the
   good case side by side where it clarifies.
 - Two to five `##` sections; aim for 150–400 lines of markdown for a deep dive.
+- Write like a human, not a model. `bun run lint:prose` (the LLM-smell linter)
+  blocks machine-generated tells — filler verbs, throat-clearing, marketing words,
+  the "not just X, it's Y" cadence, and emoji. Read its catalogue in
+  `scripts/llm-smell.ts` before drafting; the global **`llm-smells`** skill carries
+  the same list with rewrites.
 
 ## Global slug index (for `related` and in-prose `/kb/<category>/<slug>` links)
 
