@@ -16,6 +16,11 @@ export default defineConfig({
   base,
   output: 'static',
   trailingSlash: 'never',
+  // The site is fully prefixed by locale (/en, /it, /ru); the bare root redirects
+  // to the default language. `base` is applied automatically to both sides.
+  redirects: {
+    '/': '/en',
+  },
   build: {
     // Content-hashed asset filenames — immutable caching done right (see KB).
     assets: 'assets',

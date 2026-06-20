@@ -1,17 +1,21 @@
 ---
 import type { Severity } from '@/lib/articles/article-types';
 import { severityMeta } from '@/lib/severity/severity-meta';
+import { type Locale, defaultLocale } from '@/lib/i18n/locales';
+import { t } from '@/lib/i18n/ui';
 
 interface Props {
   readonly severity: Severity;
+  readonly locale?: Locale;
 }
 
-const { severity } = Astro.props;
+const { severity, locale = defaultLocale } = Astro.props;
 const meta = severityMeta(severity);
+const label = t(locale).severity[severity];
 ---
 
 <span class="badge" style={`--c: var(${meta.cssVar})`} data-severity={severity}>
-  {meta.label}
+  {label}
 </span>
 
 <style>

@@ -1,17 +1,21 @@
 ---
+import type { Locale } from '@/lib/i18n/locales';
+import { t } from '@/lib/i18n/ui';
+
+interface Props {
+  readonly locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = t(locale);
 const year = 2026;
+const meta = ui.footer.meta.replace('{year}', String(year)).replace('{name}', 'Igor Ganov');
 ---
 
 <footer class="site-footer">
   <div class="wrap">
-    <p class="lede">
-      A living knowledge base — engineering practices distilled from real project
-      decisions. Newer decisions override older ones; every claim carries its provenance.
-    </p>
-    <p class="meta">
-      Built with Astro&nbsp;5, Lit, strict TypeScript and Biome — the same stack and
-      rules it documents. © {year} Igor Ganov.
-    </p>
+    <p class="lede">{ui.footer.lede}</p>
+    <p class="meta">{meta}</p>
   </div>
 </footer>
 

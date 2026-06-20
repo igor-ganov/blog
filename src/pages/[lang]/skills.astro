@@ -1,13 +1,22 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import { categoryBySlug } from '@/lib/categories/categories';
-import { withBase } from '@/lib/url/with-base';
+import { localizeCategory } from '@/lib/categories/localize-category';
+import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 import { proposedSkills } from '@/lib/skills/proposed-skills';
 import { skillStatusMeta } from '@/lib/skills/skill-status-meta';
 
-const articles = await loadArticles();
+export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
+
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const ui = t(locale);
+const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const countFor = (skill: (typeof proposedSkills)[number]): number =>
   skill.categories.reduce((sum, slug) => sum + (grouped.get(slug) ?? []).length, 0);
@@ -15,7 +24,7 @@ const description =
   'A proposed skill system derived from the knowledge base — which skills exist, which to refine, and which to add.';
 ---
 
-<BaseLayout title="Skills" description={description}>
+<BaseLayout title={ui.nav.skills} description={description} locale={locale}>
   <header class="page-head">
     <h1>From practices to a skill system</h1>
     <p class="lede">
@@ -49,7 +58,11 @@ const description =
                 return (
                   <>
                     {i > 0 ? ', ' : ''}
-                    {category && <a href={withBase(`/c/${category.slug}`)}>{category.title}</a>}
+                    {category && (
+                      <a href={withLocale(locale, `/c/${category.slug}`)}>
+                        {localizeCategory(category, locale).title}
+                      </a>
+                    )}
                   </>
                 );
               })}{' '}

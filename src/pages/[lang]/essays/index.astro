@@ -1,17 +1,29 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import EssayCard from '@/components/EssayCard.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { sortEssays } from '@/lib/essays/sort-essays';
+import { type Locale, defaultLocale, isLocale, locales, splitLocaleId } from '@/lib/i18n/locales';
+import { t } from '@/lib/i18n/ui';
 
-const posts = sortEssays(await getCollection('blog', (entry) => entry.data.draft === false));
+export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
+
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const ui = t(locale);
+const posts = sortEssays(
+  (await getCollection('blog', (entry) => entry.data.draft === false)).filter(
+    (entry) => splitLocaleId(entry.id).locale === locale,
+  ),
+);
 const description =
   'Essays that aggregate and explain the principles — why this site exists, and how the rules fit together.';
 ---
 
-<BaseLayout title="Blog" description={description}>
+<BaseLayout title={ui.nav.blog} description={description} locale={locale}>
   <header class="page-head">
-    <h1>Blog</h1>
+    <h1>{ui.nav.blog}</h1>
     <p class="lede">
       The Principles section is the reference; these essays are the throughline — why this
       knowledge base exists, and how the individual rules add up to a way of building.

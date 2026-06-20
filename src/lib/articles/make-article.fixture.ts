@@ -3,6 +3,7 @@ import type { Article } from '@/lib/articles/article-types';
 // Test-only factory: a complete Article with overridable fields.
 export const makeArticle = (overrides: Partial<Article> = {}): Article => ({
   id: 'typescript/sample',
+  locale: 'en',
   slug: 'sample',
   category: 'typescript',
   title: 'Sample',

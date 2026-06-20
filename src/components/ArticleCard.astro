@@ -4,6 +4,7 @@ import type { Article } from '@/lib/articles/article-types';
 import { articleHaystack } from '@/lib/articles/article-haystack';
 import { articleHref } from '@/lib/articles/article-href';
 import { categoryBySlug } from '@/lib/categories/categories';
+import { localizeCategory } from '@/lib/categories/localize-category';
 import { KB_FILTER } from '@/components/islands/kb-filter.locators';
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 const { article, showCategory = false } = Astro.props;
 const category = categoryBySlug(article.category);
+const categoryTitle = category ? localizeCategory(category, article.locale).title : '';
 const attrs = {
   [KB_FILTER.item]: '',
   [KB_FILTER.haystack]: articleHaystack(article),
@@ -24,7 +26,7 @@ const attrs = {
   <a class="hit" href={articleHref(article)} aria-label={article.title}></a>
   <div class="top">
     <SeverityBadge severity={article.severity} />
-    {showCategory && category && <span class="cat">{category.title}</span>}
+    {showCategory && category && <span class="cat">{categoryTitle}</span>}
   </div>
   <h3 class="title">{article.title}</h3>
   <p class="summary">{article.summary}</p>

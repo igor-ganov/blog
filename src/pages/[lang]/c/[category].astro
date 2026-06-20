@@ -7,15 +7,22 @@ import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import type { Category } from '@/lib/categories/categories';
 import { categories } from '@/lib/categories/categories';
-import { withBase } from '@/lib/url/with-base';
+import { localizeCategory } from '@/lib/categories/localize-category';
+import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const articles = await loadArticles();
-  const grouped = groupByCategory(articles);
-  return categories.map((category) => ({
-    params: { category: category.slug },
-    props: { category, items: grouped.get(category.slug) ?? [] },
-  }));
+  const perLocale = await Promise.all(
+    locales.map(async (lang) => {
+      const grouped = groupByCategory(await loadArticles(lang));
+      return categories.map((category) => ({
+        params: { lang, category: category.slug },
+        props: { category, items: grouped.get(category.slug) ?? [] },
+      }));
+    }),
+  );
+  return perLocale.flat();
 };
 
 interface Props {
@@ -24,18 +31,23 @@ interface Props {
 }
 
 const { category, items } = Astro.props;
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const ui = t(locale);
+const text = localizeCategory(category, locale);
 ---
 
-<BaseLayout title={category.title} description={category.description}>
+<BaseLayout title={text.title} description={text.description} locale={locale}>
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href={withBase('/kb')}>Principles</a> <span aria-hidden="true">/</span>
-    <span>{category.title}</span>
+    <a href={withLocale(locale, '/kb')}>{ui.breadcrumb.principles}</a>
+    <span aria-hidden="true">/</span>
+    <span>{text.title}</span>
   </nav>
   <header class="page-head">
     <p class="num">{String(category.order).padStart(2, '0')}</p>
-    <h1>{category.title}</h1>
-    <p class="tagline">{category.tagline}</p>
-    <p class="lede">{category.description}</p>
+    <h1>{text.title}</h1>
+    <p class="tagline">{text.tagline}</p>
+    <p class="lede">{text.description}</p>
   </header>
 
   {

@@ -1,16 +1,24 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { loadArticles } from '@/lib/articles/load-articles';
+import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 import { categories } from '@/lib/categories/categories';
-import { withBase } from '@/lib/url/with-base';
 
-const articles = await loadArticles();
+export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
+
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const ui = t(locale);
+const articles = await loadArticles(locale);
 const projects = new Set(articles.flatMap((a) => a.sources.map((s) => s.project)));
 const description =
   'Why this knowledge base exists, how it was built from real project decisions, and how to read — or challenge — it.';
 ---
 
-<BaseLayout title="About" description={description}>
+<BaseLayout title={ui.nav.about} description={description} locale={locale}>
   <article class="prose page">
     <h1>About this knowledge base</h1>
     <p class="lede">
@@ -35,7 +43,7 @@ const description =
       </li>
       <li>
         <strong>To sharpen the skill system.</strong> These articles are the raw material
-        for a more precise set of reusable skills. See <a href={withBase('/skills')}>Skills</a> for the
+        for a more precise set of reusable skills. See <a href={withLocale(locale, '/skills')}>Skills</a> for the
         proposed shape.
       </li>
       <li>
@@ -60,7 +68,7 @@ const description =
       more recent one wins, and the article says so explicitly with both dates. For
       example, one project removed Effect-TS during a move to a pure SPA on 2026-03-15,
       then re-adopted it nine days later in a Grand Refactoring on 2026-03-24 — so the
-      standing practice is <a href={withBase('/kb/functional-architecture/errors-as-values-with-effect')}
+      standing practice is <a href={withLocale(locale, '/kb/functional-architecture/errors-as-values-with-effect')}
         >errors as values with Effect</a
       >, and the earlier note is recorded as superseded rather than deleted.
     </p>
@@ -76,7 +84,7 @@ const description =
 
     <h2>How to read it — and challenge it</h2>
     <p>
-      Start with the <a href={withBase('/')}>non-negotiables</a> on the home page, then browse by
+      Start with the <a href={withLocale(locale, '/')}>non-negotiables</a> on the home page, then browse by
       topic. If an article contradicts your experience, the provenance is there so you can
       weigh the evidence: a practice backed by a two-day production outage is held more
       firmly than one backed by a single preference. Disagreement that comes with a better

@@ -1,12 +1,20 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import ArticleCard from '@/components/ArticleCard.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
+import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locales';
+import { t } from '@/lib/i18n/ui';
 import { topTags } from '@/lib/tags/top-tags';
 import { categories } from '@/lib/categories/categories';
 
-const articles = await loadArticles();
+export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
+
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const ui = t(locale);
+const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const ordered = categories.flatMap((category) => grouped.get(category.slug) ?? []);
 const chipTags = topTags(articles, 14)
@@ -15,16 +23,22 @@ const chipTags = topTags(articles, 14)
 const description = 'Browse and filter every engineering principle in the knowledge base.';
 ---
 
-<BaseLayout title="Principles" description={description}>
+<BaseLayout title={ui.nav.principles} description={description} locale={locale}>
   <header class="page-head">
-    <h1>Principles</h1>
+    <h1>{ui.nav.principles}</h1>
     <p class="lede">
       {articles.length} practices across {categories.length} categories. Filter by any
       word — title, summary, principle or tag — or tap a tag for a quick filter.
     </p>
   </header>
 
-  <kb-filter tags={chipTags}>
+  <kb-filter
+    tags={chipTags}
+    placeholder={ui.filter.placeholder}
+    label={ui.filter.label}
+    emptyText={ui.filter.empty}
+    byTagLabel={ui.filter.byTag}
+  >
     <div class="grid">
       {ordered.map((article) => <ArticleCard article={article} showCategory />)}
     </div>

@@ -1,5 +1,5 @@
 import { html, LitElement } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { coerceTheme } from '@/lib/theme/coerce-theme';
 import { nextTheme } from '@/lib/theme/next-theme';
 import { themePresentation } from '@/lib/theme/theme-presentation';
@@ -10,6 +10,9 @@ import { themeToggleStyles } from './theme-toggle.styles';
 @customElement(THEME_TOGGLE.tag)
 export class ThemeToggle extends LitElement {
   static override styles = themeToggleStyles;
+
+  // Optional localized accessible label; falls back to the per-theme English text.
+  @property({ type: String }) label = '';
 
   @state() private theme: Theme = 'light';
 
@@ -27,12 +30,13 @@ export class ThemeToggle extends LitElement {
 
   protected override render(): unknown {
     const view = themePresentation(this.theme);
+    const label = this.label || view.label;
     return html`<button
       type="button"
       part="button"
       data-testid=${THEME_TOGGLE.button}
-      aria-label=${view.label}
-      title=${view.label}
+      aria-label=${label}
+      title=${label}
       @click=${this.apply}
     >
       <span aria-hidden="true">${view.glyph}</span>

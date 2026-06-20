@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { TOC_DRAWER } from '../src/components/islands/toc-drawer.locators';
-import { BASE } from './base';
+import { APP } from './base';
 
-const ARTICLE = `${BASE}/kb/error-handling/never-swallow-errors`;
+const ARTICLE = `${APP}/kb/error-handling/never-swallow-errors`;
 
 test.describe('toc-drawer', () => {
   test('renders the contents inline on desktop, with no floating button', async ({ page }) => {

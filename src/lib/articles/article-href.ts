@@ -1,5 +1,7 @@
 import type { Article } from '@/lib/articles/article-types';
-import { withBase } from '@/lib/url/with-base';
+import { withLocale } from '@/lib/i18n/locale-url';
 
-// The id already encodes "<category>/<slug>", so it is the canonical route.
-export const articleHref = (article: Pick<Article, 'id'>): string => withBase(`/kb/${article.id}`);
+// The article carries its own locale and locale-independent id ("<category>/<slug>"),
+// so the route is "/<locale>/kb/<category>/<slug>".
+export const articleHref = (article: Pick<Article, 'id' | 'locale'>): string =>
+  withLocale(article.locale, `/kb/${article.id}`);

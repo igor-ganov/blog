@@ -1,19 +1,35 @@
 ---
+import { type Locale, locales, localeLabels } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 import { withBase } from '@/lib/url/with-base';
 
+interface Props {
+  readonly locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = t(locale);
 const nav = [
-  { href: withBase('/essays'), label: 'Blog' },
-  { href: withBase('/kb'), label: 'Principles' },
-  { href: withBase('/skills'), label: 'Skills' },
-  { href: withBase('/about'), label: 'About' },
+  { href: withLocale(locale, '/essays'), label: ui.nav.blog },
+  { href: withLocale(locale, '/kb'), label: ui.nav.principles },
+  { href: withLocale(locale, '/skills'), label: ui.nav.skills },
+  { href: withLocale(locale, '/about'), label: ui.nav.about },
 ];
 const path = Astro.url.pathname.replace(/\/$/, '');
 const isActive = (href: string): boolean => path === href || path.startsWith(`${href}/`);
+
+// The path within the current locale (everything after /<base>/<locale>), so the
+// language switcher can point at the same page in another language.
+const base = withBase('/').replace(/\/$/, '');
+const afterBase = path.startsWith(base) ? path.slice(base.length) : path;
+const restParts = afterBase.split('/').filter(Boolean).slice(1);
+const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
 ---
 
 <header class="site-header">
   <div class="wrap bar">
-    <a class="brand" href={withBase('/')}>
+    <a class="brand" href={withLocale(locale, '/')}>
       <svg class="mark" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
         <rect width="32" height="32" rx="6" fill="var(--bg-sunken)" />
         <rect x="7" y="8" width="3" height="16" rx="1.5" fill="var(--accent)" />
@@ -21,7 +37,7 @@ const isActive = (href: string): boolean => path === href || path.startsWith(`${
         <rect x="13" y="15" width="12" height="3" rx="1.5" fill="var(--text-muted)" />
         <rect x="13" y="21" width="8" height="3" rx="1.5" fill="var(--text-muted)" />
       </svg>
-      <span class="word">Engineering Practices</span>
+      <span class="word">{ui.brand}</span>
     </a>
     <nav aria-label="Primary">
       <ul>
@@ -36,7 +52,25 @@ const isActive = (href: string): boolean => path === href || path.startsWith(`${
         }
       </ul>
     </nav>
-    <theme-toggle></theme-toggle>
+    <nav class="langs" aria-label={ui.language}>
+      <ul>
+        {
+          locales.map((loc) => (
+            <li>
+              <a
+                href={withLocale(loc, restPath)}
+                lang={loc}
+                hreflang={loc}
+                aria-current={loc === locale ? 'true' : undefined}
+              >
+                {localeLabels[loc]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <theme-toggle label={ui.theme.toggle}></theme-toggle>
   </div>
 </header>
 
@@ -76,7 +110,7 @@ const isActive = (href: string): boolean => path === href || path.startsWith(`${
     font-family: var(--font-serif);
     letter-spacing: 0.01em;
   }
-  nav {
+  nav[aria-label='Primary'] {
     margin-inline-start: auto;
   }
   ul {
@@ -99,12 +133,23 @@ const isActive = (href: string): boolean => path === href || path.startsWith(`${
     color: var(--text);
     border-bottom-color: var(--accent);
   }
-  @media (max-width: 32rem) {
+  .langs ul {
+    gap: var(--space-3);
+    font-size: var(--step--1);
+  }
+  .langs a[aria-current='true'] {
+    color: var(--text);
+    font-weight: 600;
+  }
+  @media (max-width: 48rem) {
     .word {
       display: none;
     }
     .bar {
       gap: var(--space-4);
+    }
+    .langs ul {
+      gap: var(--space-2);
     }
   }
 </style>

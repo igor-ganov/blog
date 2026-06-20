@@ -1,20 +1,24 @@
 ---
 import SiteFooter from '@/components/SiteFooter.astro';
 import SiteHeader from '@/components/SiteHeader.astro';
+import type { Locale } from '@/lib/i18n/locales';
+import { t } from '@/lib/i18n/ui';
 import { withBase } from '@/lib/url/with-base';
 import '@/styles/global.css';
 
 interface Props {
   readonly title: string;
   readonly description: string;
+  readonly locale: Locale;
 }
 
-const { title, description } = Astro.props;
-const fullTitle = `${title} · Engineering Practices`;
+const { title, description, locale } = Astro.props;
+const ui = t(locale);
+const fullTitle = `${title} · ${ui.titleSuffix}`;
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang={locale} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -39,11 +43,11 @@ const fullTitle = `${title} · Engineering Practices`;
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <SiteHeader />
+    <a class="skip-link" href="#main">{ui.skipToContent}</a>
+    <SiteHeader locale={locale} />
     <main id="main" class="wrap">
       <slot />
     </main>
-    <SiteFooter />
+    <SiteFooter locale={locale} />
   </body>
 </html>

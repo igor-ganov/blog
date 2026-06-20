@@ -3,11 +3,16 @@ import type { GetStaticPaths } from 'astro';
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatDate } from '@/lib/format/format-date';
-import { withBase } from '@/lib/url/with-base';
+import { splitLocaleId } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getCollection('blog', (entry) => entry.data.draft === false);
-  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+  return entries.map((entry) => {
+    const { locale, rest } = splitLocaleId(entry.id);
+    return { params: { lang: locale, id: rest }, props: { entry } };
+  });
 };
 
 interface Props {
@@ -15,12 +20,14 @@ interface Props {
 }
 
 const { entry } = Astro.props;
+const { locale } = splitLocaleId(entry.id);
+const ui = t(locale);
 const { Content } = await render(entry);
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.description}>
+<BaseLayout title={entry.data.title} description={entry.data.description} locale={locale}>
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href={withBase('/essays')}>Blog</a>
+    <a href={withLocale(locale, '/essays')}>{ui.breadcrumb.blog}</a>
   </nav>
 
   <article class="post">

@@ -1,4 +1,5 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import ArticleCard from '@/components/ArticleCard.astro';
 import CategoryCard from '@/components/CategoryCard.astro';
@@ -7,21 +8,27 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import { sortEssays } from '@/lib/essays/sort-essays';
-import { withBase } from '@/lib/url/with-base';
+import { type Locale, defaultLocale, isLocale, locales, splitLocaleId } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
 import { categories } from '@/lib/categories/categories';
 
-const articles = await loadArticles();
+export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
+
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const nonNegotiables = articles.filter((article) => article.severity === 'non-negotiable');
-const latestPosts = sortEssays(await getCollection('blog', (entry) => entry.data.draft === false)).slice(
-  0,
-  5,
-);
+const latestPosts = sortEssays(
+  (await getCollection('blog', (entry) => entry.data.draft === false)).filter(
+    (entry) => splitLocaleId(entry.id).locale === locale,
+  ),
+).slice(0, 5);
 const description =
   'A living knowledge base of engineering best practices and preferences, distilled from real project decisions and rendered with the very stack it documents.';
 ---
 
-<BaseLayout title="Home" description={description}>
+<BaseLayout title="Home" description={description} locale={locale}>
   <section class="hero">
     <p class="kicker">A living knowledge base</p>
     <h1>How I build software — written down, with the receipts.</h1>
@@ -43,7 +50,7 @@ const description =
       <section class="block">
         <div class="block-head">
           <h2>From the blog</h2>
-          <a class="more" href={withBase('/essays')}>
+          <a class="more" href={withLocale(locale, '/essays')}>
             All essays <span aria-hidden="true">→</span>
           </a>
         </div>
@@ -77,7 +84,11 @@ const description =
     <div class="grid cats">
       {
         categories.map((category) => (
-          <CategoryCard category={category} count={(grouped.get(category.slug) ?? []).length} />
+          <CategoryCard
+            category={category}
+            count={(grouped.get(category.slug) ?? []).length}
+            locale={locale}
+          />
         ))
       }
     </div>

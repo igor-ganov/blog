@@ -20,6 +20,10 @@ export class TocDrawer extends LitElement {
   // JSON array of { id, text } passed from the page (Lit parses the attribute).
   @property({ type: Array }) headings: readonly Heading[] = [];
 
+  // Localized labels with English defaults.
+  @property({ type: String }) heading = 'On this page';
+  @property({ type: String }) closeLabel = 'Close contents';
+
   @state() private open = false;
   @state() private isMobile = false;
 
@@ -114,7 +118,7 @@ export class TocDrawer extends LitElement {
             <path d="M2 4h12M2 8h12M2 12h8" />
           </svg>
         </span>
-        On this page
+        ${this.heading}
       </button>
 
       <div
@@ -129,24 +133,24 @@ export class TocDrawer extends LitElement {
         class="panel"
         part="panel"
         data-testid=${TOC_DRAWER.panel}
-        aria-label="On this page"
+        aria-label=${this.heading}
         role=${dialog ? 'dialog' : nothing}
         aria-modal=${dialog && this.open ? 'true' : nothing}
         ?data-open=${this.open}
       >
         <div class="panel-head">
-          <span class="label">On this page</span>
+          <span class="label">${this.heading}</span>
           <button
             class="close"
             type="button"
             data-testid=${TOC_DRAWER.close}
-            aria-label="Close contents"
+            aria-label=${this.closeLabel}
             @click=${this.close}
           >
             ✕
           </button>
         </div>
-        <h2 class="label-desktop">On this page</h2>
+        <h2 class="label-desktop">${this.heading}</h2>
         <ul class="toc-list">
           ${this.headings.map(
             (heading) => html`<li>

@@ -1,4 +1,5 @@
 import type { CategorySlug } from '@/lib/categories/categories';
+import type { Locale } from '@/lib/i18n/locales';
 
 export type Severity = 'non-negotiable' | 'strong' | 'preferred' | 'context';
 
@@ -12,6 +13,7 @@ export interface ArticleSource {
 // at the page boundary so the pure functions below stay testable without Astro.
 export interface Article {
   readonly id: string;
+  readonly locale: Locale;
   readonly slug: string;
   readonly category: CategorySlug;
   readonly title: string;

@@ -16,6 +16,13 @@ export class KbFilter extends LitElement {
   // Comma-separated tag names for the quick-filter chips, ordered by the page.
   @property({ type: String }) tags = '';
 
+  // Localized labels, passed by the page; English defaults keep the island usable
+  // on its own.
+  @property({ type: String }) placeholder = 'Filter practices…';
+  @property({ type: String }) label = 'Filter practices';
+  @property({ type: String }) emptyText = 'No practices match your filter.';
+  @property({ type: String }) byTagLabel = 'Filter by tag';
+
   @state() private query = '';
   @state() private active: readonly string[] = [];
   @state() private visible = 1;
@@ -60,7 +67,7 @@ export class KbFilter extends LitElement {
     const chips = this.chips();
     return chips.length === 0
       ? nothing
-      : html`<div class="chips" role="group" aria-label="Filter by tag">
+      : html`<div class="chips" role="group" aria-label=${this.byTagLabel}>
           ${chips.map((tag) => {
             const pressed = this.active.includes(tag);
             // Attribute name is the literal KB_FILTER.chipTag ('data-tag').
@@ -84,8 +91,8 @@ export class KbFilter extends LitElement {
         <input
           type="search"
           inputmode="search"
-          placeholder="Filter practices…"
-          aria-label="Filter practices"
+          placeholder=${this.placeholder}
+          aria-label=${this.label}
           data-testid=${KB_FILTER.input}
           @input=${this.onInput}
         />
@@ -96,7 +103,7 @@ export class KbFilter extends LitElement {
       ${this.renderChips()}
       <slot></slot>
       <p class="empty" data-testid=${KB_FILTER.empty} ?hidden=${this.visible !== 0}>
-        No practices match your filter.
+        ${this.emptyText}
       </p>
     `;
   }

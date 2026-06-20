@@ -1,7 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { formatDate } from '@/lib/format/format-date';
-import { withBase } from '@/lib/url/with-base';
+import { splitLocaleId } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
 
 interface Props {
   readonly post: CollectionEntry<'blog'>;
@@ -10,10 +11,12 @@ interface Props {
 
 const { post, headingLevel = 2 } = Astro.props;
 const Heading = `h${headingLevel}` as const;
+const { locale, rest } = splitLocaleId(post.id);
+const href = withLocale(locale, `/essays/${rest}`);
 ---
 
 <li class="essay">
-  <a class="hit" href={withBase(`/essays/${post.id}`)} aria-label={post.data.title}></a>
+  <a class="hit" href={href} aria-label={post.data.title}></a>
   <time class="date" datetime={post.data.date}>{formatDate(post.data.date)}</time>
   <Heading class="title">{post.data.title}</Heading>
   <p class="summary">{post.data.description}</p>

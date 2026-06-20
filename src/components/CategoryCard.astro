@@ -1,23 +1,29 @@
 ---
 import type { Category } from '@/lib/categories/categories';
-import { withBase } from '@/lib/url/with-base';
+import { localizeCategory } from '@/lib/categories/localize-category';
+import type { Locale } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 
 interface Props {
   readonly category: Category;
   readonly count: number;
+  readonly locale: Locale;
 }
 
-const { category, count } = Astro.props;
-const label = count === 1 ? '1 practice' : `${count} practices`;
+const { category, count, locale } = Astro.props;
+const ui = t(locale);
+const text = localizeCategory(category, locale);
+const label = count === 1 ? ui.card.onePractice : ui.card.manyPractices.replace('{count}', String(count));
 ---
 
-<a class="cat-card" href={withBase(`/c/${category.slug}`)}>
+<a class="cat-card" href={withLocale(locale, `/c/${category.slug}`)}>
   <div class="head">
     <span class="num">{String(category.order).padStart(2, '0')}</span>
     <span class="count">{label}</span>
   </div>
-  <h3 class="title">{category.title}</h3>
-  <p class="tagline">{category.tagline}</p>
+  <h3 class="title">{text.title}</h3>
+  <p class="tagline">{text.tagline}</p>
 </a>
 
 <style>

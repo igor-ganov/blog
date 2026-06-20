@@ -1,14 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { withBase } from '@/lib/url/with-base';
+import { defaultLocale } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
 ---
 
-<BaseLayout title="Not found" description="That page does not exist.">
+<BaseLayout title="Not found" description="That page does not exist." locale={defaultLocale}>
   <section class="nf">
     <p class="code">404</p>
     <h1>That practice isn’t here.</h1>
     <p class="lede">The page you asked for doesn’t exist — try browsing instead.</p>
-    <a class="cta" href={withBase('/kb')}>Explore the principles</a>
+    <a class="cta" href={withLocale(defaultLocale, '/kb')}>Explore the principles</a>
   </section>
 
   <style>

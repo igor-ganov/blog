@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { THEME_TOGGLE } from '../src/components/islands/theme-toggle.locators';
-import { BASE } from './base';
+import { APP } from './base';
 
 test.describe('theme-toggle island', () => {
   test('flips the theme and persists it across a reload', async ({ page }) => {
-    await page.goto(`${BASE}/`);
+    await page.goto(APP);
 
     const html = page.locator('html');
     const initial = (await html.getAttribute('data-theme')) ?? 'light';

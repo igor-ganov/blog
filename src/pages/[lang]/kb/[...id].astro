@@ -9,12 +9,18 @@ import { articleHref } from '@/lib/articles/article-href';
 import { groupByCategory } from '@/lib/articles/group-by-category';
 import { loadArticles } from '@/lib/articles/load-articles';
 import { toArticle } from '@/lib/articles/to-article';
-import { withBase } from '@/lib/url/with-base';
+import { splitLocaleId } from '@/lib/i18n/locales';
+import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 import { categoryBySlug } from '@/lib/categories/categories';
+import { localizeCategory } from '@/lib/categories/localize-category';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getCollection('kb', (entry) => entry.data.draft === false);
-  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+  return entries.map((entry) => {
+    const { locale, rest } = splitLocaleId(entry.id);
+    return { params: { lang: locale, id: rest }, props: { entry } };
+  });
 };
 
 interface Props {
@@ -23,10 +29,13 @@ interface Props {
 
 const { entry } = Astro.props;
 const article = toArticle(entry);
+const { locale } = article;
+const ui = t(locale);
 const category = categoryBySlug(article.category);
+const categoryTitle = category ? localizeCategory(category, locale).title : '';
 const { Content, headings } = await render(entry);
 
-const all = await loadArticles();
+const all = await loadArticles(locale);
 const byId = new Map(all.map((item) => [item.id, item]));
 const relatedLinks = article.related
   .map((id) => byId.get(id))
@@ -40,7 +49,7 @@ const next = siblings[index + 1];
 const toc = headings.filter((heading) => heading.depth === 2);
 ---
 
-<BaseLayout title={article.title} description={article.summary}>
+<BaseLayout title={article.title} description={article.summary} locale={locale}>
   <reading-progress></reading-progress>
   <script>
     import '@/components/islands/reading-progress';
@@ -48,19 +57,19 @@ const toc = headings.filter((heading) => heading.depth === 2);
   </script>
 
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href={withBase('/kb')}>Principles</a> <span aria-hidden="true">/</span>
-    {category && <a href={withBase(`/c/${category.slug}`)}>{category.title}</a>}
+    <a href={withLocale(locale, '/kb')}>{ui.breadcrumb.principles}</a> <span aria-hidden="true">/</span>
+    {category && <a href={withLocale(locale, `/c/${category.slug}`)}>{categoryTitle}</a>}
   </nav>
 
   <div class="layout">
     <article class="article">
       <header class="head">
         <div class="badges">
-          <SeverityBadge severity={article.severity} />
+          <SeverityBadge severity={article.severity} locale={locale} />
         </div>
         <h1>{article.title}</h1>
         <p class="summary">{article.summary}</p>
-        <p class="principle"><strong>Principle.</strong> {article.principle}</p>
+        <p class="principle"><strong>{ui.article.principleLabel}</strong> {article.principle}</p>
       </header>
 
       <div class="prose">
@@ -71,7 +80,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
         {
           prev && (
             <a class="prev" href={articleHref(prev)}>
-              <span class="dir">← Previous</span>
+              <span class="dir">{ui.pager.previous}</span>
               <span class="t">{prev.title}</span>
             </a>
           )
@@ -79,7 +88,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
         {
           next && (
             <a class="next" href={articleHref(next)}>
-              <span class="dir">Next →</span>
+              <span class="dir">{ui.pager.next}</span>
               <span class="t">{next.title}</span>
             </a>
           )
@@ -91,11 +100,18 @@ const toc = headings.filter((heading) => heading.depth === 2);
       {
         toc.length > 1 && (
           <toc-drawer
+            heading={ui.toc.onThisPage}
+            closeLabel={ui.toc.close}
             headings={JSON.stringify(toc.map((heading) => ({ id: heading.slug, text: heading.text })))}
           />
         )
       }
-      <ArticleAside sources={article.sources} related={relatedLinks} tags={article.tags} />
+      <ArticleAside
+        sources={article.sources}
+        related={relatedLinks}
+        tags={article.tags}
+        locale={locale}
+      />
     </div>
   </div>
 

@@ -18,9 +18,10 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: `bun run build && bunx astro preview --port ${PORT}`,
-    // The site is served under the /blog base — poll there for readiness.
-    url: `http://localhost:${PORT}/blog`,
+    // The site is served under the /blog base and is locale-prefixed; poll the
+    // default-locale home (a real 200) for readiness.
+    url: `http://localhost:${PORT}/blog/en`,
     reuseExistingServer: !inCI,
-    timeout: 120_000,
+    timeout: 240_000,
   },
 });
