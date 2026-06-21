@@ -91,8 +91,69 @@ const en: UIStrings = {
   card: { onePractice: '1 practice', manyPractices: '{count} practices' },
 };
 
-// Full per-locale overrides land here during translation. Until then a locale
-// falls back to English, so routing works for every language immediately.
-const overrides: Readonly<Partial<Record<Locale, UIStrings>>> = {};
+const it: UIStrings = {
+  skipToContent: 'Vai al contenuto',
+  brand: 'Pratiche di ingegneria',
+  titleSuffix: 'Pratiche di ingegneria',
+  language: 'Lingua',
+  nav: { blog: 'Blog', principles: 'Principi', skills: 'Competenze', about: 'Informazioni' },
+  footer: {
+    lede: 'Una base di conoscenza viva: pratiche di ingegneria distillate da decisioni reali di progetto. Le decisioni più recenti prevalgono sulle precedenti e ogni affermazione porta la sua provenienza.',
+    meta: 'Costruito con Astro 5, Lit, TypeScript rigoroso e Biome: lo stesso stack e le stesse regole che documenta. © {year} Igor Ganov.',
+  },
+  breadcrumb: { principles: 'Principi', blog: 'Blog' },
+  pager: { previous: '← Precedente', next: 'Successivo →' },
+  aside: { provenance: 'Provenienza', tags: 'Tag', related: 'Correlati' },
+  article: { principleLabel: 'Principio.' },
+  severity: {
+    'non-negotiable': 'Non negoziabile',
+    strong: 'Forte',
+    preferred: 'Preferito',
+    context: 'Contestuale',
+  },
+  filter: {
+    placeholder: 'Filtra le pratiche…',
+    label: 'Filtra le pratiche',
+    empty: 'Nessuna pratica corrisponde al filtro.',
+    byTag: 'Filtra per tag',
+  },
+  toc: { onThisPage: 'In questa pagina', close: 'Chiudi i contenuti' },
+  theme: { toggle: 'Cambia tema' },
+  card: { onePractice: '1 pratica', manyPractices: '{count} pratiche' },
+};
+
+const ru: UIStrings = {
+  skipToContent: 'Перейти к содержимому',
+  brand: 'Инженерные практики',
+  titleSuffix: 'Инженерные практики',
+  language: 'Язык',
+  nav: { blog: 'Блог', principles: 'Принципы', skills: 'Навыки', about: 'О проекте' },
+  footer: {
+    lede: 'Живая база знаний: инженерные практики, выведенные из реальных проектных решений. Новые решения отменяют старые, и у каждого утверждения есть источник.',
+    meta: 'Собрано на Astro 5, Lit, строгом TypeScript и Biome — на том же стеке и тех же правилах, которые описывает. © {year} Igor Ganov.',
+  },
+  breadcrumb: { principles: 'Принципы', blog: 'Блог' },
+  pager: { previous: '← Назад', next: 'Вперёд →' },
+  aside: { provenance: 'Источник', tags: 'Теги', related: 'Связанные' },
+  article: { principleLabel: 'Принцип.' },
+  severity: {
+    'non-negotiable': 'Без компромиссов',
+    strong: 'Строго',
+    preferred: 'Предпочтительно',
+    context: 'По контексту',
+  },
+  filter: {
+    placeholder: 'Фильтр практик…',
+    label: 'Фильтровать практики',
+    empty: 'Ничего не найдено.',
+    byTag: 'Фильтр по тегу',
+  },
+  toc: { onThisPage: 'Содержание', close: 'Закрыть содержание' },
+  theme: { toggle: 'Переключить тему' },
+  card: { onePractice: '1 практика', manyPractices: 'практик: {count}' },
+};
+
+// Per-locale overrides; a missing locale falls back to English.
+const overrides: Readonly<Partial<Record<Locale, UIStrings>>> = { it, ru };
 
 export const t = (locale: Locale): UIStrings => overrides[locale] ?? overrides[defaultLocale] ?? en;
