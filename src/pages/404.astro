@@ -2,14 +2,17 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { defaultLocale } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
+
+const nf = t(defaultLocale).pages.notFound;
 ---
 
-<BaseLayout title="Not found" description="That page does not exist." locale={defaultLocale}>
+<BaseLayout title={nf.title} description={nf.description} locale={defaultLocale}>
   <section class="nf">
     <p class="code">404</p>
-    <h1>That practice isn’t here.</h1>
-    <p class="lede">The page you asked for doesn’t exist — try browsing instead.</p>
-    <a class="cta" href={withLocale(defaultLocale, '/kb')}>Explore the principles</a>
+    <h1>{nf.heading}</h1>
+    <p class="lede">{nf.lede}</p>
+    <a class="cta" href={withLocale(defaultLocale, '/kb')}>{nf.cta}</a>
   </section>
 
   <style>

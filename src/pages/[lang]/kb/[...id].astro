@@ -56,7 +56,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
     import '@/components/islands/toc-drawer';
   </script>
 
-  <nav class="crumbs" aria-label="Breadcrumb">
+  <nav class="crumbs" aria-label={ui.breadcrumb.label}>
     <a href={withLocale(locale, '/kb')}>{ui.breadcrumb.principles}</a> <span aria-hidden="true">/</span>
     {category && <a href={withLocale(locale, `/c/${category.slug}`)}>{categoryTitle}</a>}
   </nav>
@@ -76,7 +76,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
         <Content />
       </div>
 
-      <nav class="pager" aria-label="Within this category">
+      <nav class="pager" aria-label={ui.pager.withinCategory}>
         {
           prev && (
             <a class="prev" href={articleHref(prev)}>

@@ -39,7 +39,7 @@ const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
       </svg>
       <span class="word">{ui.brand}</span>
     </a>
-    <nav aria-label="Primary">
+    <nav class="primary" aria-label={ui.nav.primary}>
       <ul>
         {
           nav.map((item) => (
@@ -110,7 +110,7 @@ const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
     font-family: var(--font-serif);
     letter-spacing: 0.01em;
   }
-  nav[aria-label='Primary'] {
+  nav.primary {
     margin-inline-start: auto;
   }
   ul {

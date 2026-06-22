@@ -29,7 +29,7 @@ const ui = t(locale);
           {sources.map((source) => (
             <li>
               <span class="proj">{source.project}</span>
-              <time datetime={source.date}>{formatDate(source.date)}</time>
+              <time datetime={source.date}>{formatDate(source.date, locale)}</time>
               {source.note && <span class="note">{source.note}</span>}
             </li>
           ))}

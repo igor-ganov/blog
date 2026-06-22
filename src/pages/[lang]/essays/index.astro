@@ -17,17 +17,12 @@ const posts = sortEssays(
     (entry) => splitLocaleId(entry.id).locale === locale,
   ),
 );
-const description =
-  'Essays that aggregate and explain the principles — why this site exists, and how the rules fit together.';
 ---
 
-<BaseLayout title={ui.nav.blog} description={description} locale={locale}>
+<BaseLayout title={ui.nav.blog} description={ui.pages.essaysIndex.description} locale={locale}>
   <header class="page-head">
     <h1>{ui.nav.blog}</h1>
-    <p class="lede">
-      The Principles section is the reference; these essays are the throughline — why this
-      knowledge base exists, and how the individual rules add up to a way of building.
-    </p>
+    <p class="lede">{ui.pages.essaysIndex.lede}</p>
   </header>
 
   <ul class="posts">

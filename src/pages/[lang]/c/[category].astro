@@ -38,7 +38,7 @@ const text = localizeCategory(category, locale);
 ---
 
 <BaseLayout title={text.title} description={text.description} locale={locale}>
-  <nav class="crumbs" aria-label="Breadcrumb">
+  <nav class="crumbs" aria-label={ui.breadcrumb.label}>
     <a href={withLocale(locale, '/kb')}>{ui.breadcrumb.principles}</a>
     <span aria-hidden="true">/</span>
     <span>{text.title}</span>
@@ -58,7 +58,7 @@ const text = localizeCategory(category, locale);
         ))}
       </div>
     ) : (
-      <p class="empty">No practices published in this category yet.</p>
+      <p class="empty">{ui.pages.categoryEmpty}</p>
     )
   }
 

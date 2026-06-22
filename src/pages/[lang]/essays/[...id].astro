@@ -26,13 +26,13 @@ const { Content } = await render(entry);
 ---
 
 <BaseLayout title={entry.data.title} description={entry.data.description} locale={locale}>
-  <nav class="crumbs" aria-label="Breadcrumb">
+  <nav class="crumbs" aria-label={ui.breadcrumb.label}>
     <a href={withLocale(locale, '/essays')}>{ui.breadcrumb.blog}</a>
   </nav>
 
   <article class="post">
     <header class="head">
-      <time class="date" datetime={entry.data.date}>{formatDate(entry.data.date)}</time>
+      <time class="date" datetime={entry.data.date}>{formatDate(entry.data.date, locale)}</time>
       <h1>{entry.data.title}</h1>
       <p class="lede">{entry.data.description}</p>
     </header>

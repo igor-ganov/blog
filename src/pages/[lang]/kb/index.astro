@@ -20,15 +20,17 @@ const ordered = categories.flatMap((category) => grouped.get(category.slug) ?? [
 const chipTags = topTags(articles, 14)
   .map((entry) => entry.tag)
   .join(',');
-const description = 'Browse and filter every engineering principle in the knowledge base.';
 ---
 
-<BaseLayout title={ui.nav.principles} description={description} locale={locale}>
+<BaseLayout title={ui.nav.principles} description={ui.pages.kbIndex.description} locale={locale}>
   <header class="page-head">
     <h1>{ui.nav.principles}</h1>
     <p class="lede">
-      {articles.length} practices across {categories.length} categories. Filter by any
-      word — title, summary, principle or tag — or tap a tag for a quick filter.
+      {
+        ui.pages.kbIndex.lede
+          .replace('{practices}', String(articles.length))
+          .replace('{categories}', String(categories.length))
+      }
     </p>
   </header>
 

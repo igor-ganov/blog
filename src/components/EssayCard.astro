@@ -17,7 +17,7 @@ const href = withLocale(locale, `/essays/${rest}`);
 
 <li class="essay">
   <a class="hit" href={href} aria-label={post.data.title}></a>
-  <time class="date" datetime={post.data.date}>{formatDate(post.data.date)}</time>
+  <time class="date" datetime={post.data.date}>{formatDate(post.data.date, locale)}</time>
   <Heading class="title">{post.data.title}</Heading>
   <p class="summary">{post.data.description}</p>
 </li>

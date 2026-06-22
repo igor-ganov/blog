@@ -10,12 +10,14 @@ import { loadArticles } from '@/lib/articles/load-articles';
 import { sortEssays } from '@/lib/essays/sort-essays';
 import { type Locale, defaultLocale, isLocale, locales, splitLocaleId } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
+import { t } from '@/lib/i18n/ui';
 import { categories } from '@/lib/categories/categories';
 
 export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
 
 const param = String(Astro.params.lang ?? '');
 const locale: Locale = isLocale(param) ? param : defaultLocale;
+const home = t(locale).pages.home;
 const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const nonNegotiables = articles.filter((article) => article.severity === 'non-negotiable');
@@ -24,24 +26,17 @@ const latestPosts = sortEssays(
     (entry) => splitLocaleId(entry.id).locale === locale,
   ),
 ).slice(0, 5);
-const description =
-  'A living knowledge base of engineering best practices and preferences, distilled from real project decisions and rendered with the very stack it documents.';
 ---
 
-<BaseLayout title="Home" description={description} locale={locale}>
+<BaseLayout title={home.title} description={home.description} locale={locale}>
   <section class="hero">
-    <p class="kicker">A living knowledge base</p>
-    <h1>How I build software — written down, with the receipts.</h1>
-    <p class="lede">
-      Every article below is a practice distilled from a real decision on a real
-      project: the rule, <em>why</em> it exists (with the incident that taught it),
-      how to apply it, and what to avoid. Newer decisions override older ones, and
-      each carries its provenance so you can trust — or challenge — it.
-    </p>
+    <p class="kicker">{home.kicker}</p>
+    <h1>{home.h1}</h1>
+    <p class="lede" set:html={home.lede}></p>
     <dl class="stats">
-      <div><dt>Practices</dt><dd>{articles.length}</dd></div>
-      <div><dt>Categories</dt><dd>{categories.length}</dd></div>
-      <div><dt>Non-negotiable</dt><dd>{nonNegotiables.length}</dd></div>
+      <div><dt>{home.statPractices}</dt><dd>{articles.length}</dd></div>
+      <div><dt>{home.statCategories}</dt><dd>{categories.length}</dd></div>
+      <div><dt>{home.statNonNegotiable}</dt><dd>{nonNegotiables.length}</dd></div>
     </dl>
   </section>
 
@@ -49,12 +44,12 @@ const description =
     latestPosts.length > 0 && (
       <section class="block">
         <div class="block-head">
-          <h2>From the blog</h2>
+          <h2>{home.blogHeading}</h2>
           <a class="more" href={withLocale(locale, '/essays')}>
-            All essays <span aria-hidden="true">→</span>
+            {home.blogAll} <span aria-hidden="true">→</span>
           </a>
         </div>
-        <p class="block-lede">Essays that aggregate and explain the principles.</p>
+        <p class="block-lede">{home.blogLede}</p>
         <ul class="essays">
           {latestPosts.map((post) => (
             <EssayCard post={post} headingLevel={3} />
@@ -67,8 +62,8 @@ const description =
   {
     nonNegotiables.length > 0 && (
       <section class="block">
-        <h2>Start with the non-negotiables</h2>
-        <p class="block-lede">The rules that are never up for debate.</p>
+        <h2>{home.nonNegHeading}</h2>
+        <p class="block-lede">{home.nonNegLede}</p>
         <div class="grid">
           {nonNegotiables.slice(0, 6).map((article) => (
             <ArticleCard article={article} showCategory />
@@ -79,8 +74,8 @@ const description =
   }
 
   <section class="block">
-    <h2>Browse by topic</h2>
-    <p class="block-lede">Thirteen areas, from type safety to team topology.</p>
+    <h2>{home.browseHeading}</h2>
+    <p class="block-lede">{home.browseLede}</p>
     <div class="grid cats">
       {
         categories.map((category) => (

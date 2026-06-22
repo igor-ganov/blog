@@ -8,6 +8,7 @@ import { localizeCategory } from '@/lib/categories/localize-category';
 import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
 import { t } from '@/lib/i18n/ui';
+import { localizeSkill, localizeSkillStatus } from '@/lib/skills/localize-skill';
 import { proposedSkills } from '@/lib/skills/proposed-skills';
 import { skillStatusMeta } from '@/lib/skills/skill-status-meta';
 
@@ -16,26 +17,21 @@ export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ par
 const param = String(Astro.params.lang ?? '');
 const locale: Locale = isLocale(param) ? param : defaultLocale;
 const ui = t(locale);
+const page = ui.pages.skills;
 const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const countFor = (skill: (typeof proposedSkills)[number]): number =>
   skill.categories.reduce((sum, slug) => sum + (grouped.get(slug) ?? []).length, 0);
-const description =
-  'A proposed skill system derived from the knowledge base — which skills exist, which to refine, and which to add.';
 ---
 
-<BaseLayout title={ui.nav.skills} description={description} locale={locale}>
+<BaseLayout title={ui.nav.skills} description={page.description} locale={locale}>
   <header class="page-head">
-    <h1>From practices to a skill system</h1>
-    <p class="lede">
-      The knowledge base is the raw material; a skill system is the operational form. Each
-      skill below is a focused bundle of practices the assistant loads on demand. Some
-      already exist, some should absorb more of the KB, and some are proposed.
-    </p>
+    <h1>{page.heading}</h1>
+    <p class="lede">{page.lede}</p>
     <ul class="legend">
-      <li><span class="dot" style="--c: var(--sev-strong)"></span> Exists today</li>
-      <li><span class="dot" style="--c: var(--sev-preferred)"></span> Refine an existing skill</li>
-      <li><span class="dot" style="--c: var(--sev-nonneg)"></span> Proposed new skill</li>
+      <li><span class="dot" style="--c: var(--sev-strong)"></span> {page.legendExists}</li>
+      <li><span class="dot" style="--c: var(--sev-preferred)"></span> {page.legendRefine}</li>
+      <li><span class="dot" style="--c: var(--sev-nonneg)"></span> {page.legendNew}</li>
     </ul>
   </header>
 
@@ -43,16 +39,19 @@ const description =
     {
       proposedSkills.map((skill) => {
         const meta = skillStatusMeta(skill.status);
+        const text = localizeSkill(skill, locale);
         return (
           <li class="skill">
             <div class="row">
               <code class="name">{skill.name}</code>
-              <span class="status" style={`--c: var(${meta.cssVar})`}>{meta.label}</span>
+              <span class="status" style={`--c: var(${meta.cssVar})`}>
+                {localizeSkillStatus(skill.status, locale)}
+              </span>
             </div>
-            <p class="scope">{skill.scope}</p>
-            <p class="trigger"><strong>Use when:</strong> {skill.trigger}</p>
+            <p class="scope">{text.scope}</p>
+            <p class="trigger"><strong>{page.useWhen}</strong> {text.trigger}</p>
             <p class="draws">
-              Draws from{' '}
+              {page.drawsFrom}{' '}
               {skill.categories.map((slug, i) => {
                 const category = categoryBySlug(slug);
                 return (
@@ -66,7 +65,7 @@ const description =
                   </>
                 );
               })}{' '}
-              · {countFor(skill)} practices
+              · {countFor(skill)} {page.practicesWord}
             </p>
           </li>
         );
