@@ -78,12 +78,12 @@ Per lo più non ha fatto male, e dove l'ha fatto, quel dolore è diventato un ar
 
 ## Come leggere quel che segue
 
-Parti dai [Principi](/kb), il riferimento: una regola per pagina, ciascuna con un badge di
+Parti dai [Principi](/principles), il riferimento: una regola per pagina, ciascuna con un badge di
 severità che dice quanto è ferma. Gli altri saggi qui raccolgono quelle regole in temi:
-quali sono [irrinunciabili](/essays/the-non-negotiables), come il
-[nucleo funzionale e il guscio imperativo](/essays/functional-core-imperative-shell) si
+quali sono [irrinunciabili](/blog/the-non-negotiables), come il
+[nucleo funzionale e il guscio imperativo](/blog/functional-core-imperative-shell) si
 dividono il lavoro, e perché i test pretendono la
-[il determinismo sopra gli espedienti comodi](/essays/determinism-over-hacks).
+[il determinismo sopra gli espedienti comodi](/blog/determinism-over-hacks).
 
 Dissenti dove vuoi. Ogni pagina ti dice da dove viene, così puoi pesare le prove invece di
 prenderle sulla fiducia. Qui questo conta più di qualsiasi singola regola.

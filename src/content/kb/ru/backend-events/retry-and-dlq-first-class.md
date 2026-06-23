@@ -40,7 +40,7 @@ updated: 2026-05-14
 `console.error` с последующим return — это не dead-letter-очередь. Потерянное сообщение —
 это невидимая потеря данных: нет записи о том, что сообщение вообще было, нет способа его
 переиграть, нет сигнала, что что-то пошло не так. См.
-[никогда не глотайте ошибки](/kb/error-handling/never-swallow-errors) о том, почему это
+[никогда не глотайте ошибки](/principles/error-handling/never-swallow-errors) о том, почему это
 важно и за пределами обмена сообщениями.
 
 Две стороны пути доставки используют разные механизмы повтора, поэтому библиотеке
@@ -331,6 +331,6 @@ const MAX_RETRIES = 10; // in payments-service — different, undocumented reaso
 ## Смотрите также
 
 Outbox и идемпотентный потребитель, против которых работает relay отправителя, разобраны в
-[Transactional outbox + идемпотентный потребитель](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + идемпотентный потребитель](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Правило о том, что ошибки нельзя глотать, действует и здесь:
-[никогда не глотайте ошибки](/kb/error-handling/never-swallow-errors).
+[никогда не глотайте ошибки](/principles/error-handling/never-swallow-errors).

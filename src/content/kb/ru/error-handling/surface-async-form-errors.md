@@ -74,7 +74,7 @@ const handleCreate = async (data: ContentData): Promise<void> => {
 У редактора не было способа узнать, сохранился контент или нет. Чтобы отладить это,
 приходилось вешать `window.addEventListener('unhandledrejection', ...)` в консоли браузера
 просто ради того, чтобы увидеть класс ошибки, который дальше указал на
-[границу structured-clone в IDB](/kb/platform/idb-structured-clone-boundary) внутри той же
+[границу structured-clone в IDB](/principles/platform/idb-structured-clone-boundary) внутри той же
 фичи.
 
 ## Как применять
@@ -258,7 +258,7 @@ const handleCreate = (): void => {
 ## Смотрите также
 
 Необработанный rejection, который порождает этот паттерн, — один из случаев
-[никогда не глотайте ошибки](/kb/error-handling/never-swallow-errors): `Promise`, который
+[никогда не глотайте ошибки](/principles/error-handling/never-swallow-errors): `Promise`, который
 вернул асинхронный обработчик `emit`, неявно теряется — это вариант `void asyncFn()` для
 проглоченной ошибки. Проблема с structured-clone в IDB, найденная в той же сессии отладки,
-разобрана в [границе structured-clone в IDB](/kb/platform/idb-structured-clone-boundary).
+разобрана в [границе structured-clone в IDB](/principles/platform/idb-structured-clone-boundary).

@@ -252,10 +252,10 @@ wrangler secret put CF_API_TOKEN   // reads stdin; stdin is /dev/null in CI
 
 ## Смотрите также
 
-После инцидента с переменной времени сборки восстановление идёт по [порядку «сначала прод»](/kb/build-ci-deploy/restore-prod-first-incident-order):
+После инцидента с переменной времени сборки восстановление идёт по [порядку «сначала прод»](/principles/build-ci-deploy/restore-prod-first-incident-order):
 хот-фикс workflow, подтверждение зелёного деплоя, затем PR с корневой причиной, добавляющий
 проверку `requireEnv`. Не пишите проверку первой, пока сайт лежит.
 
 Поведение `astro:env` в рантайме Cloudflare Workers всплывает снова в
-[no-ssr-custom-elements-on-edge](/kb/web-components/no-ssr-custom-elements-on-edge),
+[no-ssr-custom-elements-on-edge](/principles/web-components/no-ssr-custom-elements-on-edge),
 где разбираются другие подводные камни инициализации модулей на edge-рантаймах.

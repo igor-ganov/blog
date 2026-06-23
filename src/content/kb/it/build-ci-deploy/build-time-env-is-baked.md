@@ -258,10 +258,10 @@ wrangler secret put CF_API_TOKEN   // reads stdin; stdin is /dev/null in CI
 
 ## Vedi anche
 
-Dopo un outage da env di build, il recupero segue l'[ordine di intervento restore-prod-first](/kb/build-ci-deploy/restore-prod-first-incident-order):
+Dopo un outage da env di build, il recupero segue l'[ordine di intervento restore-prod-first](/principles/build-ci-deploy/restore-prod-first-incident-order):
 hot-fix del workflow, conferma del deploy verde, poi apri la PR sulla causa radice che
 aggiunge la guardia `requireEnv`. Non scrivere prima la guardia mentre il sito è giù.
 
 Il comportamento a runtime di `astro:env` su Cloudflare Workers ritorna in
-[no-ssr-custom-elements-on-edge](/kb/web-components/no-ssr-custom-elements-on-edge),
+[no-ssr-custom-elements-on-edge](/principles/web-components/no-ssr-custom-elements-on-edge),
 che copre altre insidie di init dei moduli sui runtime edge.

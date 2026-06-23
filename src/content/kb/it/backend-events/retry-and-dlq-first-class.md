@@ -41,7 +41,7 @@ in uno scarto silenzioso. Un `console.error` seguito da un return non è una cod
 dead-letter. I messaggi persi sono perdita di dati invisibile: nessuna traccia che il
 messaggio sia esistito, nessun modo di rieseguirlo, nessun alert che qualcosa sia andato
 storto. Vedi
-[non inghiottire mai gli errori](/kb/error-handling/never-swallow-errors) per capire perché
+[non inghiottire mai gli errori](/principles/error-handling/never-swallow-errors) per capire perché
 questo conta anche al di fuori del messaging.
 
 I due lati del percorso di delivery usano meccanismi di retry diversi, quindi la libreria
@@ -331,6 +331,6 @@ volta sistemato il problema sottostante.
 ## Vedi anche
 
 L'outbox e il consumer idempotente contro cui gira il relay del mittente sono trattati in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 La regola per cui gli errori non vanno mai inghiottiti vale anche qui:
-[non inghiottire mai gli errori](/kb/error-handling/never-swallow-errors).
+[non inghiottire mai gli errori](/principles/error-handling/never-swallow-errors).

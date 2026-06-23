@@ -34,7 +34,7 @@ piattaforma che ti rema contro.
 L'architettura esiste perché la logica di business non sappia dove gira. Lo storage sono
 tre piccole porte, `OneTimeLinkStore`, `SecretStore` e `PendingSetStore`, ognuna con
 due adattatori collegati al punto di ingresso e da nessun'altra parte. È la divisione
-[functional core / imperative shell](/essays/functional-core-imperative-shell)
+[functional core / imperative shell](/blog/functional-core-imperative-shell)
 resa concreta: chiusure invece di classi, dipendenze iniettate, il core che riceve i
 suoi effetti invece di andarseli a prendere.
 
@@ -63,7 +63,7 @@ La garanzia poggia su tre decisioni.
   del crawler delle anteprime di Telegram, che scarica l'URL per costruire la card in
   chat pochi millisecondi dopo l'invio del messaggio. Ogni link moriva a età zero,
   bruciato da una miniatura che nessuno aveva chiesto. È il classico bug della
-  [**GET che muta**](/essays/security-bugs-by-type), che arriva da un client di chat
+  [**GET che muta**](/blog/security-bugs-by-type), che arriva da un client di chat
   invece che da un prefetcher di posta. Ora la `GET` serve una pagina di conferma non
   distruttiva con un pulsante **Reveal secret**, e solo la `POST` dietro a quello
   esegue il consumo. Crawler, scanner antivirus e riscrittori di link sicuri trovano la

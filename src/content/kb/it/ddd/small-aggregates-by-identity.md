@@ -18,7 +18,7 @@ updated: 2026-06-11
 
 ## Perché conta
 
-**Quando ripaga lo sforzo.** Questo è DDD tattico, e presuppone che tu stia già modellando aggregati, cosa giustificata solo su un sistema grande con logica di dominio davvero complessa e ricca di invarianti. Su un progetto piccolo o semplice, i confini formali degli aggregati e l'impianto della consistenza eventuale sono puro sovraccarico. Una tabella normale dentro una transazione fa il lavoro, e la cerimonia costa più di quanto renda. Applica le regole qui sotto quando il dominio è abbastanza complesso da rendere i confini di consistenza una vera questione di design. La struttura per feature e la separazione in layer reggono a ogni dimensione, comunque vada (vedi [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
+**Quando ripaga lo sforzo.** Questo è DDD tattico, e presuppone che tu stia già modellando aggregati, cosa giustificata solo su un sistema grande con logica di dominio davvero complessa e ricca di invarianti. Su un progetto piccolo o semplice, i confini formali degli aggregati e l'impianto della consistenza eventuale sono puro sovraccarico. Una tabella normale dentro una transazione fa il lavoro, e la cerimonia costa più di quanto renda. Applica le regole qui sotto quando il dominio è abbastanza complesso da rendere i confini di consistenza una vera questione di design. La struttura per feature e la separazione in layer reggono a ogni dimensione, comunque vada (vedi [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)).
 
 Vaughn Vernon ha codificato quattro regole per la progettazione degli aggregati in Implementing DDD (Vernon, 2013, ISBN 978-0321834577). Le elenca in ordine di precedenza, e quell'ordine ha un peso:
 
@@ -77,7 +77,7 @@ L'aggregato `Subscription` non contiene un oggetto `Tenant` né un oggetto `Plan
 
 **Passo 3 — Emetti domain event ai confini degli aggregati, consumali tra i confini dei context.**
 
-Quando una mutazione riesce dentro un aggregato, l'aggregato registra un domain event che descrive cosa è successo. L'evento non viene pubblicato subito. Viene memorizzato accanto allo stato dell'aggregato nella stessa transazione (il pattern Transactional Outbox; vedi `/kb/backend-events/transactional-outbox-idempotent-consumer`), e un processo di relay legge l'outbox e pubblica gli eventi ai consumer a valle in modo asincrono.
+Quando una mutazione riesce dentro un aggregato, l'aggregato registra un domain event che descrive cosa è successo. L'evento non viene pubblicato subito. Viene memorizzato accanto allo stato dell'aggregato nella stessa transazione (il pattern Transactional Outbox; vedi `/principles/backend-events/transactional-outbox-idempotent-consumer`), e un processo di relay legge l'outbox e pubblica gli eventi ai consumer a valle in modo asincrono.
 
 È la quarta regola di Vernon in forma meccanica. Il metodo `suspend()` dell'aggregato Subscription restituisce un evento `SubscriptionSuspended`, e l'application service persiste l'aggregato aggiornato e l'evento atomicamente. Da lì il servizio di notifica, il servizio di analytics e la proiezione della dashboard ricevono l'evento ognuno per conto proprio e reagiscono nei propri tempi. Non c'è alcuna transazione distribuita e nessun accoppiamento tramite scritture condivise.
 
@@ -143,6 +143,6 @@ Un processo a più passi che coordina azioni tra più aggregati o servizi è una
 
 ## Vedi anche
 
-I pattern Transactional Outbox e Idempotent Consumer (vedi `/kb/backend-events/transactional-outbox-idempotent-consumer`) sono i meccanismi concreti dietro la quarta regola di Vernon. La consistenza eventuale tra i confini di aggregati e context è sicura solo quando gli eventi vengono consegnati in modo affidabile (outbox) e i consumer riescono ad assorbire la consegna duplicata (idempotenza).
+I pattern Transactional Outbox e Idempotent Consumer (vedi `/principles/backend-events/transactional-outbox-idempotent-consumer`) sono i meccanismi concreti dietro la quarta regola di Vernon. La consistenza eventuale tra i confini di aggregati e context è sicura solo quando gli eventi vengono consegnati in modo affidabile (outbox) e i consumer riescono ad assorbire la consegna duplicata (idempotenza).
 
 La DDD Reference (Evans, CC-BY 4.0, https://www.domainlanguage.com/ddd/reference/) tratta Aggregate, Entity, Value Object, Domain Event, Repository e Factory come un unico insieme. I pattern tattici sono fatti per funzionare insieme, e leggerne uno isolato fa perdere il ruolo strutturale che gioca nell'insieme.

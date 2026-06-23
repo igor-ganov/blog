@@ -155,7 +155,7 @@ const render = (response: ApiResponse): string => {
 **Type guards as a fallback (when Effect is unavailable).**
 
 Where the Effect bundle cost is too high to justify (see
-[errors-as-values-with-effect](/kb/functional-architecture/errors-as-values-with-effect)
+[errors-as-values-with-effect](/principles/functional-architecture/errors-as-values-with-effect)
 for when that exception applies), write a proper type-predicate guard instead of a boolean
 validator:
 

@@ -113,13 +113,13 @@ REQ-5: IF the outbox relay crashes mid-delivery THE SYSTEM SHALL detect the
 структурой данных или решением о протоколе и фиксирует компромиссы везде, где
 рассматривались альтернативы. Каждый раздел ссылается на требования, которые он
 удовлетворяет. См.
-[traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).
 
 ### Фаза 3: tasks.md
 
 Задачи разбивают проект на шаги реализации. Каждая задача ссылается на раздел дизайна и
 пункты REQ-N, которые она поставляет. Задачи — это вход в цикл разработки, см.
-[цикл от тикета до PR](/kb/process/dev-cycle-branch-commit-pr).
+[цикл от тикета до PR](/principles/process/dev-cycle-branch-commit-pr).
 
 ### Когда пользовательские истории уместны
 

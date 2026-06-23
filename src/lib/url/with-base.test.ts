@@ -3,11 +3,13 @@ import { joinBase } from '@/lib/url/with-base';
 
 describe('joinBase', () => {
   it('prefixes a root-absolute path with the base', () => {
-    expect(joinBase('/blog', '/kb/typescript/no-casting')).toBe('/blog/kb/typescript/no-casting');
+    expect(joinBase('/blog', '/principles/typescript/no-casting')).toBe(
+      '/blog/principles/typescript/no-casting',
+    );
   });
 
   it('roots a path that has no leading slash', () => {
-    expect(joinBase('/blog', 'kb')).toBe('/blog/kb');
+    expect(joinBase('/blog', 'principles')).toBe('/blog/principles');
   });
 
   it('maps the root path to the base root with a trailing slash', () => {

@@ -253,5 +253,5 @@ class Component {
 
 ## Смотрите также
 
-- [No casting](/kb/typescript/no-casting) — вывод типов устраняет большинство ситуаций, где приведение выглядит соблазнительно.
-- [Currying, closures, and higher-order functions](/kb/functional-architecture/currying-closures-higher-order) — паттерн замыкания для композиции сервисов подробно.
+- [No casting](/principles/typescript/no-casting) — вывод типов устраняет большинство ситуаций, где приведение выглядит соблазнительно.
+- [Currying, closures, and higher-order functions](/principles/functional-architecture/currying-closures-higher-order) — паттерн замыкания для композиции сервисов подробно.

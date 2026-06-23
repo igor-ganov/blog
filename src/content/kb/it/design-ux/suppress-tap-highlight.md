@@ -122,7 +122,7 @@ qualsiasi regola di lint.
 ## Vedi anche
 
 Questo è il complemento, lato input touch, alla verifica della UI su
-[dispositivi mobili reali](/kb/design-ux/mobile-proof-real-devices): il flash si vede
+[dispositivi mobili reali](/principles/design-ux/mobile-proof-real-devices): il flash si vede
 solo su un telefono, quindi lo prendi solo quando provi davvero su uno. Il caveat sul
 focus ring si ricollega al mettere l'interazione, insieme al suo stato visibile, su
-[l'elemento interattivo reale](/kb/web-components/aria-on-the-real-element).
+[l'elemento interattivo reale](/principles/web-components/aria-on-the-real-element).

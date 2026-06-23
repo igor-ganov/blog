@@ -1,0 +1,28 @@
+---
+import { defaultLocale } from '@/lib/i18n/locales';
+import { withBase } from '@/lib/url/with-base';
+
+// The bare root carries no locale. Send the visitor to the default language with
+// a history *replace* (not a redirect): a GitHub Pages `redirects` entry emits a
+// base-less target that 404s, so we resolve the base ourselves on the client.
+const target = withBase(`/${defaultLocale}`);
+---
+
+<!doctype html>
+<html lang={defaultLocale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Engineering Practices</title>
+    <link rel="canonical" href={target} />
+    <script is:inline define:vars={{ target }}>
+      location.replace(target);
+    </script>
+    <noscript>
+      <meta http-equiv="refresh" content={`0; url=${target}`} />
+    </noscript>
+  </head>
+  <body>
+    <a href={target}>Continue to Engineering Practices →</a>
+  </body>
+</html>

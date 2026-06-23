@@ -193,6 +193,6 @@ silently loses messages, so the workflow it is supposed to guarantee never holds
 ## See also
 
 The full outbox implementation that saga steps should be built on is in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 The per-engine adapter design that makes the outbox portable across a mixed-engine fleet
-is in [Outbox in the service's own DB; per-engine adapters, never 2PC](/kb/backend-events/storage-in-service-db-per-engine-adapters).
+is in [Outbox in the service's own DB; per-engine adapters, never 2PC](/principles/backend-events/storage-in-service-db-per-engine-adapters).

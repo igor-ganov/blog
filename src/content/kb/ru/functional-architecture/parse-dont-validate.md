@@ -157,7 +157,7 @@ const render = (response: ApiResponse): string => {
 
 Там, где стоимость бандла Effect слишком велика, чтобы её оправдать (когда применимо это
 исключение, смотрите
-[errors-as-values-with-effect](/kb/functional-architecture/errors-as-values-with-effect)),
+[errors-as-values-with-effect](/principles/functional-architecture/errors-as-values-with-effect)),
 напишите нормальный guard с предикатом типа вместо булева валидатора:
 
 ```ts

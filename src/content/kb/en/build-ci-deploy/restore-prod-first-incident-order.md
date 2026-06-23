@@ -31,7 +31,7 @@ costs less than a one-step recovery that takes three times as long.
 **A content-admin SPA, 2026-05-05.**
 
 The public site build went red on a YAML parse failure in a content file
-(see [no-self-rolled-yaml](/kb/error-handling/no-self-rolled-yaml) for the root cause).
+(see [no-self-rolled-yaml](/principles/error-handling/no-self-rolled-yaml) for the root cause).
 The build log pointed at the offending file. The correct sequence was:
 
 1. Identify the broken file via the CI log.
@@ -99,7 +99,7 @@ gh run list --workflow deploy.yml --limit 1
 
 The site must be up and serving correctly before the post-mortem phase starts. Take a
 production screenshot if the fix is visual (see
-[prove-with-production-screenshots](/kb/process/prove-with-production-screenshots)).
+[prove-with-production-screenshots](/principles/process/prove-with-production-screenshots)).
 
 ### Step 4: Open the root-cause PR
 

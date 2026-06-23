@@ -243,4 +243,4 @@ openMenu(): void {
 
 I test di geometria qui sopra funzionano solo perché `computeGeometry` è una funzione libera
 e pura, tenuta fuori dalla classe dell'elemento. Quell'organizzazione è descritta in
-[Un elemento Lit è un guscio sottile su un nucleo puro](/kb/web-components/lit-functional-core).
+[Un elemento Lit è un guscio sottile su un nucleo puro](/principles/web-components/lit-functional-core).

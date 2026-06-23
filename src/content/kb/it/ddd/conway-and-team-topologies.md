@@ -21,7 +21,7 @@ updated: 2026-06-11
 
 ## Perché conta
 
-**Quando ripaga lo sforzo.** È una questione che riguarda più team. La legge di Conway opera a qualsiasi scala, ma *mappare deliberatamente i team sui bounded context* tramite la manovra di Conway inversa diventa uno strumento solo quando hai diversi team e context da allineare. In un singolo team piccolo non c'è nulla da allineare: un team, una struttura di comunicazione. Tirala fuori quando l'organizzazione è abbastanza grande da far divergere i confini dei team da quelli dei context. Ciò che resta costante a prescindere dalla scala è la struttura per feature e la separazione dei layer (vedi [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
+**Quando ripaga lo sforzo.** È una questione che riguarda più team. La legge di Conway opera a qualsiasi scala, ma *mappare deliberatamente i team sui bounded context* tramite la manovra di Conway inversa diventa uno strumento solo quando hai diversi team e context da allineare. In un singolo team piccolo non c'è nulla da allineare: un team, una struttura di comunicazione. Tirala fuori quando l'organizzazione è abbastanza grande da far divergere i confini dei team da quelli dei context. Ciò che resta costante a prescindere dalla scala è la struttura per feature e la separazione dei layer (vedi [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)).
 
 Nel 1968 Melvin Conway pubblicò l'osservazione diventata poi assioma nell'architettura software: "Qualsiasi organizzazione che progetta un sistema (in senso ampio) produrrà un progetto la cui struttura è una copia della struttura di comunicazione dell'organizzazione" (Conway, "How Do Committees Invent?", Datamation, aprile 1968, https://www.melconway.com/Home/Conways_Law.html). L'affermazione descrive ciò che le organizzazioni producono inevitabilmente, non ciò che dovrebbero produrre. La conseguenza pratica, come l'ha messa Martin Fowler, è che non puoi progettare l'architettura per uscire da una struttura organizzativa: "Se l'architettura del sistema e l'architettura dell'organizzazione sono in conflitto, vince l'architettura dell'organizzazione" (Fowler, https://martinfowler.com/bliki/ConwaysLaw.html).
 
@@ -110,7 +110,7 @@ Ogni team stream-aligned possiede l'intera verticale del proprio context: modell
 
 **Passo 4 — Applicare la manovra di Conway inversa in modo esplicito.**
 
-Disegna prima la context map obiettivo (vedi `/kb/ddd/bounded-contexts-not-crud-features`). Poi progetta la struttura dei team che la produrrebbe:
+Disegna prima la context map obiettivo (vedi `/principles/ddd/bounded-contexts-not-crud-features`). Poi progetta la struttura dei team che la produrrebbe:
 
 - Ogni bounded context, o cluster di context strettamente correlati, mappa su un team stream-aligned.
 - Le questioni infrastrutturali condivise (CI/CD, observability, infrastruttura di auth) mappano su un team platform che opera in modalità X-as-a-Service.

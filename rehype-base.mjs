@@ -1,14 +1,14 @@
 // Rewrites root-absolute links and image sources in rendered markdown so they
 // resolve under the deploy base (e.g. /blog) AND under the article's language
-// prefix (e.g. /en) on GitHub Pages. This keeps the 100+ in-prose `/kb/...` links
-// in the articles untouched in source — both prefixes are applied at build time.
+// prefix (e.g. /en) on GitHub Pages. This keeps the 100+ in-prose `/principles/...`
+// links in the articles untouched in source — both prefixes are applied at build time.
 // External (http, //) and in-page (#) links are left alone.
 
 const LINK_PROP = { a: 'href', area: 'href', link: 'href', img: 'src', source: 'src' };
 
 // App routes that live under a language prefix. Everything else that is
 // root-absolute (e.g. /favicon.svg) only gets the deploy base, never a locale.
-const APP_ROUTE = /^\/(kb|essays|c|skills|about)(\/|$)/;
+const APP_ROUTE = /^\/(principles|blog|c|skills|about)(\/|$)/;
 
 const isInternalRoot = (value) =>
   typeof value === 'string' && value.startsWith('/') && !value.startsWith('//');

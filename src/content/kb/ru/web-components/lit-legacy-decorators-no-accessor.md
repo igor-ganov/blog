@@ -213,7 +213,7 @@ exit 0
 
 Конфигурация `experimentalDecorators` связана с тем, как Lit обрабатывает отражённое
 свойство `open`, описанное в статье
-[ARIA на настоящем интерактивном элементе](/kb/web-components/aria-on-the-real-element) —
+[ARIA на настоящем интерактивном элементе](/principles/web-components/aria-on-the-real-element) —
 оба случая зависят от того, чтобы дескриптор свойства был выставлен правильно. Ограничения
 серверного рендеринга для компонентов Lit разобраны в статье
-[Не делайте SSR кастомных элементов на edge](/kb/web-components/no-ssr-custom-elements-on-edge).
+[Не делайте SSR кастомных элементов на edge](/principles/web-components/no-ssr-custom-elements-on-edge).

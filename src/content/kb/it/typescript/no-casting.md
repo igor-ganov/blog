@@ -85,10 +85,10 @@ non tipizzati entrano nel sistema: una risposta di rete, `JSON.parse`, `localSto
 Lì esegui un vero validatore a runtime (una guardia scritta a mano, oppure
 `effect/Schema` / `zod`) e restituisci un valore tipizzato o un errore. Dentro il confine
 tutto è già tipizzato, quindi non resta nulla da castare. Questo è
-[validare al confine](/kb/typescript/validate-at-the-boundary).
+[validare al confine](/principles/typescript/validate-at-the-boundary).
 
 Per i valori assenti, ricorri a `undefined` e modella l'assenza nel tipo invece di usare
-un non-null `!`. Vedi [niente null, usa undefined](/kb/typescript/no-null-use-undefined).
+un non-null `!`. Vedi [niente null, usa undefined](/principles/typescript/no-null-use-undefined).
 
 ## Anti-pattern
 

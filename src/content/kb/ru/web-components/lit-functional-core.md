@@ -252,7 +252,7 @@ private readonly _keyCtl    = new KeyboardController(this);
 добавляет сверху механическую проверку: если покрытие `src/core/**` опускается ниже порога,
 значит что-то, что должно быть свободной функцией, прячется внутри класса.
 
-Это разделение работает в паре с правилом [одна функция на файл, папки по использованию](/kb/functional-architecture/one-function-per-file-folder-by-usage).
+Это разделение работает в паре с правилом [одна функция на файл, папки по использованию](/principles/functional-architecture/one-function-per-file-folder-by-usage).
 Каждая свободная функция в `src/core/` живёт в своём файле, названном по тому, что она
 делает, поэтому граф импортов остаётся читаемым, а файл теста лежит рядом с исходником.
 
@@ -260,7 +260,7 @@ private readonly _keyCtl    = new KeyboardController(this);
 
 Функции геометрии, которые здесь тестируются в изоляции, зависят от измеренных значений
 `DOMRect`, а не от захардкоженных размеров. Это ограничение разобрано в
-[вычисляйте геометрию из измеренных размеров](/kb/web-components/measured-geometry-not-hardcoded).
+[вычисляйте геометрию из измеренных размеров](/principles/web-components/measured-geometry-not-hardcoded).
 Конфигурация декораторов, благодаря которой `@property()` и `@state()` продолжают корректно
 работать при выносе полей класса, разобрана в
-[legacy-декораторы Lit, и никогда ключевое слово accessor](/kb/web-components/lit-legacy-decorators-no-accessor).
+[legacy-декораторы Lit, и никогда ключевое слово accessor](/principles/web-components/lit-legacy-decorators-no-accessor).

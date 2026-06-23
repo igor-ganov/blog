@@ -109,7 +109,7 @@ const appendEntry = async (entry: NotificationEntry): Promise<void> => {
 
 Должны выполняться сразу два условия: вам нужна граница `toPersistable`, и любой
 fire-and-forget-вызов IDB обязан переправить своё отклонение туда, где оно видно. См. [никогда
-не проглатывайте ошибку](/kb/error-handling/never-swallow-errors).
+не проглатывайте ошибку](/principles/error-handling/never-swallow-errors).
 
 ## Как применять
 
@@ -244,10 +244,10 @@ void appendEntry(entry); // rejection silently swallowed
 
 ## См. также
 
-[Никогда не проглатывайте ошибку](/kb/error-handling/never-swallow-errors) — это парное
+[Никогда не проглатывайте ошибку](/principles/error-handling/never-swallow-errors) — это парное
 правило. Когда граница `toPersistable` уже на месте, отклонённый промис записи в IDB всё
 равно должен дойти до обработчика ошибок, а не сгинуть в `void`.
 
-[Дождитесь устаканивания service worker](/kb/testing/wait-for-service-worker-settle) разбирает
+[Дождитесь устаканивания service worker](/principles/testing/wait-for-service-worker-settle) разбирает
 случай, когда сохранение в IDB происходит внутри service worker: тесты обязаны дождаться
 инициализации SW, прежде чем проверять сохранённые данные.

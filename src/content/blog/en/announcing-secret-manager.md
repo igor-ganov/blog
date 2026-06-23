@@ -32,7 +32,7 @@ was making "once" honestly mean once on a platform that fights you on it.
 The architecture exists so the business logic doesn't know where it runs. Storage is
 three small ports, `OneTimeLinkStore`, `SecretStore`, and `PendingSetStore`, each with
 two adapters wired up at the entry point and nowhere else. This is the
-[functional core / imperative shell](/essays/functional-core-imperative-shell) split
+[functional core / imperative shell](/blog/functional-core-imperative-shell) split
 made concrete: closures over classes, dependencies injected, the core handed its
 effects instead of reaching for them.
 
@@ -58,7 +58,7 @@ Three decisions carry the guarantee.
   consumed the secret on `GET /s/<token>`, and the very first GET belongs to
   Telegram's link-preview crawler, which fetches the URL to build a chat card
   milliseconds after the message is sent. Every link died at age zero, burned by a
-  thumbnail nobody asked for. That's the textbook [**GET that mutates**](/essays/security-bugs-by-type)
+  thumbnail nobody asked for. That's the textbook [**GET that mutates**](/blog/security-bugs-by-type)
   bug class, arriving through a chat client instead of a mail prefetcher. Now `GET`
   serves a non-destructive confirmation page with a **Reveal secret** button, and
   only the `POST` behind it runs the consume. Crawlers, antivirus scanners, and

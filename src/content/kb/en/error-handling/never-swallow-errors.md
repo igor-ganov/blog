@@ -91,7 +91,7 @@ point is that the error reaches code that does something with it.
 
 For fallible logic that runs often, prefer making errors **values** instead of throws:
 an `Either`/`Effect` whose error channel the type system forces you to address. See
-[errors as values with Effect](/kb/functional-architecture/errors-as-values-with-effect).
+[errors as values with Effect](/principles/functional-architecture/errors-as-values-with-effect).
 
 ## Anti-patterns
 
@@ -117,13 +117,13 @@ init().then(loadRole, () => {});
 `biome lint/suspicious/noEmptyBlockStatements` is set to **error** (it is on in this
 repo's own `biome.json`), which bans empty `try/catch` outright. The ESLint equivalent
 is `no-empty` with `allowEmptyCatch: false`. The fabricated-success variant is caught by
-the companion rule [always check `res.ok`](/kb/error-handling/always-check-res-ok). When
+the companion rule [always check `res.ok`](/principles/error-handling/always-check-res-ok). When
 you find a `${key}: ${value}` template literal or a `.catch(() => {})` in review, treat
 it as a defect rather than a style nit.
 
 ## See also
 
 The same instinct, never letting a failure pass unseen, drives
-[always check res.ok](/kb/error-handling/always-check-res-ok) and the refusal to
-[hand-roll fragile serializers](/kb/error-handling/no-self-rolled-yaml) that fail
+[always check res.ok](/principles/error-handling/always-check-res-ok) and the refusal to
+[hand-roll fragile serializers](/principles/error-handling/no-self-rolled-yaml) that fail
 silently on hostile input.

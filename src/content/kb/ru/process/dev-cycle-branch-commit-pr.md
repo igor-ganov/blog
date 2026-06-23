@@ -108,7 +108,7 @@ it('promotes message to DLQ after 10 consecutive failures', async () => {
 Напишите минимум кода, который делает падающий тест зелёным. Не добавляйте непокрытое тестами
 поведение. Не выходите за границы задачи. Если реализация показывает, что спецификация неверна,
 остановитесь и пройдите процесс правки спецификации, описанный в
-[traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).
 
 Коммитьте атомарно. Каждый коммит должен выглядеть так:
 
@@ -145,7 +145,7 @@ bun run build
 ### Шаг 8: проверка сначала на десктопе
 
 Если у проекта есть десктопная цель, соберите десктопное приложение и проверьте фичу сначала там.
-Полный протокол — в [desktop-target-first](/kb/process/desktop-target-first). Скриншот в качестве
+Полный протокол — в [desktop-target-first](/principles/process/desktop-target-first). Скриншот в качестве
 доказательства обязателен.
 
 Если проект только веб, соберите продакшен-сборку локально и проверьте в браузере через MCP, а не
@@ -239,5 +239,5 @@ README этого модуля, незакончен.
 
 Этот цикл прогоняет spec-driven-процесс. Его вход — задача из `tasks.md`. Процесс, который
 порождает эти задачи, описан в
-[spec-driven-ears-not-user-stories](/kb/process/spec-driven-ears-not-user-stories)
-и [traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[spec-driven-ears-not-user-stories](/principles/process/spec-driven-ears-not-user-stories)
+и [traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).

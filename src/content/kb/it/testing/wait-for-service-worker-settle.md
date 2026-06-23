@@ -98,7 +98,7 @@ export const visitSettled = async (
 
 Scegli l'elemento di ancoraggio stabile con cura. Deve essere presente su ogni pagina
 sotto test, renderizzato dall'applicazione, e portare un `data-testid` deterministico
-(vedi [locator constants](/kb/testing/locator-constants)).
+(vedi [locator constants](/principles/testing/locator-constants)).
 
 E aspetta **prima della navigazione successiva** ogni volta che il passo precedente ha
 registrato il SW:
@@ -118,7 +118,7 @@ await visit(page, '/content/blog');
 
 Questo resta event-driven. `waitForFunction` interroga un predicato lato browser e si
 risolve nell'istante in cui ritorna true, senza costo fisso (vedi
-[event-driven waits](/kb/testing/event-driven-no-timeouts)).
+[event-driven waits](/principles/testing/event-driven-no-timeouts)).
 
 ### Diagnosticare la corsa
 
@@ -157,11 +157,11 @@ il DOM sia post-attivazione e stabile.
 ## Applicazione
 
 Non esiste analisi statica per questo pattern. L'applicazione arriva dalla regola delle
-tre esecuzioni (vedi [no retries, no flakes](/kb/testing/no-retries-no-flakes)) e, in
+tre esecuzioni (vedi [no retries, no flakes](/principles/testing/no-retries-no-flakes)) e, in
 modo più tagliente, dai worker paralleli. Le suite seriali mascherano questa corsa dietro
 una lentezza incidentale, mentre 4 worker sulle vCPU condivise della CI la riproducono
 entro una o due esecuzioni (vedi
-[parallel workers surface races](/kb/testing/parallel-workers-surface-races)).
+[parallel workers surface races](/principles/testing/parallel-workers-surface-races)).
 
 In code review, controlla ogni navigazione che segue una (ri)registrazione del SW: è
 protetta dal predicato del ciclo di vita e da un ancoraggio stabile? Se il progetto

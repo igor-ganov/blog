@@ -109,13 +109,13 @@ Each criterion is:
 Design resolves the how. It maps each REQ-N to a component, a data structure, or a
 protocol decision, and records trade-offs wherever alternatives were considered. Every
 section references the requirements it satisfies. See
-[traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).
 
 ### Phase 3: tasks.md
 
 Tasks break the design into implementation steps. Each task references the design
 section and the REQ-N items it delivers. Tasks are the input to the dev cycle — see
-[the ticket-to-PR cycle](/kb/process/dev-cycle-branch-commit-pr).
+[the ticket-to-PR cycle](/principles/process/dev-cycle-branch-commit-pr).
 
 ### When user stories are appropriate
 

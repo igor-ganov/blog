@@ -52,7 +52,7 @@ elemento sul DOM ormai prossimo allo scarto, il reload navigava altrove e il cli
 falliva con "navigated to /". Intermittente, dipendente dalla piattaforma, invisibile
 finché non colpiva la CI. Non l'abbiamo risolto con un timeout più lungo. Abbiamo atteso
 il vero segnale di stabilizzazione: un predicato sullo stato del ciclo di vita del SW più
-un elemento ancora stabile. Vedi [attendere che il service worker si stabilizzi](/kb/testing/wait-for-service-worker-settle).
+un elemento ancora stabile. Vedi [attendere che il service worker si stabilizzi](/principles/testing/wait-for-service-worker-settle).
 
 C'è una trappola di secondo ordine che abbiamo scoperto più tardi (2026-06-12).
 **`networkidle` è un timeout travestito.** Si risolve dopo 500ms di silenzio di rete,
@@ -125,5 +125,5 @@ saltato è un test fallito.
 
 Tutto questo si riconduce a una sola preferenza: sistemi deterministici al posto di
 trucchi probabilistici. Lo stesso standard (risposta entro un secondo, niente timeout di
-inattività, niente retry, eseguilo tre volte) è ciò che [niente retry, niente flake](/kb/testing/no-retries-no-flakes)
+inattività, niente retry, eseguilo tre volte) è ciò che [niente retry, niente flake](/principles/testing/no-retries-no-flakes)
 rende esplicito.

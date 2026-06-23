@@ -78,7 +78,7 @@ feature by hand:
 4. Take screenshots that show the feature working in the actual desktop app.
 
 The screenshots are not optional. They are the evidence that the verification actually
-happened. See [nothing is done without production screenshot proof](/kb/process/prove-with-production-screenshots).
+happened. See [nothing is done without production screenshot proof](/principles/process/prove-with-production-screenshots).
 
 ### Only then run Playwright E2E
 

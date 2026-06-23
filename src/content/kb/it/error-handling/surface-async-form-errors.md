@@ -75,7 +75,7 @@ Ordine di esecuzione:
 Il redattore non aveva modo di sapere se il contenuto fosse stato salvato. Per il debug
 bisognava collegare `window.addEventListener('unhandledrejection', ...)` nella console del
 browser solo per vedere la classe dell'errore, che poi puntava al sottostante problema del
-[confine di structured-clone di IDB](/kb/platform/idb-structured-clone-boundary) nella
+[confine di structured-clone di IDB](/principles/platform/idb-structured-clone-boundary) nella
 stessa feature.
 
 ## Come applicarlo
@@ -259,8 +259,8 @@ Questo è un controllo da code review, non una regola di lint:
 ## Vedi anche
 
 La unhandled rejection prodotta da questo pattern è un caso di
-[non ingoiare mai gli errori](/kb/error-handling/never-swallow-errors): la `Promise`
+[non ingoiare mai gli errori](/principles/error-handling/never-swallow-errors): la `Promise`
 restituita da un handler `emit` asincrono viene scartata implicitamente, la variante
 `void asyncFn()` di un errore ingoiato. Il problema di structured-clone di IDB trovato nella
 stessa sessione di debug è trattato in
-[confine di structured-clone di IDB](/kb/platform/idb-structured-clone-boundary).
+[confine di structured-clone di IDB](/principles/platform/idb-structured-clone-boundary).

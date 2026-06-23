@@ -108,7 +108,7 @@ is logged.
 
 Two things have to be true together: you need a `toPersistable` boundary, and any
 fire-and-forget IDB call has to forward its rejection somewhere visible. See [never
-swallow an error](/kb/error-handling/never-swallow-errors).
+swallow an error](/principles/error-handling/never-swallow-errors).
 
 ## How to apply
 
@@ -243,10 +243,10 @@ void appendEntry(entry); // rejection silently swallowed
 
 ## See also
 
-[Never swallow an error](/kb/error-handling/never-swallow-errors) is the companion
+[Never swallow an error](/principles/error-handling/never-swallow-errors) is the companion
 rule. Once the `toPersistable` boundary is in place, the IDB write's rejected Promise
 still has to reach an error handler instead of disappearing into a `void`.
 
-[Wait for service worker settle](/kb/testing/wait-for-service-worker-settle) covers the
+[Wait for service worker settle](/principles/testing/wait-for-service-worker-settle) covers the
 case where IDB persistence runs inside a service worker: tests have to wait for SW
 initialisation before asserting on stored data.

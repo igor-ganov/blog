@@ -53,7 +53,7 @@ Workers на Node.js-рантайм.
 ещё до обслуживания первого запроса. Воркер отдаёт 500, пока секреты не настроены. Это
 отдельная от Lit история, но по тому же шаблону: всё, что выполняется на этапе init
 модуля на edge, обязано пережить отсутствие части рантайм-окружения.
-См. [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) о смежном
+См. [build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked) о смежном
 ограничении на статические env-переменные времени сборки.
 
 ## Как применять
@@ -208,8 +208,8 @@ grep -r '@astrojs/lit' astro.config.ts package.json && \
 ## Смотрите также
 
 Lit-компоненты, подключаемые клиентским скриптом, опираются на конфигурацию декораторов
-из [Lit legacy decorators — never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor)
+из [Lit legacy decorators — never the accessor keyword](/principles/web-components/lit-legacy-decorators-no-accessor)
 и следуют разделению на оболочку и ядро из
-[A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
+[A Lit element is a thin shell over a pure core](/principles/web-components/lit-functional-core).
 Падение на старте из-за `astro:env` — это edge-вариант более широкого ограничения,
-описанного в [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked).
+описанного в [build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked).

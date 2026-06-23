@@ -185,7 +185,7 @@ surface the error to the editor before anything gets written.
 
 YAML parsers interpret `\r\n` line endings differently from `\r\n`-agnostic tools, so
 normalise line endings to `\n` before handing content to the parser or the serializer.
-See [CRLF/LF discipline](/kb/build-ci-deploy/crlf-lf-discipline).
+See [CRLF/LF discipline](/principles/build-ci-deploy/crlf-lf-discipline).
 
 ```ts
 const normalise = (raw: string): string => raw.replace(/\r\n/g, '\n');
@@ -249,7 +249,7 @@ data.
 ## See also
 
 The instinct that produces hand-rolled YAML serializers is the same one that produces
-[swallowed errors](/kb/error-handling/never-swallow-errors) in the catch path. Both start
+[swallowed errors](/principles/error-handling/never-swallow-errors) in the catch path. Both start
 as "it is just a quick utility" shortcuts and end as multi-day production incidents. The
-colon incident directly triggered [restore-prod-first incident order](/kb/build-ci-deploy/restore-prod-first-incident-order),
+colon incident directly triggered [restore-prod-first incident order](/principles/build-ci-deploy/restore-prod-first-incident-order),
 since the team had to triage while production was red.

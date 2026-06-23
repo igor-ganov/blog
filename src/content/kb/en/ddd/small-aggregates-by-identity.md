@@ -18,7 +18,7 @@ updated: 2026-06-11
 
 ## Why this matters
 
-**When this earns its keep.** This is tactical DDD, and it presupposes you are modelling aggregates at all, which is justified only on a large system with genuinely complex, invariant-rich domain logic. On a small or simple project, formal aggregate boundaries and eventual-consistency plumbing are pure overhead. A plain table with a transaction does the job, and the ceremony costs more than it returns. Apply the rules below once the domain is complex enough that consistency boundaries become a real design question. Feature-based structure and layer separation hold at every size regardless (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
+**When this earns its keep.** This is tactical DDD, and it presupposes you are modelling aggregates at all, which is justified only on a large system with genuinely complex, invariant-rich domain logic. On a small or simple project, formal aggregate boundaries and eventual-consistency plumbing are pure overhead. A plain table with a transaction does the job, and the ceremony costs more than it returns. Apply the rules below once the domain is complex enough that consistency boundaries become a real design question. Feature-based structure and layer separation hold at every size regardless (see [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)).
 
 Vaughn Vernon codified four rules for aggregate design in Implementing DDD (Vernon, 2013, ISBN 978-0321834577). He states them in order of precedence, and that ordering carries weight:
 
@@ -77,7 +77,7 @@ The `Subscription` aggregate does not hold a `Tenant` object or a `Plan` object.
 
 **Step 3 — Emit domain events at aggregate boundaries, consume them across context boundaries.**
 
-When a mutation succeeds inside an aggregate, the aggregate records a domain event describing what happened. The event is not published right away. It is stored alongside the aggregate's state in the same transaction (the Transactional Outbox pattern; see `/kb/backend-events/transactional-outbox-idempotent-consumer`), and a relay process reads the outbox and publishes the events to downstream consumers asynchronously.
+When a mutation succeeds inside an aggregate, the aggregate records a domain event describing what happened. The event is not published right away. It is stored alongside the aggregate's state in the same transaction (the Transactional Outbox pattern; see `/principles/backend-events/transactional-outbox-idempotent-consumer`), and a relay process reads the outbox and publishes the events to downstream consumers asynchronously.
 
 This is Vernon's fourth rule in mechanical form. The Subscription aggregate's `suspend()` method returns a `SubscriptionSuspended` event, and the application service persists the updated aggregate and the event atomically. From there the notification service, the analytics service, and the dashboard projection each receive the event independently and react in their own time. There is no distributed transaction and no coupling through shared writes.
 
@@ -143,6 +143,6 @@ A multi-step process that coordinates actions across several aggregates or servi
 
 ## See also
 
-The Transactional Outbox and Idempotent Consumer patterns (see `/kb/backend-events/transactional-outbox-idempotent-consumer`) are the concrete mechanisms behind Vernon's fourth rule. Eventual consistency across aggregate and context boundaries is only safe when events are delivered reliably (outbox) and consumers can absorb duplicate delivery (idempotency).
+The Transactional Outbox and Idempotent Consumer patterns (see `/principles/backend-events/transactional-outbox-idempotent-consumer`) are the concrete mechanisms behind Vernon's fourth rule. Eventual consistency across aggregate and context boundaries is only safe when events are delivered reliably (outbox) and consumers can absorb duplicate delivery (idempotency).
 
 The DDD Reference (Evans, CC-BY 4.0, https://www.domainlanguage.com/ddd/reference/) covers Aggregates, Entities, Value Objects, Domain Events, Repositories, and Factories as one set. The tactical patterns are built to work together, and reading each pattern in isolation misses the structural role it plays in the whole.

@@ -78,7 +78,7 @@ localhost у WebView; для production-сборки запустите бина
 4. Сделайте скриншоты, показывающие фичу в работе в реальном десктопном приложении.
 
 Скриншоты не опциональны. Это доказательство того, что проверка действительно
-состоялась. См. [без скриншота из production ничего не считается сделанным](/kb/process/prove-with-production-screenshots).
+состоялась. См. [без скриншота из production ничего не считается сделанным](/principles/process/prove-with-production-screenshots).
 
 ### Только потом — Playwright E2E
 

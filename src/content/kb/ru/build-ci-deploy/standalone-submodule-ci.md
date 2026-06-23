@@ -95,7 +95,7 @@ updated: 2026-04-11
 5. Перенести все `devDependencies` (biome, oxlint, typescript) в собственный
    `package.json` репозитория.
 6. Добавить `.gitattributes` с `* text=auto eol=lf` (см.
-   [Дисциплина CRLF/LF](/kb/build-ci-deploy/crlf-lf-discipline)).
+   [Дисциплина CRLF/LF](/principles/build-ci-deploy/crlf-lf-discipline)).
 7. Убрать `--frozen-lockfile` из шага установки в CI — лок-файлы для репозиториев-сабмодулей
    не коммитятся.
 
@@ -206,7 +206,7 @@ updated: 2026-04-11
 
 Так каждый текстовый файл в репозитории хранится с LF в концах строк в объектном хранилище
 git, на какой бы платформе ни был коммитящий. Полное обоснование см. в
-[Дисциплине CRLF/LF](/kb/build-ci-deploy/crlf-lf-discipline).
+[Дисциплине CRLF/LF](/principles/build-ci-deploy/crlf-lf-discipline).
 
 ### Воркфлоу CI — без --frozen-lockfile для репозиториев-сабмодулей
 

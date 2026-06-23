@@ -12,7 +12,7 @@ interface Props {
 const { post, headingLevel = 2 } = Astro.props;
 const Heading = `h${headingLevel}` as const;
 const { locale, rest } = splitLocaleId(post.id);
-const href = withLocale(locale, `/essays/${rest}`);
+const href = withLocale(locale, `/blog/${rest}`);
 ---
 
 <li class="essay">

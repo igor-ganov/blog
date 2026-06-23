@@ -109,7 +109,7 @@ const findEventsByOrder = (db: Db) => (orderId: string) =>
 
 The service accepts any event shape at the HTTP boundary but validates the envelope structure
 before enqueuing. Payload content stays opaque: the service records it without inspecting it.
-See [validate at the boundary](/kb/typescript/validate-at-the-boundary).
+See [validate at the boundary](/principles/typescript/validate-at-the-boundary).
 
 ```ts
 // event-service/src/api/ingest-event.ts
@@ -252,6 +252,6 @@ storage throws away the single-query guarantee, dragging aggregation back into e
 ## See also
 
 The outbox and relay pattern that producers use to POST reliably to `/events` is in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Validating the event envelope at the HTTP boundary without inspecting payload internals is
-covered in [validate at the boundary](/kb/typescript/validate-at-the-boundary).
+covered in [validate at the boundary](/principles/typescript/validate-at-the-boundary).

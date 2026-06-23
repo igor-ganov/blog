@@ -20,7 +20,7 @@ Una chiamata `fetch` che riceve un `4xx` o un `5xx` **non** lancia un'eccezione.
 `Promise` si risolve normalmente, e solo `res.ok` ti dice se il server ha accettato la
 richiesta. Un wrapper che ignora questo dettaglio e restituisce `{ success: true }` sta
 fabbricando un segnale di successo a partire da un fallimento, cosa che equivale a
-[ingoiare l'errore](/kb/error-handling/never-swallow-errors) con qualche passaggio in più.
+[ingoiare l'errore](/principles/error-handling/never-swallow-errors) con qualche passaggio in più.
 Chi chiama crede che la scrittura sia andata a buon fine, quindi la UI si ricarica e mostra
 lo stato vecchio. L'utente non vede nulla di strano, riprova, di nuovo non vede nulla di
 strano, e alla fine apre una segnalazione che dice "non si salva niente".
@@ -184,7 +184,7 @@ const data = await fetch(url)
 Lanciare è solo metà del contratto. Chi chiama deve catturare `HttpError` e indirizzarlo da
 qualche parte visibile, come un toast, un ref di errore o una coda di retry, e mai in un
 catch vuoto. Abbina questa regola a [non ingoiare gli
-errori](/kb/error-handling/never-swallow-errors).
+errori](/principles/error-handling/never-swallow-errors).
 
 ```ts
 // In a Vue component handler:
@@ -256,6 +256,6 @@ o no. Quello che funziona è un'imposizione strutturale:
 ## Vedi anche
 
 Un `{ success: true }` fabbricato è l'istanza specifica per HTTP del principio generale di
-[non ingoiare gli errori](/kb/error-handling/never-swallow-errors). Gli helper di telemetria
+[non ingoiare gli errori](/principles/error-handling/never-swallow-errors). Gli helper di telemetria
 che inviano analytics fire-and-forget cadono nello stesso tranello, trattato in [la
-telemetria non manda mai in crash](/kb/backend-events/telemetry-never-crashes).
+telemetria non manda mai in crash](/principles/backend-events/telemetry-never-crashes).

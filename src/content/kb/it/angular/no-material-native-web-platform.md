@@ -334,7 +334,7 @@ bootstrapApplication(AppComponent, {
 
 ## Vedi anche
 
-- [ARIA sull'elemento reale](/kb/web-components/aria-on-the-real-element) — l'approccio
+- [ARIA sull'elemento reale](/principles/web-components/aria-on-the-real-element) — l'approccio
   all'accessibilità dietro il pattern di componente headless usato qui.
-- [Minimalismo e design schematico](/kb/design-ux/minimalism-no-emoji-schematic) — la
+- [Minimalismo e design schematico](/principles/design-ux/minimalism-no-emoji-schematic) — la
   filosofia di design che accompagna la costruzione di componenti snelli e guidati dai token.

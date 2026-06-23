@@ -201,6 +201,6 @@ garantire non regge mai.
 ## Vedi anche
 
 L'implementazione completa dell'outbox su cui andrebbero costruiti gli step della saga si
-trova in [Outbox transazionale + consumer idempotente](/kb/backend-events/transactional-outbox-idempotent-consumer).
+trova in [Outbox transazionale + consumer idempotente](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Il design degli adapter per-engine che rende l'outbox portabile su una flotta a motori misti
-è in [Outbox nel DB del servizio stesso; adapter per-engine, mai 2PC](/kb/backend-events/storage-in-service-db-per-engine-adapters).
+è in [Outbox nel DB del servizio stesso; adapter per-engine, mai 2PC](/principles/backend-events/storage-in-service-db-per-engine-adapters).

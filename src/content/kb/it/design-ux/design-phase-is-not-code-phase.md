@@ -180,9 +180,9 @@ prescindere da quanto sia buono il codice.
 
 ## Vedi anche
 
-[Penpot è lo strumento di design](/kb/design-ux/penpot-is-the-design-tool) — specifiche del
+[Penpot è lo strumento di design](/principles/design-ux/penpot-is-the-design-tool) — specifiche del
 lavoro con un'istanza locale self-hosted di Penpot e di come interagirci direttamente.
 
-[Design distinti variano su molti assi](/kb/design-ux/distinct-designs-vary-many-axes) — che
+[Design distinti variano su molti assi](/principles/design-ux/distinct-designs-vary-many-axes) — che
 aspetto ha una risposta di design sostanziale quando vengono richieste direzioni di design,
 in contrapposizione all'anti-pattern della proposta di framework.

@@ -93,7 +93,7 @@ mettilo in coda. Il punto è che l'errore raggiunga del codice che ci fa qualcos
 Per la logica fallibile che gira spesso, conviene trasformare gli errori in **valori**
 invece che in throw: un `Either`/`Effect` il cui canale d'errore il type system ti
 obbliga ad affrontare. Vedi
-[gli errori come valori con Effect](/kb/functional-architecture/errors-as-values-with-effect).
+[gli errori come valori con Effect](/principles/functional-architecture/errors-as-values-with-effect).
 
 ## Anti-pattern
 
@@ -119,13 +119,13 @@ init().then(loadRole, () => {});
 `biome lint/suspicious/noEmptyBlockStatements` è impostato su **error** (è attivo nel
 `biome.json` di questo repo), il che vieta del tutto i `try/catch` vuoti. L'equivalente
 in ESLint è `no-empty` con `allowEmptyCatch: false`. La variante con successo fabbricato
-è intercettata dalla regola gemella [controlla sempre `res.ok`](/kb/error-handling/always-check-res-ok). Quando
+è intercettata dalla regola gemella [controlla sempre `res.ok`](/principles/error-handling/always-check-res-ok). Quando
 trovi un template literal `${key}: ${value}` o un `.catch(() => {})` in revisione,
 trattalo come un difetto e non come una pignoleria di stile.
 
 ## Vedi anche
 
 Lo stesso istinto, non lasciare mai passare un guasto inosservato, guida
-[controlla sempre res.ok](/kb/error-handling/always-check-res-ok) e il rifiuto di
-[scriversi a mano serializzatori fragili](/kb/error-handling/no-self-rolled-yaml) che
+[controlla sempre res.ok](/principles/error-handling/always-check-res-ok) e il rifiuto di
+[scriversi a mano serializzatori fragili](/principles/error-handling/no-self-rolled-yaml) che
 falliscono in silenzio davanti a input ostili.

@@ -208,7 +208,7 @@ caso specifico, quindi una regola personalizzata o grep restano oggi il presidio
 
 La configurazione di `experimentalDecorators` interagisce con il modo in cui Lit gestisce la proprietà
 riflessa `open` descritta in
-[ARIA on the real interactive element](/kb/web-components/aria-on-the-real-element) —
+[ARIA on the real interactive element](/principles/web-components/aria-on-the-real-element) —
 entrambe dipendono dal fatto che il descrittore di proprietà sia impostato correttamente. I vincoli del
 rendering lato server per i componenti Lit sono trattati in
-[Don't SSR custom elements on the edge](/kb/web-components/no-ssr-custom-elements-on-edge).
+[Don't SSR custom elements on the edge](/principles/web-components/no-ssr-custom-elements-on-edge).

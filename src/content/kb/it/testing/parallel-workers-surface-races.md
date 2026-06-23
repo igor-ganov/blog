@@ -42,10 +42,10 @@ nelle prime esecuzioni. Nessuno dei tre era un problema di test:
 2. Un cambio di sezione faceva un'asserzione sugli elementi della lista prima che i dati
    della sezione fossero arrivati: i dati viaggiano su un `MessageChannel`, invisibile alle
    attese basate sulla rete. Vedi
-   [il trasporto fuori banda richiede segnali DOM](/kb/testing/out-of-band-transport-needs-dom-signals).
+   [il trasporto fuori banda richiede segnali DOM](/principles/testing/out-of-band-transport-needs-dom-signals).
 3. Le visite si ancoravano a `networkidle`, che è uno sleep nascosto da 500ms e non prova
    nulla sul ciclo di vita del SW. Vedi
-   [attendere che il service worker si assesti](/kb/testing/wait-for-service-worker-settle).
+   [attendere che il service worker si assesti](/principles/testing/wait-for-service-worker-settle).
 
 Ogni correzione aveva forma di evento e ha reso più onesto il comportamento
 dell'applicazione. Dopo di che la suite è passata 271/271 tre volte di fila in locale ed è
@@ -94,7 +94,7 @@ quanto i tempi. Un test che caricava un PDF puntava la sua fixture a un **percor
 sulla macchina dell'autore**, protetto da `test.skip` quando il file manca. Aveva saltato in
 silenzio nella CI per mesi mentre la suite riportava verde. Le fixture stanno nel repository
 (`e2e/fixtures/`), e uno skip condizionale su una fixture mancante è un
-[test saltato, che è un test fallito](/kb/testing/no-retries-no-flakes).
+[test saltato, che è un test fallito](/principles/testing/no-retries-no-flakes).
 
 ## Anti-pattern
 

@@ -262,11 +262,11 @@ killed, you delete the UUID from the store. There is no way to un-sign an issued
 
 ## See also
 
-[Cross-origin auth that survives third-party-cookie blocking](/kb/platform/cross-origin-auth-survives-cookie-blocking)
+[Cross-origin auth that survives third-party-cookie blocking](/principles/platform/cross-origin-auth-survives-cookie-blocking)
 covers the next problem along: even correctly-sized cookies stop working across
 different eTLD+1s in modern Chromium, and the Bearer fallback pattern handles both cases.
 
-[Build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) covers the related
+[Build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked) covers the related
 deployment concern. The `client_secret` is a runtime secret, not a build-time variable,
 so inject it at runtime through the server environment instead of embedding it during
 the static build step.

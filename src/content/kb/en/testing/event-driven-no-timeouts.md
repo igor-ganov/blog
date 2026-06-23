@@ -51,7 +51,7 @@ test `BrowserContext` races the service worker's install → activate → `contr
 would navigate away, and the click failed with "navigated to /". Intermittent,
 platform-dependent, invisible until it hit CI. We did not fix it with a longer timeout.
 We waited on the real settle signal: a predicate over the SW lifecycle state plus a
-stable anchor element. See [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+stable anchor element. See [wait for the service worker to settle](/principles/testing/wait-for-service-worker-settle).
 
 There is a second-order trap we found later (2026-06-12). **`networkidle` is a timeout
 in disguise.** It resolves after 500ms of network silence, so every call pays a fixed
@@ -123,4 +123,4 @@ test.
 
 This comes back to one preference: deterministic systems over probabilistic hacks. The
 same standard (sub-second response, no idle timeouts, no retries, run it three times) is
-what [no retries, no flakes](/kb/testing/no-retries-no-flakes) makes explicit.
+what [no retries, no flakes](/principles/testing/no-retries-no-flakes) makes explicit.

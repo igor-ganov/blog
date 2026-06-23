@@ -216,6 +216,6 @@ quindi portarle sull’elemento corretto rende il doppio.
 ## Vedi anche
 
 La sincronizzazione di `aria-expanded` in `hostUpdated` è un delegato del ciclo di vita del
-controller descritto in [Un elemento Lit è un guscio sottile su un core puro](/kb/web-components/lit-functional-core).
+controller descritto in [Un elemento Lit è un guscio sottile su un core puro](/principles/web-components/lit-functional-core).
 L’interazione tra proprietà riflesse e le trasformazioni dei decoratori di TypeScript è
-trattata in [Decoratori legacy di Lit — mai la keyword accessor](/kb/web-components/lit-legacy-decorators-no-accessor).
+trattata in [Decoratori legacy di Lit — mai la keyword accessor](/principles/web-components/lit-legacy-decorators-no-accessor).

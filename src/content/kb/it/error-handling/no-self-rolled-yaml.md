@@ -190,7 +190,7 @@ qualcosa.
 I parser YAML interpretano i fine riga `\r\n` in modo diverso dagli strumenti
 indifferenti al `\r\n`, quindi normalizza i fine riga a `\n` prima di passare il contenuto
 al parser o al serializzatore. Vedi
-[disciplina CRLF/LF](/kb/build-ci-deploy/crlf-lf-discipline).
+[disciplina CRLF/LF](/principles/build-ci-deploy/crlf-lf-discipline).
 
 ```ts
 const normalise = (raw: string): string => raw.replace(/\r\n/g, '\n');
@@ -253,8 +253,8 @@ lo stack trace punta al parser invece che al serializzatore che ha prodotto i da
 ## Vedi anche
 
 L'istinto che produce serializzatori YAML fatti a mano è lo stesso che produce
-[errori inghiottiti](/kb/error-handling/never-swallow-errors) nel ramo catch. Entrambi
+[errori inghiottiti](/principles/error-handling/never-swallow-errors) nel ramo catch. Entrambi
 nascono come scorciatoie del tipo "è solo una piccola utility" e finiscono come incidenti di
 produzione lunghi giorni. L'incidente dei due punti ha innescato direttamente
-[l'ordine di gestione incidenti ripristina-prima-la-produzione](/kb/build-ci-deploy/restore-prod-first-incident-order),
+[l'ordine di gestione incidenti ripristina-prima-la-produzione](/principles/build-ci-deploy/restore-prod-first-incident-order),
 perché il team ha dovuto fare triage mentre la produzione era rossa.

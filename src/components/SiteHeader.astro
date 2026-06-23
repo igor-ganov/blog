@@ -11,8 +11,8 @@ interface Props {
 const { locale } = Astro.props;
 const ui = t(locale);
 const nav = [
-  { href: withLocale(locale, '/essays'), label: ui.nav.blog },
-  { href: withLocale(locale, '/kb'), label: ui.nav.principles },
+  { href: withLocale(locale, '/blog'), label: ui.nav.blog },
+  { href: withLocale(locale, '/principles'), label: ui.nav.principles },
   { href: withLocale(locale, '/skills'), label: ui.nav.skills },
   { href: withLocale(locale, '/about'), label: ui.nav.about },
 ];

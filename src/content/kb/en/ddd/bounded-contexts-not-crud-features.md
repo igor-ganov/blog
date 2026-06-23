@@ -19,7 +19,7 @@ updated: 2026-06-11
 
 ## Why this matters
 
-**When this earns its keep.** Domain-Driven Design is a response to scale and complexity, not a default posture. Drawing bounded contexts and context maps pays off on a large system with genuinely complex domain logic and more than one team. On a small or simple project the same apparatus is overhead: boundaries and contracts that cost more than they return, where a plain CRUD-per-entity split would have shipped the feature. Organizing the codebase by feature and separating its layers, on the other hand, is not size-dependent. That is house style at every scale (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)). Everything below assumes a domain large enough to justify the apparatus.
+**When this earns its keep.** Domain-Driven Design is a response to scale and complexity, not a default posture. Drawing bounded contexts and context maps pays off on a large system with genuinely complex domain logic and more than one team. On a small or simple project the same apparatus is overhead: boundaries and contracts that cost more than they return, where a plain CRUD-per-entity split would have shipped the feature. Organizing the codebase by feature and separating its layers, on the other hand, is not size-dependent. That is house style at every scale (see [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)). Everything below assumes a domain large enough to justify the apparatus.
 
 Eric Evans defines a Bounded Context as "a defined part of software where particular terms, definitions and rules apply in a consistent way" (Evans, DDD Europe 2019). The boundary is not drawn around a database table or an admin screen. It is drawn around a coherent vocabulary and a set of business rules that only make sense as a unit. Martin Fowler reinforces this: "Total unification of the domain model for a large system will not be feasible or cost-effective" (Fowler, https://martinfowler.com/bliki/BoundedContext.html). So breaking a system into arbitrarily small pieces, one feature per entity, creates as many problems as the big-ball-of-mud at the other extreme.
 
@@ -55,7 +55,7 @@ Five contexts instead of 27 features. Each cluster carries a name a domain exper
 
 **Step 2 — Formalize the Ubiquitous Language before writing code.**
 
-For each candidate context, produce a glossary: term, definition, what it is NOT (homonym disambiguation), and example usage in a sentence a domain expert would say. Until this glossary exists and has been reviewed by at least one domain expert, the boundary is provisional. See `/kb/ddd/ubiquitous-language-first` for the full process.
+For each candidate context, produce a glossary: term, definition, what it is NOT (homonym disambiguation), and example usage in a sentence a domain expert would say. Until this glossary exists and has been reviewed by at least one domain expert, the boundary is provisional. See `/principles/ddd/ubiquitous-language-first` for the full process.
 
 **Step 3 — Define inter-context contracts explicitly.**
 
@@ -75,7 +75,7 @@ This separation is not cosmetic. When the read shape needs to change for a new U
 
 **Step 4 — Apply the Inverse Conway Maneuver.**
 
-After the logical context map is drawn, align team ownership to it. One team owns one or more bounded contexts; no context is shared across teams without a formal interface. See `/kb/ddd/conway-and-team-topologies` for the full treatment.
+After the logical context map is drawn, align team ownership to it. One team owns one or more bounded contexts; no context is shared across teams without a formal interface. See `/principles/ddd/conway-and-team-topologies` for the full treatment.
 
 ## Anti-patterns
 

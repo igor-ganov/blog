@@ -18,7 +18,7 @@ updated: 2026-06-11
 
 ## Why this matters
 
-**When this earns its keep.** Classifying subdomains is an investment-allocation tool. It pays back only when you have enough domain to allocate and enough scarcity to make allocation a real decision. On a large system with complex logic and competing priorities, the Core/Supporting/Generic split tells you where to put your best people. On a small or simple project the whole domain fits in your head and the exercise is just ceremony. Apply it once the domain is big enough that "where do we *not* invest" is a question someone actually has to answer. Whatever the size, structure by feature and separate layers (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
+**When this earns its keep.** Classifying subdomains is an investment-allocation tool. It pays back only when you have enough domain to allocate and enough scarcity to make allocation a real decision. On a large system with complex logic and competing priorities, the Core/Supporting/Generic split tells you where to put your best people. On a small or simple project the whole domain fits in your head and the exercise is just ceremony. Apply it once the domain is big enough that "where do we *not* invest" is a question someone actually has to answer. Whatever the size, structure by feature and separate layers (see [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)).
 
 Evans introduced the subdomain classification as the primary tool for engineering investment decisions (Evans, Domain-Driven Design, 2003, Addison-Wesley, ISBN 978-0321125217; DDD Reference, https://www.domainlanguage.com/ddd/reference/). The classification has three tiers:
 

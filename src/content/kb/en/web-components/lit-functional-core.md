@@ -248,7 +248,7 @@ including whitespace is a review signal that logic is leaking back in. The Vites
 adds a mechanical check on top of that: if coverage of `src/core/**` drops below a
 threshold, something that should be a free function is hiding inside the class.
 
-The split also pairs with the [one-function-per-file-folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)
+The split also pairs with the [one-function-per-file-folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)
 rule. Each free function in `src/core/` lives in its own file, named for what it does,
 so the import graph stays navigable and the test file sits next to the source file.
 
@@ -256,7 +256,7 @@ so the import graph stays navigable and the test file sits next to the source fi
 
 The geometry functions tested in isolation here depend on measured `DOMRect` values, not
 hardcoded sizes. That constraint is covered in
-[compute geometry from measured sizes](/kb/web-components/measured-geometry-not-hardcoded).
+[compute geometry from measured sizes](/principles/web-components/measured-geometry-not-hardcoded).
 The decorator configuration that keeps `@property()` and `@state()` working correctly
 with the class-field split is covered in
-[Lit legacy decorators, never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor).
+[Lit legacy decorators, never the accessor keyword](/principles/web-components/lit-legacy-decorators-no-accessor).

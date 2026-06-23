@@ -81,10 +81,10 @@ const isTicket = (value: unknown): value is Ticket =>
 data enters the system: a network response, `JSON.parse`, `localStorage`. There, run a
 real runtime validator (a hand-written guard, or `effect/Schema` / `zod`) and return a
 typed value or an error. Inside the boundary everything is already typed, so there is
-nothing left to cast. This is [validate at the boundary](/kb/typescript/validate-at-the-boundary).
+nothing left to cast. This is [validate at the boundary](/principles/typescript/validate-at-the-boundary).
 
 For absent values, reach for `undefined` and model the absence in the type rather than a
-non-null `!`. See [no null, use undefined](/kb/typescript/no-null-use-undefined).
+non-null `!`. See [no null, use undefined](/principles/typescript/no-null-use-undefined).
 
 ## Anti-patterns
 

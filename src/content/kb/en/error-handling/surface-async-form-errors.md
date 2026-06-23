@@ -72,7 +72,7 @@ Execution order:
 The editor had no way to know whether the content was saved. Debugging meant wiring up
 `window.addEventListener('unhandledrejection', ...)` in the browser console just to see the
 error class, which then pointed at the underlying
-[IDB structured-clone boundary](/kb/platform/idb-structured-clone-boundary) issue in the
+[IDB structured-clone boundary](/principles/platform/idb-structured-clone-boundary) issue in the
 same feature.
 
 ## How to apply
@@ -253,7 +253,7 @@ This is a code-review check, not a lint rule:
 ## See also
 
 The unhandled rejection this pattern produces is one case of
-[never swallow errors](/kb/error-handling/never-swallow-errors): the `Promise` returned by
+[never swallow errors](/principles/error-handling/never-swallow-errors): the `Promise` returned by
 an async `emit` handler is dropped implicitly, the `void asyncFn()` variant of a swallowed
 error. The IDB structured-clone issue found in the same debugging session is covered in
-[IDB structured-clone boundary](/kb/platform/idb-structured-clone-boundary).
+[IDB structured-clone boundary](/principles/platform/idb-structured-clone-boundary).

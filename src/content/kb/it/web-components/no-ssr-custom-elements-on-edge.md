@@ -53,7 +53,7 @@ del worker, perché non sono stati legati nella dashboard di Cloudflare, la vali
 lancia all'avvio prima che qualsiasi richiesta venga servita. Il worker restituisce 500 finché i segreti non sono
 configurati. È un problema separato da quello di Lit ma segue lo stesso schema: tutto ciò
 che gira all'init del modulo sull'edge deve sopravvivere a un ambiente di runtime mancante.
-Vedi [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) per il
+Vedi [build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked) per il
 vincolo correlato sulle variabili d'ambiente statiche fissate al build.
 
 ## Come applicarlo
@@ -207,8 +207,8 @@ bug di compatibilità del runtime sull'edge.
 ## Vedi anche
 
 I componenti Lit caricati tramite script lato client si appoggiano alla configurazione dei decorator
-descritta in [Lit legacy decorators — never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor)
+descritta in [Lit legacy decorators — never the accessor keyword](/principles/web-components/lit-legacy-decorators-no-accessor)
 e seguono la separazione shell/core di
-[A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
+[A Lit element is a thin shell over a pure core](/principles/web-components/lit-functional-core).
 Il crash all'avvio di `astro:env` è la versione per runtime sull'edge del vincolo più ampio
-trattato in [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked).
+trattato in [build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked).

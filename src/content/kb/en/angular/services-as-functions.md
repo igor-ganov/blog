@@ -236,8 +236,8 @@ reuse them.
 
 ## See also
 
-- [inject() and host metadata](/kb/angular/inject-and-host-bindings) — the companion
+- [inject() and host metadata](/principles/angular/inject-and-host-bindings) — the companion
   rule for how dependencies are consumed inside components once the service is in place.
-- [Currying, closures, and higher-order functions](/kb/functional-architecture/currying-closures-higher-order) —
+- [Currying, closures, and higher-order functions](/principles/functional-architecture/currying-closures-higher-order) —
   the broader functional-architecture principle that motivates factory functions and
   closure-based service composition.

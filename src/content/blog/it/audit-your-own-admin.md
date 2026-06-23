@@ -26,7 +26,7 @@ facevano la sicurezza. La route in produzione costruiva `https://${path}` dirett
 path della richiesta, rifletteva qualsiasi `Origin` e inoltrava ogni header
 (`Authorization` compreso) verso l'host indicato dal path. È un relay aperto con inoltro
 delle credenziali, piazzato sul dominio di produzione, [esattamente la cosa che la
-versione standalone era stata costruita per non essere](/kb/platform/proxy-must-pin-targets).
+versione standalone era stata costruita per non essere](/principles/platform/proxy-must-pin-targets).
 
 Nessuno ha deciso di togliere l'allowlist. È evaporata nella traduzione, perché il porting
 è stato rivisto come "stessa feature, posizione nuova" invece che come nuova superficie
@@ -43,7 +43,7 @@ legge. Gli editor (il ruolo più basso) scrivono i post. Caporedattori e admin l
 revisionano in quell'anteprima, loggati in sessioni il cui token GitHub porta `admin:org`.
 
 Quindi c'è un confine di privilegio che passa proprio in mezzo a una feature, e [l'output
-markdown è HTML dell'attaccante](/kb/platform/sanitize-html-before-injection) sul lato
+markdown è HTML dell'attaccante](/principles/platform/sanitize-html-before-injection) sul lato
 sbagliato del confine. Un solo `<img onerror>` in una bozza, e il flusso di revisione
 stesso consegna un token org-admin a chiunque abbia chiesto la revisione. La correzione è
 una chiamata a DOMPurify nel punto di iniezione, più un file di test che elenca i vettori.
@@ -56,7 +56,7 @@ Il SW custodisce il token dell'utente ed espone route privilegiate: cambiare il 
 di un utente, mandare un invito. Le route della config dei ruoli, lì accanto, controllavano
 il ruolo del chiamante. Queste no. Chiunque potesse eseguire script same-origin poteva
 fare POST di un'autopromozione ad admin, e il SW, [un classico confused
-deputy](/kb/platform/confused-deputy-in-the-service-worker), la firmava con il token admin
+deputy](/principles/platform/confused-deputy-in-the-service-worker), la firmava con il token admin
 salvato.
 
 Concatenata con la XSS dell'anteprima, è da editor a org admin in un solo post costruito ad
@@ -69,7 +69,7 @@ si perdono il fatto che la gravità del ritrovamento N dipende dai ritrovamenti 
 La CI aveva zero blocchi `permissions:` su nove workflow in due repo, ogni action ancorata a
 un tag mutabile, e un PAT nell'env a livello di job su un trigger `pull_request`. Niente di
 esotico. È lo [stato di default di GitHub
-Actions](/kb/build-ci-deploy/least-privilege-workflows), che è esattamente il motivo per
+Actions](/principles/build-ci-deploy/least-privilege-workflows), che è esattamente il motivo per
 cui è ovunque. La correzione è meccanica: un blocco permissions, SHA pin, dependabot per
 tenerli aggiornati, segreti con scope per step dietro una guardia same-repo. Ci è voluto
 meno tempo che a scriverlo.

@@ -185,7 +185,7 @@ export const parseFrontmatterStrict = (raw: string): Record<string, unknown> => 
 
 Парсеры YAML трактуют переводы строк `\r\n` иначе, чем инструменты, которым переводы строк
 безразличны, поэтому нормализуйте окончания строк к `\n` перед тем, как отдавать контент
-парсеру или сериализатору. См. [дисциплину CRLF/LF](/kb/build-ci-deploy/crlf-lf-discipline).
+парсеру или сериализатору. См. [дисциплину CRLF/LF](/principles/build-ci-deploy/crlf-lf-discipline).
 
 ```ts
 const normalise = (raw: string): string => raw.replace(/\r\n/g, '\n');
@@ -249,8 +249,8 @@ const silentFail = (raw: string): Record<string, unknown> => {
 ## Смотрите также
 
 Тот же инстинкт, что порождает самописные сериализаторы YAML, порождает и
-[проглоченные ошибки](/kb/error-handling/never-swallow-errors) в ветке catch. Оба начинаются
+[проглоченные ошибки](/principles/error-handling/never-swallow-errors) в ветке catch. Оба начинаются
 как «да это же просто быстрая утилита» и заканчиваются многодневными инцидентами в
 продакшене. Инцидент с двоеточием напрямую запустил
-[порядок реагирования «сначала поднять продакшен»](/kb/build-ci-deploy/restore-prod-first-incident-order),
+[порядок реагирования «сначала поднять продакшен»](/principles/build-ci-deploy/restore-prod-first-incident-order),
 потому что команде пришлось разбираться с приоритетами, пока продакшен лежал.

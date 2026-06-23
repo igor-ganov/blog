@@ -40,7 +40,7 @@ sezione blog alla sezione posizioni non genera alcuna richiesta HTTP osservabile
 Il test sul cambio di sezione attendeva che gli elementi di contenuto fossero visibili dopo
 il clic sul link della sezione. Gli elementi *erano* visibili: quelli della sezione precedente, quelli
 in procinto di essere sostituiti. Eseguito in serie, la sostituzione vinceva sempre la corsa. Con
-[4 worker paralleli](/kb/testing/parallel-workers-surface-races) l'assertion
+[4 worker paralleli](/principles/testing/parallel-workers-surface-races) l'assertion
 cadeva a metà sostituzione e il test falliva onestamente. Nessuna attesa di rete poteva risolverlo,
 perché non c'è alcuna richiesta da attendere.
 
@@ -110,6 +110,6 @@ await page.evaluate(() => navigator.serviceWorker.controller!.postMessage(…));
 Revisione del codice: ogni funzionalità il cui percorso dati attraversa il confine di un worker, un canale o
 un altro trasporto invisibile all'harness deve esporre il completamento come stato del DOM, e i suoi
 test devono attendere sull'identità anziché sulla presenza. La
-[regola delle tre esecuzioni sotto worker paralleli](/kb/testing/no-retries-no-flakes) è la
+[regola delle tre esecuzioni sotto worker paralleli](/principles/testing/no-retries-no-flakes) è la
 rete di sicurezza. Le attese basate sulla presenza su dati fuori banda sono esattamente la classe di corsa
 critica che il parallelismo fa emergere allo scoperto.

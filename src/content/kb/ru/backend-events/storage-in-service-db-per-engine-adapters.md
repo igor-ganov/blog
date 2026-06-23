@@ -295,6 +295,6 @@ export interface Outbox {
 ## Смотрите также
 
 Полный сквозной поток, включая релей и идемпотентного консьюмера, описан в статье
-[Транзакционный outbox + идемпотентный консьюмер](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Транзакционный outbox + идемпотентный консьюмер](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Почему сага не заменяет этот паттерн — см.
-[Сага — это не outbox](/kb/backend-events/saga-is-not-an-outbox).
+[Сага — это не outbox](/principles/backend-events/saga-is-not-an-outbox).

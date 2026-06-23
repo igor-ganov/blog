@@ -25,7 +25,7 @@ On a design-stage project (2026-04-26) the tool was referred to as "пинпод
 "penpod". Both are Penpot, transliterated through Russian phonology. The name went
 unrecognised, so the response proposed an Angular workspace and Storybook. That missed
 on two counts. The tool was misidentified, and the phase was wrong too (see [The design
-phase is not the coding phase](/kb/design-ux/design-phase-is-not-code-phase)). The right
+phase is not the coding phase](/principles/design-ux/design-phase-is-not-code-phase)). The right
 move was to ask for the local Penpot URL and carry on inside the design tool.
 
 ## Why this matters
@@ -191,11 +191,11 @@ as a separate document for a separate phase.
 
 ## See also
 
-[The design phase is not the coding phase](/kb/design-ux/design-phase-is-not-code-phase) —
+[The design phase is not the coding phase](/principles/design-ux/design-phase-is-not-code-phase) —
 the rule that triggered this guidance: when a task is in Penpot, the response scope is
 design concepts and design-tool operations; code enters the conversation only when
 explicitly requested.
 
-[Drive the real browser over MCP](/kb/tooling-runtime/drive-the-real-browser-over-mcp) —
+[Drive the real browser over MCP](/principles/tooling-runtime/drive-the-real-browser-over-mcp) —
 the tooling principle behind driving Penpot via the browser MCP: interact with the
 running application rather than replacing it with a simulated environment.

@@ -217,6 +217,6 @@ onto the correct element pays off twice.
 ## See also
 
 The `aria-expanded` sync in `hostUpdated` is a lifecycle delegate of the controller
-described in [A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
+described in [A Lit element is a thin shell over a pure core](/principles/web-components/lit-functional-core).
 The interaction between reflected properties and TypeScript's decorator transforms is
-covered in [Lit legacy decorators — never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor).
+covered in [Lit legacy decorators — never the accessor keyword](/principles/web-components/lit-legacy-decorators-no-accessor).

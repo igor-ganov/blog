@@ -1,7 +1,7 @@
 # `kb/` — the knowledge base content
 
 One Markdown file per practice, foldered by category: `kb/<category>/<slug>.md`. The file
-`id` (e.g. `error-handling/never-swallow-errors`) is the route (`/kb/<id>`) and the
+`id` (e.g. `error-handling/never-swallow-errors`) is the route (`/principles/<id>`) and the
 cross-link target.
 
 - Frontmatter is validated by [`../../content.config.ts`](../../content.config.ts) — an

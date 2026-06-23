@@ -21,7 +21,7 @@ updated: 2026-06-11
 
 ## Why this matters
 
-**When this earns its keep.** This is a multi-team concern. Conway's Law operates at any size, but deliberately *mapping teams to bounded contexts* via the Inverse Conway Maneuver only becomes a tool once you have several teams and contexts to align. On a single small team there is nothing to align: one team, one communication structure. Reach for this when the organization is large enough that team boundaries and context boundaries can drift apart. What stays constant regardless of size is feature-based structure and layer separation (see [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)).
+**When this earns its keep.** This is a multi-team concern. Conway's Law operates at any size, but deliberately *mapping teams to bounded contexts* via the Inverse Conway Maneuver only becomes a tool once you have several teams and contexts to align. On a single small team there is nothing to align: one team, one communication structure. Reach for this when the organization is large enough that team boundaries and context boundaries can drift apart. What stays constant regardless of size is feature-based structure and layer separation (see [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)).
 
 In 1968 Melvin Conway published the observation that has since become axiomatic in software architecture: "Any organization that designs a system (defined broadly) will produce a design whose structure is a copy of the organization's communication structure" (Conway, "How Do Committees Invent?", Datamation, April 1968, https://www.melconway.com/Home/Conways_Law.html). The claim describes what organizations inevitably produce, not what they ought to produce. The practical fallout, as Martin Fowler put it, is that you cannot architect your way out of an organizational structure: "If the architecture of the system and the architecture of the organization are at odds, the architecture of the organization wins" (Fowler, https://martinfowler.com/bliki/ConwaysLaw.html).
 
@@ -110,7 +110,7 @@ Each stream-aligned team owns its context's full vertical: domain model, API, da
 
 **Step 4 — Apply the Inverse Conway Maneuver explicitly.**
 
-Draw the target context map first (see `/kb/ddd/bounded-contexts-not-crud-features`). Then design the team structure that would produce it:
+Draw the target context map first (see `/principles/ddd/bounded-contexts-not-crud-features`). Then design the team structure that would produce it:
 
 - Each bounded context or tightly related cluster of contexts maps to one stream-aligned team.
 - Shared infrastructure concerns (CI/CD, observability, auth infrastructure) map to a platform team operating in X-as-a-Service mode.

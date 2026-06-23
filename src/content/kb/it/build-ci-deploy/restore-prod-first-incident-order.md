@@ -31,7 +31,7 @@ meno di un recupero in un solo passo che richiede tre volte il tempo.
 **Una SPA di amministrazione contenuti, 2026-05-05.**
 
 La build del sito pubblico è diventata rossa per un errore di parsing YAML in un file di contenuto
-(vedi [no-self-rolled-yaml](/kb/error-handling/no-self-rolled-yaml) per la causa).
+(vedi [no-self-rolled-yaml](/principles/error-handling/no-self-rolled-yaml) per la causa).
 Il log della build puntava al file incriminato. La sequenza corretta era:
 
 1. Identificare il file rotto dal log della CI.
@@ -99,7 +99,7 @@ gh run list --workflow deploy.yml --limit 1
 
 Il sito deve essere su e servire correttamente prima che inizi la fase di post-mortem. Scatta uno
 screenshot di produzione se la correzione è visiva (vedi
-[prove-with-production-screenshots](/kb/process/prove-with-production-screenshots)).
+[prove-with-production-screenshots](/principles/process/prove-with-production-screenshots)).
 
 ### Passo 4: Aprire la PR sulla causa
 

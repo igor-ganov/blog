@@ -217,11 +217,11 @@ rimuovere il contenuto.
 
 ## Vedi anche
 
-[Distinct designs vary many axes](/kb/design-ux/distinct-designs-vary-many-axes) è la regola
+[Distinct designs vary many axes](/principles/design-ux/distinct-designs-vary-many-axes) è la regola
 a monte sulla direzione di design. I principi del minimalismo si applicano dopo che una
 direzione è stata scelta, non al posto della scelta.
 
-[No Material by default; build on the Web Platform](/kb/angular/no-material-native-web-platform)
+[No Material by default; build on the Web Platform](/principles/angular/no-material-native-web-platform)
 è la controparte implementativa: componenti snelli e guidati dai token che esprimono la
 stessa filosofia minimalista tramite CSS invece che tramite uno stack di override di un
 design system.

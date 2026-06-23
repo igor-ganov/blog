@@ -330,7 +330,7 @@ bootstrapApplication(AppComponent, {
 
 ## Смотрите также
 
-- [ARIA на реальном элементе](/kb/web-components/aria-on-the-real-element) — подход к
+- [ARIA на реальном элементе](/principles/web-components/aria-on-the-real-element) — подход к
   доступности, стоящий за паттерном headless-компонента, который применяется здесь.
-- [Минимализм и схематичный дизайн](/kb/design-ux/minimalism-no-emoji-schematic) —
+- [Минимализм и схематичный дизайн](/principles/design-ux/minimalism-no-emoji-schematic) —
   философия дизайна, которая идёт вместе со сборкой лёгких компонентов на токенах.

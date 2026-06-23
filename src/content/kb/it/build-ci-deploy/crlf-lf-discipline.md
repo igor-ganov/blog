@@ -70,7 +70,7 @@ mancanti nel frontmatter. Abbiamo recuperato l'articolo modificato dalla cronolo
 Lo stesso schema dev-su-Windows, CI-su-Linux faceva sì che biome e tsc segnalassero errori
 incoerenti a seconda di quale piattaforma eseguiva il controllo. Aggiungere un
 `.gitattributes` con `* text=auto eol=lf` ha normalizzato ogni file in LF nell'object store
-di git e la divergenza è sparita. Vedi [standalone-submodule-ci](/kb/build-ci-deploy/standalone-submodule-ci).
+di git e la divergenza è sparita. Vedi [standalone-submodule-ci](/principles/build-ci-deploy/standalone-submodule-ci).
 
 ## Come applicarlo
 
@@ -152,7 +152,7 @@ export const readTextFile = async (path: string): Promise<string> => {
 // Internal callers receive LF-only strings; no per-function normalization needed
 ```
 
-È il principio [validate-at-the-boundary](/kb/typescript/validate-at-the-boundary)
+È il principio [validate-at-the-boundary](/principles/typescript/validate-at-the-boundary)
 applicato ai fine riga: normalizza una volta al punto d'ingresso, poi fidati della forma
 normalizzata ovunque all'interno.
 
@@ -233,7 +233,7 @@ const lines = content.split('\n');
 ## Vedi anche
 
 Il fallire-in-silenzio-con-risultato-sbagliato del CRLF nelle regex è della stessa
-categoria di [non scrivere mai un parser YAML a mano](/kb/error-handling/no-self-rolled-yaml):
+categoria di [non scrivere mai un parser YAML a mano](/principles/error-handling/no-self-rolled-yaml):
 il codice sembra funzionare, niente solleva eccezioni, e la corruzione viene a galla solo
 più a valle, quando qualcosa consuma il risultato sbagliato. Entrambi gli incidenti hanno
 colpito la stessa pipeline di contenuti nello stesso giorno (2026-04-12).

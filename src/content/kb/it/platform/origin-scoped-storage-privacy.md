@@ -244,7 +244,7 @@ per le credenziali a lunga durata.
 
 ## Vedi anche
 
-[Autenticazione cross-origin che sopravvive al blocco dei cookie di terze parti](/kb/platform/cross-origin-auth-survives-cookie-blocking) —
+[Autenticazione cross-origin che sopravvive al blocco dei cookie di terze parti](/principles/platform/cross-origin-auth-survives-cookie-blocking) —
 il rovescio dello stesso confine: quando il tuo sito e la tua API vivono su origin diverse,
 nemmeno i cookie passano. Il confine di privacy vale anche per la tua architettura, non solo
 per i tracker di terze parti.

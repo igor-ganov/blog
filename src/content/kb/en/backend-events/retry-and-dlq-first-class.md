@@ -39,7 +39,7 @@ Without library-level enforcement of this contract, outcome 2 usually degrades i
 silent discard. A `console.error` followed by a return is not a dead-letter queue.
 Dropped messages are invisible data loss: no record that the message existed, no way to
 replay it, no alert that anything went wrong. See
-[never swallow errors](/kb/error-handling/never-swallow-errors) for why this matters
+[never swallow errors](/principles/error-handling/never-swallow-errors) for why this matters
 beyond messaging.
 
 The two sides of the delivery path use different retry mechanisms, so the library has to
@@ -328,6 +328,6 @@ is fixed.
 ## See also
 
 The outbox and idempotent consumer that the sender relay runs against are covered in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 The rule that errors must never be swallowed applies here too:
-[never swallow errors](/kb/error-handling/never-swallow-errors).
+[never swallow errors](/principles/error-handling/never-swallow-errors).

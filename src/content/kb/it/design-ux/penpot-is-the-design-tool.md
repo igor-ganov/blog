@@ -25,7 +25,7 @@ In un progetto in fase di design (2026-04-26) lo strumento veniva chiamato "пи
 "penpod". Entrambi sono Penpot, traslitterato attraverso la fonologia russa. Il nome non
 è stato riconosciuto, così la risposta proponeva un workspace Angular e Storybook. Un
 doppio errore. Lo strumento è stato identificato male, e anche la fase era sbagliata (vedi [La
-fase di design non è la fase di codice](/kb/design-ux/design-phase-is-not-code-phase)). La mossa
+fase di design non è la fase di codice](/principles/design-ux/design-phase-is-not-code-phase)). La mossa
 giusta era chiedere l'URL locale di Penpot e proseguire dentro lo strumento di design.
 
 ## Perché conta
@@ -191,11 +191,11 @@ come documento separato per una fase separata.
 
 ## Vedi anche
 
-[La fase di design non è la fase di codice](/kb/design-ux/design-phase-is-not-code-phase) —
+[La fase di design non è la fase di codice](/principles/design-ux/design-phase-is-not-code-phase) —
 la regola che ha innescato questa guida: quando un task è in Penpot, l'ambito della risposta è
 fatto di concetti di design e operazioni nello strumento di design; il codice entra nella conversazione
 solo quando viene richiesto esplicitamente.
 
-[Guida il browser reale via MCP](/kb/tooling-runtime/drive-the-real-browser-over-mcp) —
+[Guida il browser reale via MCP](/principles/tooling-runtime/drive-the-real-browser-over-mcp) —
 il principio di tooling dietro il guidare Penpot via browser MCP: interagisci con
 l'applicazione in esecuzione invece di sostituirla con un ambiente simulato.

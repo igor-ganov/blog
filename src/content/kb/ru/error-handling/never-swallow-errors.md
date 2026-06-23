@@ -94,7 +94,7 @@ export const ensureDir = async (path: string): Promise<void> => {
 
 Для частой логики, которая может падать, лучше делать ошибки **значениями**, а не
 бросками: `Either`/`Effect`, чей канал ошибки система типов вынуждает вас обработать.
-См. [ошибки как значения с Effect](/kb/functional-architecture/errors-as-values-with-effect).
+См. [ошибки как значения с Effect](/principles/functional-architecture/errors-as-values-with-effect).
 
 ## Антипаттерны
 
@@ -120,13 +120,13 @@ init().then(loadRole, () => {});
 `biome lint/suspicious/noEmptyBlockStatements` выставлен в **error** (он включён в
 собственном `biome.json` этого репозитория), что напрямую запрещает пустой `try/catch`.
 Эквивалент в ESLint — `no-empty` с `allowEmptyCatch: false`. Вариант со сфабрикованным
-успехом ловит парное правило [всегда проверяйте `res.ok`](/kb/error-handling/always-check-res-ok).
+успехом ловит парное правило [всегда проверяйте `res.ok`](/principles/error-handling/always-check-res-ok).
 Когда на ревью вам попадается шаблонный литерал `${key}: ${value}` или `.catch(() => {})`,
 относитесь к этому как к дефекту, а не как к мелочи о стиле.
 
 ## Смотрите также
 
 Тот же инстинкт — не давать сбою пройти незамеченным — стоит за правилом
-[всегда проверяйте res.ok](/kb/error-handling/always-check-res-ok) и за отказом
-[писать вручную хрупкие сериализаторы](/kb/error-handling/no-self-rolled-yaml), которые
+[всегда проверяйте res.ok](/principles/error-handling/always-check-res-ok) и за отказом
+[писать вручную хрупкие сериализаторы](/principles/error-handling/no-self-rolled-yaml), которые
 молча падают на враждебном вводе.

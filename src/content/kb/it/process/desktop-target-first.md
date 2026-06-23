@@ -80,7 +80,7 @@ Poi pilota la funzionalità a mano:
 4. Cattura screenshot che mostrano la funzionalità che funziona nell'app desktop reale.
 
 Gli screenshot non sono opzionali. Sono la prova che la verifica è davvero avvenuta.
-Vedi [niente è fatto senza la prova degli screenshot di produzione](/kb/process/prove-with-production-screenshots).
+Vedi [niente è fatto senza la prova degli screenshot di produzione](/principles/process/prove-with-production-screenshots).
 
 ### Solo allora lancia gli E2E con Playwright
 

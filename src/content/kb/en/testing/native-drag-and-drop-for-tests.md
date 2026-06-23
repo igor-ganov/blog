@@ -40,7 +40,7 @@ custom monitor does not handle synthetic events.
 We chose to replace the library rather than work around it, for three reasons:
 
 1. A feature that cannot be driven by tests cannot be confirmed working in CI. The
-   three-run rule (see [no retries, no flakes](/kb/testing/no-retries-no-flakes))
+   three-run rule (see [no retries, no flakes](/principles/testing/no-retries-no-flakes))
    requires deterministic verification; a DnD implementation that only works under a
    real pointer is not verifiable.
 
@@ -223,7 +223,7 @@ events that Playwright dispatches as trusted events through `page.dragAndDrop`.
 
 The deterministic harness (`E2E_TEST_MODE`, seeded state, mock adapter) rests on the same
 principle as the wait strategies in
-[event-driven waits](/kb/testing/event-driven-no-timeouts): a test should not depend on
+[event-driven waits](/principles/testing/event-driven-no-timeouts): a test should not depend on
 timing, external services, or any other non-deterministic input. The board's keyboard
 fallback was added for accessibility, and it doubles as a second test vector at no extra
 cost.

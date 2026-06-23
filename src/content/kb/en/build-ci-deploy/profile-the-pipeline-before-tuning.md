@@ -52,7 +52,7 @@ gh run view <run-id> --json jobs \
 ```
 
 Sort by duration, descending, and spend effort strictly top-down. The
-[riskiest/biggest-first discipline](/kb/process/spike-riskiest-first) applies to
+[riskiest/biggest-first discipline](/principles/process/spike-riskiest-first) applies to
 pipelines too.
 
 **Step 2: Cache downloads, keyed by the tool's version.**

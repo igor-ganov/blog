@@ -208,10 +208,10 @@ body {
 
 ## Vedi anche
 
-[Dimostra con screenshot di produzione](/kb/process/prove-with-production-screenshots) è la regola di
+[Dimostra con screenshot di produzione](/principles/process/prove-with-production-screenshots) è la regola di
 processo più ampia di cui gli screenshot mobili sono un caso particolare: le affermazioni sul
 comportamento in produzione richiedono prove di produzione.
 
-[Pilota il browser reale tramite MCP](/kb/tooling-runtime/drive-the-real-browser-over-mcp) è la
+[Pilota il browser reale tramite MCP](/principles/tooling-runtime/drive-the-real-browser-over-mcp) è la
 controparte sul versante degli strumenti. Quando scripti i test del browser, pilota un'istanza di
 browser reale anziché una simulata, per le stesse ragioni che valgono per la prova del mobile.

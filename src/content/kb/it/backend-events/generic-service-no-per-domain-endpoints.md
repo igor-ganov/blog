@@ -109,7 +109,7 @@ const findEventsByOrder = (db: Db) => (orderId: string) =>
 
 Il servizio accetta qualsiasi forma di evento al confine HTTP ma valida la struttura dell'envelope
 prima di accodarla. Il contenuto del payload resta opaco: il servizio lo registra senza ispezionarlo.
-Vedi [valida al confine](/kb/typescript/validate-at-the-boundary).
+Vedi [valida al confine](/principles/typescript/validate-at-the-boundary).
 
 ```ts
 // event-service/src/api/ingest-event.ts
@@ -252,6 +252,6 @@ normalizzato butta via la garanzia della singola query, trascinando di nuovo l'a
 ## Vedi anche
 
 Il pattern outbox + relay che i producer usano per fare POST in modo affidabile su `/events` è in
-[Outbox transazionale + consumer idempotente](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Outbox transazionale + consumer idempotente](/principles/backend-events/transactional-outbox-idempotent-consumer).
 La validazione dell'envelope dell'evento al confine HTTP senza ispezionare gli interni del payload è
-trattata in [valida al confine](/kb/typescript/validate-at-the-boundary).
+trattata in [valida al confine](/principles/typescript/validate-at-the-boundary).

@@ -207,10 +207,10 @@ territory. Remove decorations before you remove content.
 
 ## See also
 
-[Distinct designs vary many axes](/kb/design-ux/distinct-designs-vary-many-axes) is the
+[Distinct designs vary many axes](/principles/design-ux/distinct-designs-vary-many-axes) is the
 upstream design-direction rule. Minimalism principles apply after a direction is chosen,
 not instead of choosing one.
 
-[No Material by default; build on the Web Platform](/kb/angular/no-material-native-web-platform)
+[No Material by default; build on the Web Platform](/principles/angular/no-material-native-web-platform)
 is the implementation counterpart: lean, token-driven components that express the same
 minimalist philosophy through CSS rather than through a design system override stack.

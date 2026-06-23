@@ -209,10 +209,10 @@ body {
 
 ## See also
 
-[Prove with production screenshots](/kb/process/prove-with-production-screenshots) is the
+[Prove with production screenshots](/principles/process/prove-with-production-screenshots) is the
 broader process rule that mobile screenshots are an instance of: claims about production
 behaviour require production evidence.
 
-[Drive the real browser over MCP](/kb/tooling-runtime/drive-the-real-browser-over-mcp) is
+[Drive the real browser over MCP](/principles/tooling-runtime/drive-the-real-browser-over-mcp) is
 the tooling counterpart. When scripting browser tests, drive a real browser instance
 rather than a simulated one, for the same reasons that apply to mobile proofing.

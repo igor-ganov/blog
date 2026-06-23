@@ -175,5 +175,5 @@ network partition mode described in REQ-4" is complete.
 The citation standard applies most visibly in DDD research and architecture decisions,
 where the field has a rich primary literature and the temptation to substitute
 internet opinions for canonical sources is high. The
-[conway-and-team-topologies](/kb/ddd/conway-and-team-topologies) article demonstrates
+[conway-and-team-topologies](/principles/ddd/conway-and-team-topologies) article demonstrates
 the standard: every claim is grounded in a specific source.

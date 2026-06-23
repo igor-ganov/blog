@@ -141,7 +141,7 @@ if (Either.isLeft(result)) {
 const config = result.right; // Config — fully typed
 ```
 
-Полный паттерн см. в [errors-as-values-with-effect](/kb/functional-architecture/errors-as-values-with-effect).
+Полный паттерн см. в [errors-as-values-with-effect](/principles/functional-architecture/errors-as-values-with-effect).
 
 ## Антипаттерны
 
@@ -205,6 +205,6 @@ const parseConfig = (raw: unknown): Config => {
 
 ## Смотри также
 
-- [No casting](/kb/typescript/no-casting) — объясняет, почему `as` не заменяет настоящую проверку во время выполнения.
-- [No null — model absence with undefined](/kb/typescript/no-null-use-undefined) — нормализация null — часть граничной проверки.
-- [Parse, don't validate](/kb/functional-architecture/parse-dont-validate) — та же мысль в формулировке функциональной архитектуры.
+- [No casting](/principles/typescript/no-casting) — объясняет, почему `as` не заменяет настоящую проверку во время выполнения.
+- [No null — model absence with undefined](/principles/typescript/no-null-use-undefined) — нормализация null — часть граничной проверки.
+- [Parse, don't validate](/principles/functional-architecture/parse-dont-validate) — та же мысль в формулировке функциональной архитектуры.

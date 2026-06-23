@@ -94,7 +94,7 @@ export const visitSettled = async (
 
 Pick the stable anchor element with care. It has to be present on every page under
 test, rendered by the application, and carry a deterministic `data-testid` (see
-[locator constants](/kb/testing/locator-constants)).
+[locator constants](/principles/testing/locator-constants)).
 
 And gate **before the next navigation** whenever the previous step registered the SW:
 
@@ -113,7 +113,7 @@ await visit(page, '/content/blog');
 
 This is still event-driven. `waitForFunction` polls a browser-side predicate and
 resolves the instant it returns true, with no fixed cost (see
-[event-driven waits](/kb/testing/event-driven-no-timeouts)).
+[event-driven waits](/principles/testing/event-driven-no-timeouts)).
 
 ### Diagnosing the race
 
@@ -152,10 +152,10 @@ is post-activate and stable.
 ## Enforcement
 
 There is no static analysis for this pattern. Enforcement comes from the three-run
-rule (see [no retries, no flakes](/kb/testing/no-retries-no-flakes)) and, more
+rule (see [no retries, no flakes](/principles/testing/no-retries-no-flakes)) and, more
 sharply, from parallel workers. Serial suites mask this race behind incidental
 slowness, while 4 workers on shared CI vCPUs reproduce it within a run or two (see
-[parallel workers surface races](/kb/testing/parallel-workers-surface-races)).
+[parallel workers surface races](/principles/testing/parallel-workers-surface-races)).
 
 In code review, check every navigation that follows SW (re)registration: is it gated
 by the lifecycle predicate and a stable anchor? If the project ships a SW update

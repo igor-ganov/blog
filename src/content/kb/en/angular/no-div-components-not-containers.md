@@ -310,8 +310,8 @@ to a missing component boundary.
 ## See also
 
 - The same "no anonymous wrappers" principle applies to custom elements; see
-  [ARIA on the real element](/kb/web-components/aria-on-the-real-element) for the
+  [ARIA on the real element](/principles/web-components/aria-on-the-real-element) for the
   accessibility side of this argument.
 - Host bindings are the natural companion to `:host` styling — see
-  [inject() and host metadata](/kb/angular/inject-and-host-bindings) for how to drive
+  [inject() and host metadata](/principles/angular/inject-and-host-bindings) for how to drive
   host element state from signals.

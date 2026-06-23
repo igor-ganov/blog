@@ -98,7 +98,7 @@ La correzione ha affrontato una categoria alla volta:
 5. Spostare tutte le `devDependencies` (biome, oxlint, typescript) nel `package.json` del
    repo stesso.
 6. Aggiungere un `.gitattributes` con `* text=auto eol=lf` (vedi
-   [disciplina CRLF/LF](/kb/build-ci-deploy/crlf-lf-discipline)).
+   [disciplina CRLF/LF](/principles/build-ci-deploy/crlf-lf-discipline)).
 7. Togliere `--frozen-lockfile` dallo step di install della CI — i lockfile non vengono
    committati per i repo usati come submodule.
 
@@ -210,7 +210,7 @@ mutabile, quindi non riprodurrà due volte lo stesso install.
 
 Così ogni file di testo nel repo resta con fine riga LF nell'object store di git, qualunque
 sia la piattaforma di chi committa. Vedi
-[disciplina CRLF/LF](/kb/build-ci-deploy/crlf-lf-discipline) per la motivazione completa.
+[disciplina CRLF/LF](/principles/build-ci-deploy/crlf-lf-discipline) per la motivazione completa.
 
 ### Workflow CI — niente --frozen-lockfile per i repo submodule
 

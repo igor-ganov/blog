@@ -253,7 +253,7 @@ La suite Vitest aggiunge sopra un controllo meccanico: se la copertura di `src/c
 scende sotto una soglia, qualcosa che dovrebbe essere una funzione libera si sta
 nascondendo dentro la classe.
 
-La separazione si abbina anche alla regola [one-function-per-file-folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage).
+La separazione si abbina anche alla regola [one-function-per-file-folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage).
 Ogni funzione libera in `src/core/` vive nel suo file, col nome di ciò che fa, così il
 grafo degli import resta navigabile e il file di test sta accanto al file sorgente.
 
@@ -261,7 +261,7 @@ grafo degli import resta navigabile e il file di test sta accanto al file sorgen
 
 Le funzioni di geometria testate qui isolate dipendono da valori `DOMRect` misurati, non
 da dimensioni hardcoded. Quel vincolo è trattato in
-[calcola la geometria da dimensioni misurate](/kb/web-components/measured-geometry-not-hardcoded).
+[calcola la geometria da dimensioni misurate](/principles/web-components/measured-geometry-not-hardcoded).
 La configurazione dei decoratori che mantiene `@property()` e `@state()` funzionanti
 correttamente con la separazione dei campi della classe è trattata in
-[decoratori legacy di Lit, mai la parola chiave accessor](/kb/web-components/lit-legacy-decorators-no-accessor).
+[decoratori legacy di Lit, mai la parola chiave accessor](/principles/web-components/lit-legacy-decorators-no-accessor).

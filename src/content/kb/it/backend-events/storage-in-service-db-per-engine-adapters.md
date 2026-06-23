@@ -299,6 +299,6 @@ su una flotta con motori misti.
 ## Vedi anche
 
 Il flusso completo end-to-end, comprese il relay e il consumer idempotente, è in
-[Outbox transazionale + consumer idempotente](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Outbox transazionale + consumer idempotente](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Per capire perché una saga non sostituisce questo pattern, vedi
-[Una saga non è un outbox](/kb/backend-events/saga-is-not-an-outbox).
+[Una saga non è un outbox](/principles/backend-events/saga-is-not-an-outbox).

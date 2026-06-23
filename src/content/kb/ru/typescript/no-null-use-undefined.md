@@ -208,5 +208,5 @@ const mapIssue = (raw: JiraIssueRaw): Issue => ({ /* ... */ });
 
 ## Смотрите также
 
-- [Validate at the boundary, compute within](/kb/typescript/validate-at-the-boundary) — родственное правило о том, как разбирать и нормализовать внешние данные в одном месте.
-- [No casting](/kb/typescript/no-casting) — приведение типов маскирует тот же класс ошибок, что и путаница null против undefined.
+- [Validate at the boundary, compute within](/principles/typescript/validate-at-the-boundary) — родственное правило о том, как разбирать и нормализовать внешние данные в одном месте.
+- [No casting](/principles/typescript/no-casting) — приведение типов маскирует тот же класс ошибок, что и путаница null против undefined.

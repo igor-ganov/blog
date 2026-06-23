@@ -180,5 +180,5 @@ di partizione di rete descritta in REQ-4" è completo.
 Lo standard di citazione si applica nel modo più evidente nella ricerca DDD e nelle
 decisioni architetturali, dove il campo ha una ricca letteratura primaria e la tentazione di
 sostituire le opinioni di internet alle fonti canoniche è alta. L'articolo
-[conway-and-team-topologies](/kb/ddd/conway-and-team-topologies) dimostra lo standard: ogni
+[conway-and-team-topologies](/principles/ddd/conway-and-team-topologies) dimostra lo standard: ogni
 affermazione è ancorata a una fonte specifica.

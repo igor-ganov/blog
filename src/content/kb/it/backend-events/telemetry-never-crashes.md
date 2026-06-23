@@ -284,7 +284,7 @@ Il primo manda in crash l'app per un guasto transitorio della telemetria. Il sec
 gonfia il costo e il rumore delle trace. Il terzo produce trace scollegate che non riesci
 a seguire attraverso il confine di una coda. Il quarto inghiotte l'errore applicativo
 dentro il codice di telemetria, il che viola direttamente
-[non inghiottire mai gli errori](/kb/error-handling/never-swallow-errors).
+[non inghiottire mai gli errori](/principles/error-handling/never-swallow-errors).
 
 ## Come imporlo
 
@@ -302,6 +302,6 @@ dentro il codice di telemetria, il che viola direttamente
 
 La trace end-to-end che segue un evento attraverso i servizi producer, relay e worker si
 appoggia sul pattern di outbox e delivery descritto in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Il lato dell'errore applicativo della regola del no-swallow è in
-[non inghiottire mai gli errori](/kb/error-handling/never-swallow-errors).
+[non inghiottire mai gli errori](/principles/error-handling/never-swallow-errors).

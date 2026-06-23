@@ -235,7 +235,7 @@ clears on tab close, and server-side session stores for long-lived credentials.
 
 ## See also
 
-[Cross-origin auth that survives third-party-cookie blocking](/kb/platform/cross-origin-auth-survives-cookie-blocking) —
+[Cross-origin auth that survives third-party-cookie blocking](/principles/platform/cross-origin-auth-survives-cookie-blocking) —
 the flip side of the same boundary: when your own site and API live on different origins,
 cookies don't flow either. The privacy boundary applies to your own architecture too, not
 only to third-party trackers.

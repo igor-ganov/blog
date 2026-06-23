@@ -253,5 +253,5 @@ class Component {
 
 ## Vedi anche
 
-- [No casting](/kb/typescript/no-casting) — l'inferenza elimina la maggior parte delle situazioni in cui un cast sembra allettante.
-- [Currying, closure e funzioni di ordine superiore](/kb/functional-architecture/currying-closures-higher-order) — il pattern delle closure per la composizione dei servizi in dettaglio.
+- [No casting](/principles/typescript/no-casting) — l'inferenza elimina la maggior parte delle situazioni in cui un cast sembra allettante.
+- [Currying, closure e funzioni di ordine superiore](/principles/functional-architecture/currying-closures-higher-order) — il pattern delle closure per la composizione dei servizi in dettaglio.

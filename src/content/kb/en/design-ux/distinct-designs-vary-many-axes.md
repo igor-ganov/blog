@@ -199,11 +199,11 @@ size, and they should feel genuinely different.
 
 ## See also
 
-[Minimalism: no emoji, schematic, duotone](/kb/design-ux/minimalism-no-emoji-schematic) —
+[Minimalism: no emoji, schematic, duotone](/principles/design-ux/minimalism-no-emoji-schematic) —
 the specific visual philosophy that applies once a direction is confirmed, including
 the concrete lesson from removing stat chips and extra modules from the bento-marketplace
 prototype after it felt like a spam site.
 
-[The design phase is not the coding phase](/kb/design-ux/design-phase-is-not-code-phase) —
+[The design phase is not the coding phase](/principles/design-ux/design-phase-is-not-code-phase) —
 the upstream rule: when producing design directions, stay in design-tool space; do not
 let the multi-direction brief trigger a multi-workspace scaffold.

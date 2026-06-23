@@ -250,4 +250,4 @@ Production: example.com → api.example.com      (same eTLD+1; cookie path)
 
 ## Смотрите также
 
-[Токены не помещаются в cookie](/kb/platform/tokens-dont-fit-in-cookies) — смежный случай, когда токен слишком велик для cookie даже на том же origin. Обе проблемы подталкивают к серверному хранилищу сессий, которое держит в cookie только идентификатор сессии.
+[Токены не помещаются в cookie](/principles/platform/tokens-dont-fit-in-cookies) — смежный случай, когда токен слишком велик для cookie даже на том же origin. Обе проблемы подталкивают к серверному хранилищу сессий, которое держит в cookie только идентификатор сессии.

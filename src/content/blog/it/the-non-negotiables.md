@@ -18,35 +18,35 @@ dica ciascuna da sola.
 ## Le nove
 
 **La sicurezza dei tipi non ha vie di fuga.**
-[Mai ricorrere a `as`](/kb/typescript/no-casting). Un cast scavalca il compilatore proprio
+[Mai ricorrere a `as`](/principles/typescript/no-casting). Un cast scavalca il compilatore proprio
 sull'unica domanda a cui esiste per rispondere. Modella i tipi così che l'inferenza torni
 giusta, oppure valida al confine. Non mentire al type checker.
 
 **Gli errori sono valori oppure si propagano — mai silenziarli.**
-[Mai ingoiare un errore](/kb/error-handling/never-swallow-errors) e
-[controlla sempre `res.ok`](/kb/error-handling/always-check-res-ok). Un `catch` vuoto e una
+[Mai ingoiare un errore](/principles/error-handling/never-swallow-errors) e
+[controlla sempre `res.ok`](/principles/error-handling/always-check-res-ok). Un `catch` vuoto e una
 `fetch` di cui non ispezioni mai lo stato sono lo stesso bug: un fallimento che il codice ha
 deciso di fingere non sia mai avvenuto. Sono questi i fallimenti che diventano incidenti.
 
 **I test si sincronizzano sugli eventi, non sul tempo.**
-[Niente timeout, mai](/kb/testing/event-driven-no-timeouts) e
-[niente retry, niente flake](/kb/testing/no-retries-no-flakes). Un `waitForTimeout` nasconde
+[Niente timeout, mai](/principles/testing/event-driven-no-timeouts) e
+[niente retry, niente flake](/principles/testing/no-retries-no-flakes). Un `waitForTimeout` nasconde
 o un test rotto o un'app non deterministica, e un retry nasconde una race vera. Verde
 significa un passaggio completo e stabile tre volte di fila, non "probabilmente verde".
 
 **"Fatto" significa dimostrato, sulla cosa vera.**
-[Dimostralo con screenshot di livello produzione](/kb/process/prove-with-production-screenshots)
+[Dimostralo con screenshot di livello produzione](/principles/process/prove-with-production-screenshots)
 dal browser vero. Una funzionalità su cui si è solo ragionato non è finita. È un'ipotesi.
 
 **La build è riproducibile.**
-[L'ambiente di build è fissato e verificato](/kb/build-ci-deploy/build-time-env-is-baked)
+[L'ambiente di build è fissato e verificato](/principles/build-ci-deploy/build-time-env-is-baked)
 contro la CI. Una build che dipende da un valore che nessuno ha scritto da qualche parte è
 una build che si rompe sulla macchina di qualcun altro.
 
 **Due regole operative completano il quadro.**
-[Mai terminare tutti i processi node](/kb/tooling-runtime/never-kill-all-node) quando ti
+[Mai terminare tutti i processi node](/principles/tooling-runtime/never-kill-all-node) quando ti
 serve solo quello sulla tua porta; e
-[la fase di design non è la fase di codice](/kb/design-ux/design-phase-is-not-code-phase),
+[la fase di design non è la fase di codice](/principles/design-ux/design-phase-is-not-code-phase),
 quindi non aprire un editor per "fare design" in un framework. Domini diversi, stesso
 istinto: precisione invece della scorciatoia comoda.
 
@@ -67,5 +67,5 @@ qualcun altro. Le regole su cui non si tratta sono i punti dove quel baratto è 
 giudicato mai conveniente.
 
 Tutto il resto sul sito è più negoziabile di questo, e parte di esso è esplicitamente
-[condizionato al contesto](/kb). Queste nove sono la spina dorsale. Se un cambiamento ne
+[condizionato al contesto](/principles). Queste nove sono la spina dorsale. Se un cambiamento ne
 viola una, è sbagliato il cambiamento, non la regola.

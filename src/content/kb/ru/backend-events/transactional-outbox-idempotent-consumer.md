@@ -223,7 +223,7 @@ COMMIT
 
 Один трейс OpenTelemetry проносит заголовок `traceparent` через POST и дальше — в атрибуты
 сообщения SQS, так что три спана попадают в один трейс в просмотрщике OTLP. См.
-[телеметрия не должна ронять приложение](/kb/backend-events/telemetry-never-crashes).
+[телеметрия не должна ронять приложение](/principles/backend-events/telemetry-never-crashes).
 
 ## Антипаттерны
 
@@ -270,6 +270,6 @@ no-op — только `code === 11000`, а всё остальное обяза
 
 Стратегия адаптеров под каждый движок, благодаря которой outbox ложится на любую базу,
 разобрана в
-[Outbox в собственной БД сервиса; адаптеры под каждый движок, никакого 2PC](/kb/backend-events/storage-in-service-db-per-engine-adapters).
+[Outbox в собственной БД сервиса; адаптеры под каждый движок, никакого 2PC](/principles/backend-events/storage-in-service-db-per-engine-adapters).
 Ретраи и обработка dead-letter для relay описаны в
-[Ретраи и dead-letter — это полноценная забота библиотеки](/kb/backend-events/retry-and-dlq-first-class).
+[Ретраи и dead-letter — это полноценная забота библиотеки](/principles/backend-events/retry-and-dlq-first-class).

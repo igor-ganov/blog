@@ -198,7 +198,7 @@ const reserveInventoryStep: SagaStep<OrderContext> = {
 ## Смотрите также
 
 Полная реализация outbox, на которой и должны строиться шаги саги, описана в статье
-[Транзакционный outbox + идемпотентный консьюмер](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Транзакционный outbox + идемпотентный консьюмер](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Дизайн адаптеров под конкретный движок, который делает outbox переносимым между парком
 из разных движков, описан в статье
-[Outbox в собственной БД сервиса; адаптеры под движок, никакого 2PC](/kb/backend-events/storage-in-service-db-per-engine-adapters).
+[Outbox в собственной БД сервиса; адаптеры под движок, никакого 2PC](/principles/backend-events/storage-in-service-db-per-engine-adapters).

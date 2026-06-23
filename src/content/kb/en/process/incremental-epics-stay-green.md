@@ -96,7 +96,7 @@ All five layers must be green when the increment PR is merged:
 
 "All layers green" means no skips, no flakes, nothing deferred to the next increment.
 A test disabled with `test.skip` or `xit` so a merge can go through is a failing test.
-See [no retries, no flakes](/kb/testing/no-retries-no-flakes).
+See [no retries, no flakes](/principles/testing/no-retries-no-flakes).
 
 ### Epic ordering
 

@@ -314,8 +314,8 @@ giustificazione punta quasi sempre a un confine di componente mancante.
 ## Vedi anche
 
 - Lo stesso principio "niente wrapper anonimi" vale per i custom element; vedi
-  [ARIA on the real element](/kb/web-components/aria-on-the-real-element) per il lato
+  [ARIA on the real element](/principles/web-components/aria-on-the-real-element) per il lato
   accessibilità di questo discorso.
 - Gli host binding sono il compagno naturale dello styling con `:host` — vedi
-  [inject() and host metadata](/kb/angular/inject-and-host-bindings) per come pilotare lo
+  [inject() and host metadata](/principles/angular/inject-and-host-bindings) per come pilotare lo
   stato dell'elemento host a partire dai signal.

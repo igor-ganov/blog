@@ -241,4 +241,4 @@ openMenu(): void {
 
 The geometry tests above only work because `computeGeometry` is a pure free function
 kept out of the element class. That organisation is described in
-[A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
+[A Lit element is a thin shell over a pure core](/principles/web-components/lit-functional-core).

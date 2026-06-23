@@ -141,7 +141,7 @@ if (Either.isLeft(result)) {
 const config = result.right; // Config — fully typed
 ```
 
-Vedi [errors-as-values-with-effect](/kb/functional-architecture/errors-as-values-with-effect) per il pattern completo.
+Vedi [errors-as-values-with-effect](/principles/functional-architecture/errors-as-values-with-effect) per il pattern completo.
 
 ## Anti-pattern
 
@@ -205,6 +205,6 @@ const parseConfig = (raw: unknown): Config => {
 
 ## Vedi anche
 
-- [No casting](/kb/typescript/no-casting) — spiega perché `as` non sostituisce un vero controllo a runtime.
-- [No null — modella l'assenza con undefined](/kb/typescript/no-null-use-undefined) — la normalizzazione di null fa parte della validazione al confine.
-- [Parse, don't validate](/kb/functional-architecture/parse-dont-validate) — l'inquadramento dello stesso principio nell'architettura funzionale.
+- [No casting](/principles/typescript/no-casting) — spiega perché `as` non sostituisce un vero controllo a runtime.
+- [No null — modella l'assenza con undefined](/principles/typescript/no-null-use-undefined) — la normalizzazione di null fa parte della validazione al confine.
+- [Parse, don't validate](/principles/functional-architecture/parse-dont-validate) — l'inquadramento dello stesso principio nell'architettura funzionale.

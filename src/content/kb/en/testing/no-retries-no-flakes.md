@@ -129,7 +129,7 @@ The triage protocol is:
 2. Capture a trace: `bun run playwright --trace on`. Open it in the viewer and read the
    event timeline — what fired, in what order, and where the expectation failed.
 3. Identify the root cause: missing wait, wrong wait signal, or a race in application
-   code. See [event-driven-no-timeouts](/kb/testing/event-driven-no-timeouts) for the
+   code. See [event-driven-no-timeouts](/principles/testing/event-driven-no-timeouts) for the
    correct wait strategy.
 4. Fix the root cause. Do not re-enable retries as a workaround.
 
@@ -173,6 +173,6 @@ push, making the check automatic.
 ## See also
 
 Retries and skips usually mean the test is waiting on time rather than on events; see
-[event-driven waits](/kb/testing/event-driven-no-timeouts). The service worker
+[event-driven waits](/principles/testing/event-driven-no-timeouts). The service worker
 race on the content-admin SPA is a concrete case where the fix was a correct wait rather than a
-retry: [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+retry: [wait for the service worker to settle](/principles/testing/wait-for-service-worker-settle).

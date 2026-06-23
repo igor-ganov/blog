@@ -5,5 +5,5 @@ export const BASE = '/blog';
 
 // The site is fully prefixed by language; the default locale lives under /en.
 // Content-route tests navigate under APP so they hit real pages (the bare BASE
-// only redirects to APP).
+// client-replaces to APP).
 export const APP = `${BASE}/en`;

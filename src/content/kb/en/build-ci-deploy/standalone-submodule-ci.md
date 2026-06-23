@@ -94,7 +94,7 @@ The fix dealt with each category in turn:
 5. Move all `devDependencies` (biome, oxlint, typescript) into the repo's own
    `package.json`.
 6. Add `.gitattributes` with `* text=auto eol=lf` (see
-   [CRLF/LF discipline](/kb/build-ci-deploy/crlf-lf-discipline)).
+   [CRLF/LF discipline](/principles/build-ci-deploy/crlf-lf-discipline)).
 7. Remove `--frozen-lockfile` from the CI install step — lockfiles are not committed for
    submodule repos.
 
@@ -204,7 +204,7 @@ the same install twice.
 
 This keeps every text file in the repo on LF line endings in the git object store, no
 matter which platform the committer is on. See
-[CRLF/LF discipline](/kb/build-ci-deploy/crlf-lf-discipline) for the full rationale.
+[CRLF/LF discipline](/principles/build-ci-deploy/crlf-lf-discipline) for the full rationale.
 
 ### CI workflow — no --frozen-lockfile for submodule repos
 

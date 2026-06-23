@@ -16,10 +16,13 @@ export default defineConfig({
   base,
   output: 'static',
   trailingSlash: 'never',
-  // The site is fully prefixed by locale (/en, /it, /ru); the bare root redirects
-  // to the default language. `base` is applied automatically to both sides.
-  redirects: {
-    '/': '/en',
+  // The site is fully prefixed by locale (/en, /it, /ru); the bare root client-side
+  // replaces to the default language (src/pages/index.astro). An astro `redirects`
+  // emits a target without the base on GitHub Pages, which 404s — hence the page.
+  // Prefetch + view transitions make in-app navigation instant and flash-free.
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
   },
   build: {
     // Content-hashed asset filenames — immutable caching done right (see KB).

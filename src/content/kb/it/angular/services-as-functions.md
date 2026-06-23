@@ -239,9 +239,9 @@ il livello dei servizi, dove nessun altro può riutilizzarle.
 
 ## Vedi anche
 
-- [inject() e i metadati di host](/kb/angular/inject-and-host-bindings) — la regola
+- [inject() e i metadati di host](/principles/angular/inject-and-host-bindings) — la regola
   complementare su come le dipendenze vengono consumate dentro i componenti una volta che
   il servizio è al suo posto.
-- [Currying, closure e funzioni di ordine superiore](/kb/functional-architecture/currying-closures-higher-order) —
+- [Currying, closure e funzioni di ordine superiore](/principles/functional-architecture/currying-closures-higher-order) —
   il principio più ampio dell'architettura funzionale che motiva le factory function e la
   composizione di servizi basata su closure.

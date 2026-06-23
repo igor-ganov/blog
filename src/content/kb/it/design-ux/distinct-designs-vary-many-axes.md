@@ -201,11 +201,11 @@ alla dimensione reale del viewport: devono trasmettere sensazioni davvero divers
 
 ## Vedi anche
 
-[Minimalismo: niente emoji, schematico, duotono](/kb/design-ux/minimalism-no-emoji-schematic) —
+[Minimalismo: niente emoji, schematico, duotono](/principles/design-ux/minimalism-no-emoji-schematic) —
 la filosofia visiva specifica che si applica una volta confermata una direzione, inclusa la
 lezione concreta della rimozione di chip statistici e moduli extra dal prototipo
 bento-marketplace dopo che sembrava un sito di spam.
 
-[La fase di design non è la fase di codice](/kb/design-ux/design-phase-is-not-code-phase) —
+[La fase di design non è la fase di codice](/principles/design-ux/design-phase-is-not-code-phase) —
 la regola a monte: quando produci direzioni di design, resta nello spazio dei design tool; non
 lasciare che il brief multi-direzione faccia scattare uno scaffold multi-workspace.

@@ -23,7 +23,7 @@ test.describe('home', () => {
 
     await expect(page.getByRole('heading', { name: 'From the blog' })).toBeVisible();
 
-    const essayLinks = page.locator(`a[href^="${APP}/essays/"]`);
+    const essayLinks = page.locator(`a[href^="${APP}/blog/"]`);
     const count = await essayLinks.count();
     expect(count).toBeGreaterThan(0);
     expect(count).toBeLessThanOrEqual(5);

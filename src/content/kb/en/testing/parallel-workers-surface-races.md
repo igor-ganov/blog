@@ -40,10 +40,10 @@ None of the three was a test problem:
    were slow enough that activation always won the race.
 2. A section switch asserted on list items before the section's data had arrived —
    the data travels over a `MessageChannel`, invisible to network-based waits. See
-   [out-of-band transport needs DOM signals](/kb/testing/out-of-band-transport-needs-dom-signals).
+   [out-of-band transport needs DOM signals](/principles/testing/out-of-band-transport-needs-dom-signals).
 3. Visits anchored on `networkidle`, which is a hidden 500ms sleep and proves
    nothing about the SW lifecycle. See
-   [wait for the service worker to settle](/kb/testing/wait-for-service-worker-settle).
+   [wait for the service worker to settle](/principles/testing/wait-for-service-worker-settle).
 
 Each fix was event-shaped and made the application's behaviour more honest. After
 that the suite passed 271/271 three consecutive times locally and stayed green in CI,
@@ -92,7 +92,7 @@ as the timing. A test that uploads a PDF pointed its fixture at an **absolute pa
 the author's machine**, guarded by `test.skip` when the file is missing. It had
 quietly skipped in CI for months while the suite reported green. Fixtures belong in
 the repository (`e2e/fixtures/`), and a conditional skip on a missing fixture is a
-[skipped test, which is a failing test](/kb/testing/no-retries-no-flakes).
+[skipped test, which is a failing test](/principles/testing/no-retries-no-flakes).
 
 ## Anti-patterns
 

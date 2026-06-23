@@ -217,6 +217,6 @@ test('no axe violations on the demo page', async ({ page }) => {
 ## Смотрите также
 
 Синхронизация `aria-expanded` в `hostUpdated` — это делегат жизненного цикла контроллера,
-описанного в статье [Lit-элемент — тонкая оболочка над чистым ядром](/kb/web-components/lit-functional-core).
+описанного в статье [Lit-элемент — тонкая оболочка над чистым ядром](/principles/web-components/lit-functional-core).
 Взаимодействие отражаемых свойств с преобразованиями декораторов TypeScript разобрано в
-статье [Lit legacy-декораторы — никогда ключевое слово accessor](/kb/web-components/lit-legacy-decorators-no-accessor).
+статье [Lit legacy-декораторы — никогда ключевое слово accessor](/principles/web-components/lit-legacy-decorators-no-accessor).

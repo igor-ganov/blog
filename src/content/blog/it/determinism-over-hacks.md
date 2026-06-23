@@ -14,7 +14,7 @@ sistemare ciò che lo ha causato.
 
 ## Niente timeout
 
-[I test si sincronizzano sugli eventi, mai sul tempo.](/kb/testing/event-driven-no-timeouts) Un
+[I test si sincronizzano sugli eventi, mai sul tempo.](/principles/testing/event-driven-no-timeouts) Un
 `waitForTimeout(500)` ammette una di due cose. O non sai cosa stai aspettando, e questo è un
 bug nel test, oppure l'app non è abbastanza veloce o deterministica da poter aspettare il
 segnale reale, e questo è un bug nell'app. In entrambi i casi il timeout nasconde il
@@ -27,7 +27,7 @@ all'orologio.
 
 ## Niente retry
 
-[Un test che ha bisogno di retry sta riportando una race reale](/kb/testing/no-retries-no-flakes),
+[Un test che ha bisogno di retry sta riportando una race reale](/principles/testing/no-retries-no-flakes),
 e i retry la nascondono. Verde significa un passaggio completo e stabile con **zero retry,
 tre run di fila**. Tutto ciò che è meno è "probabilmente verde", e il probabilmente-verde è
 il modo in cui una race arriva in produzione mentre ogni dashboard resta del colore del
@@ -44,18 +44,18 @@ l'architettura è il bug.
 Il determinismo non riguarda solo il timing. Riguarda anche il non scrivere test che si
 rompono per i motivi sbagliati. Due regole tengono stabile la suite mentre la UI cambia:
 
-- [Le costanti dei locator stanno accanto al componente](/kb/testing/locator-constants), così
+- [Le costanti dei locator stanno accanto al componente](/principles/testing/locator-constants), così
   un selettore è definito una volta sola e importato sia dal componente sia dal suo test.
   Rinomina un test id in un punto e ogni test segue.
-- [Attenzione alla sovrapposizione dei nomi accessibili](/kb/testing/aria-label-test-locator-hygiene): un
+- [Attenzione alla sovrapposizione dei nomi accessibili](/principles/testing/aria-label-test-locator-hygiene): un
   `getByRole('link', { name: 'Browse' })` troppo lasco abbinerà volentieri anche "Browser
   Platform". Match esatti e una buona igiene degli aria mantengono un locator puntato su una
   cosa sola.
 
 Dove la piattaforma rende un'interazione davvero difficile da pilotare, come i service
 worker che devono assestarsi o il drag-and-drop nativo, ci sono ricette deterministiche
-specifiche ([aspetta che il worker si assesti](/kb/testing/wait-for-service-worker-settle),
-[pilota eventi di drag reali](/kb/testing/native-drag-and-drop-for-tests)) invece di una
+specifiche ([aspetta che il worker si assesti](/principles/testing/wait-for-service-worker-settle),
+[pilota eventi di drag reali](/principles/testing/native-drag-and-drop-for-tests)) invece di una
 spruzzata di wait.
 
 ## Il filo conduttore
@@ -63,7 +63,7 @@ spruzzata di wait.
 Ognuna di queste regole è la stessa mossa applicata ai test: rifiutare il probabile a favore
 del certo. Aspetta l'evento che *è* avvenuto, non il momento entro cui *probabilmente* è
 avvenuto. Pretendi un passaggio che *è* stabile, non uno stabile *abbastanza*. Lo stesso
-istinto attraversa i [punti non negoziabili](/essays/the-non-negotiables) e il
-[nucleo funzionale](/essays/functional-core-imperative-shell), e si manifesta nel modo più
+istinto attraversa i [punti non negoziabili](/blog/the-non-negotiables) e il
+[nucleo funzionale](/blog/functional-core-imperative-shell), e si manifesta nel modo più
 netto nei test, perché i test sono il posto dove il non-determinismo è più facile da
 tollerare e più costoso da tenersi.

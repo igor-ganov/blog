@@ -296,6 +296,6 @@ across a mixed-engine fleet.
 ## See also
 
 The full end-to-end flow, including the relay and the idempotent consumer, is in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 For why a saga does not replace this pattern, see
-[A saga is not an outbox](/kb/backend-events/saga-is-not-an-outbox).
+[A saga is not an outbox](/principles/backend-events/saga-is-not-an-outbox).

@@ -208,5 +208,5 @@ Quel commento di soppressione è la giustificazione registrata che la severità 
 
 ## Vedi anche
 
-- [Valida al confine, calcola all'interno](/kb/typescript/validate-at-the-boundary) — la regola compagna che spiega come fare parsing e normalizzazione dei dati esterni in un unico posto.
-- [Niente casting](/kb/typescript/no-casting) — il casting maschera la stessa classe di bug che provoca la confusione tra null e undefined.
+- [Valida al confine, calcola all'interno](/principles/typescript/validate-at-the-boundary) — la regola compagna che spiega come fare parsing e normalizzazione dei dati esterni in un unico posto.
+- [Niente casting](/principles/typescript/no-casting) — il casting maschera la stessa classe di bug che provoca la confusione tra null e undefined.

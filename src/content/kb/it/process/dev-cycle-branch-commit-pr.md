@@ -114,7 +114,7 @@ Scrivi il minimo codice che fa passare il test che fallisce. Non aggiungere
 comportamenti non coperti da test. Non allargare lo scope oltre il confine del task. Se
 durante l'implementazione scopri che la spec è sbagliata, fermati e segui il processo di
 modifica della spec descritto in
-[traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).
 
 Committa in modo atomico. Ogni commit dovrebbe essere così:
 
@@ -152,7 +152,7 @@ La build dev'essere pulita. Una PR che non builda non è una PR.
 ### Step 8: Verifica desktop-first
 
 Se il progetto ha un target desktop, builda l'app desktop e verifica lì la funzionalità
-per prima cosa. Vedi [desktop-target-first](/kb/process/desktop-target-first) per il
+per prima cosa. Vedi [desktop-target-first](/principles/process/desktop-target-first) per il
 protocollo completo. La prova tramite screenshot è obbligatoria.
 
 Se il progetto è solo web, esegui la build di produzione in locale e verifica nel browser
@@ -249,5 +249,5 @@ a parte.
 
 Questo ciclo esegue il workflow guidato dalle spec. Il suo input è un task da `tasks.md`.
 Il workflow che produce quei task è documentato in
-[spec-driven-ears-not-user-stories](/kb/process/spec-driven-ears-not-user-stories)
-e [traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[spec-driven-ears-not-user-stories](/principles/process/spec-driven-ears-not-user-stories)
+e [traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).

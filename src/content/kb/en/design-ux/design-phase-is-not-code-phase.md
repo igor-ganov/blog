@@ -172,9 +172,9 @@ scaffold was wrong, regardless of how good the code is.
 
 ## See also
 
-[Penpot is the design tool](/kb/design-ux/penpot-is-the-design-tool) — specifics of
+[Penpot is the design tool](/principles/design-ux/penpot-is-the-design-tool) — specifics of
 working with a local self-hosted Penpot instance and how to interact with it directly.
 
-[Distinct designs vary many axes](/kb/design-ux/distinct-designs-vary-many-axes) — what
+[Distinct designs vary many axes](/principles/design-ux/distinct-designs-vary-many-axes) — what
 a substantive design response looks like when design directions are requested, as opposed
 to the framework proposal anti-pattern.

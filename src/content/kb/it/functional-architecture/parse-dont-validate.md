@@ -156,7 +156,7 @@ const render = (response: ApiResponse): string => {
 **Type guard come ripiego (quando Effect non è disponibile).**
 
 Dove il costo del bundle di Effect è troppo alto per giustificarlo (vedi
-[errors-as-values-with-effect](/kb/functional-architecture/errors-as-values-with-effect)
+[errors-as-values-with-effect](/principles/functional-architecture/errors-as-values-with-effect)
 per i casi in cui vale questa eccezione), scrivi una vera guard con type-predicate invece di
 un validatore booleano:
 

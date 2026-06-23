@@ -238,8 +238,8 @@ export class FilterStore {
 
 ## Смотрите также
 
-- [inject() и метаданные хоста](/kb/angular/inject-and-host-bindings) — парное правило о
+- [inject() и метаданные хоста](/principles/angular/inject-and-host-bindings) — парное правило о
   том, как зависимости потребляются внутри компонентов, когда сервис уже на месте.
-- [Каррирование, замыкания и функции высшего порядка](/kb/functional-architecture/currying-closures-higher-order) —
+- [Каррирование, замыкания и функции высшего порядка](/principles/functional-architecture/currying-closures-higher-order) —
   более широкий принцип функциональной архитектуры, из которого вырастают функции-фабрики
   и композиция сервисов на замыканиях.

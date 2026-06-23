@@ -26,7 +26,7 @@ security. The deployed route built `https://${path}` straight from the request
 path, reflected any `Origin`, and forwarded every header (`Authorization`
 included) to whatever host the path named. That is an open relay with credential
 forwarding, sitting on the production domain, [exactly the thing the standalone
-version was built not to be](/kb/platform/proxy-must-pin-targets).
+version was built not to be](/principles/platform/proxy-must-pin-targets).
 
 Nobody decided to remove the allowlist. It evaporated in translation, because the
 port was reviewed as "same feature, new location" rather than as new attack
@@ -43,7 +43,7 @@ input", and that dissolves the moment you look at who writes and who reads. Edit
 preview, logged into sessions whose GitHub token carries `admin:org`.
 
 So there is a privilege boundary running straight through the middle of a feature, and
-[markdown output is attacker HTML](/kb/platform/sanitize-html-before-injection) on
+[markdown output is attacker HTML](/principles/platform/sanitize-html-before-injection) on
 the wrong side of it. One `<img onerror>` in a draft, and the review workflow
 itself delivers an org-admin token to whoever asked for review. The fix is one
 DOMPurify call at the injection point plus a test file enumerating the vectors. The
@@ -56,7 +56,7 @@ The SW holds the user's token and exposes privileged routes: change a user's org
 role, send an invitation. The roles-config routes next to them checked the caller's
 role. These didn't. Anyone with same-origin script execution could POST a
 self-promotion to admin, and the SW, [a classic confused
-deputy](/kb/platform/confused-deputy-in-the-service-worker), would sign it with
+deputy](/principles/platform/confused-deputy-in-the-service-worker), would sign it with
 the stored admin token.
 
 Chained with the preview XSS, that's editor to org admin in one crafted post. Any
@@ -69,7 +69,7 @@ severity of finding N depends on findings N+1 through N+3.
 CI had zero `permissions:` blocks across nine workflows in two repos, every action
 pinned to a mutable tag, and a PAT in job-level env on a `pull_request` trigger.
 None of that is exotic. It's the [default state of GitHub
-Actions](/kb/build-ci-deploy/least-privilege-workflows), which is precisely why
+Actions](/principles/build-ci-deploy/least-privilege-workflows), which is precisely why
 it's everywhere. The fix is mechanical: one permissions block, SHA pins, dependabot
 to keep them moving, step-scoped secrets behind a same-repo guard. It took less
 time than writing it up.

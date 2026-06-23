@@ -208,7 +208,7 @@ specific case, so a custom rule or grep is the most reliable gate right now.
 
 The `experimentalDecorators` configuration interacts with how Lit handles the `open`
 reflected property described in
-[ARIA on the real interactive element](/kb/web-components/aria-on-the-real-element) —
+[ARIA on the real interactive element](/principles/web-components/aria-on-the-real-element) —
 both depend on the property descriptor being set correctly. Server-side rendering
 constraints for Lit components are covered in
-[Don't SSR custom elements on the edge](/kb/web-components/no-ssr-custom-elements-on-edge).
+[Don't SSR custom elements on the edge](/principles/web-components/no-ssr-custom-elements-on-edge).

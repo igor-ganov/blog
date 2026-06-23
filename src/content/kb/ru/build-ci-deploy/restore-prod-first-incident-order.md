@@ -31,7 +31,7 @@ updated: 2026-05-05
 **SPA для администрирования контента, 2026-05-05.**
 
 Сборка публичного сайта упала на ошибке разбора YAML в контентном файле
-(корневую причину см. в [no-self-rolled-yaml](/kb/error-handling/no-self-rolled-yaml)).
+(корневую причину см. в [no-self-rolled-yaml](/principles/error-handling/no-self-rolled-yaml)).
 Лог сборки указывал на проблемный файл. Правильная последовательность была такой:
 
 1. Найти сломанный файл по логу CI.
@@ -100,7 +100,7 @@ gh run list --workflow deploy.yml --limit 1
 
 Сайт должен быть поднят и корректно отдавать контент до того, как начнётся фаза разбора
 полётов. Если исправление визуальное, сделай скриншот продакшена (см.
-[prove-with-production-screenshots](/kb/process/prove-with-production-screenshots)).
+[prove-with-production-screenshots](/principles/process/prove-with-production-screenshots)).
 
 ### Шаг 4: Открыть PR с устранением причины
 

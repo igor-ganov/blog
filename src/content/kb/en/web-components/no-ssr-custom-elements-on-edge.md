@@ -53,7 +53,7 @@ environment, because they were not bound in the Cloudflare dashboard, the valida
 throws at startup before any request is served. The worker 500s until the secrets are
 configured. That is separate from the Lit issue but follows the same pattern: anything
 that runs at module init on the edge has to survive a missing runtime environment.
-See [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked) for the
+See [build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked) for the
 related constraint on static build-time env vars.
 
 ## How to apply
@@ -207,8 +207,8 @@ edge runtime compatibility bugs.
 ## See also
 
 The Lit components loaded via client script rely on the decorator configuration
-described in [Lit legacy decorators — never the accessor keyword](/kb/web-components/lit-legacy-decorators-no-accessor)
+described in [Lit legacy decorators — never the accessor keyword](/principles/web-components/lit-legacy-decorators-no-accessor)
 and follow the shell/core split from
-[A Lit element is a thin shell over a pure core](/kb/web-components/lit-functional-core).
+[A Lit element is a thin shell over a pure core](/principles/web-components/lit-functional-core).
 The `astro:env` startup crash is the edge-runtime version of the broader constraint
-covered in [build-time env is baked](/kb/build-ci-deploy/build-time-env-is-baked).
+covered in [build-time env is baked](/principles/build-ci-deploy/build-time-env-is-baked).

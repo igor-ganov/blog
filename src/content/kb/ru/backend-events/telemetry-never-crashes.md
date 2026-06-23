@@ -278,7 +278,7 @@ try {
 Первый роняет приложение на временном сбое телеметрии. Второй раздувает стоимость и шум в
 трассах. Третий даёт несвязанные трассы, которые не получится проследить через границу
 очереди. Четвёртый проглатывает прикладную ошибку внутри кода телеметрии, что напрямую
-нарушает [правило не глотать ошибки](/kb/error-handling/never-swallow-errors).
+нарушает [правило не глотать ошибки](/principles/error-handling/never-swallow-errors).
 
 ## Контроль соблюдения
 
@@ -295,6 +295,6 @@ try {
 
 Сквозная трасса, которая ведёт событие через сервисы producer, relay и worker, опирается
 на паттерн outbox и доставки, описанный в
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Сторона прикладной ошибки в правиле «не глотать» разобрана в
-[never swallow errors](/kb/error-handling/never-swallow-errors).
+[never swallow errors](/principles/error-handling/never-swallow-errors).

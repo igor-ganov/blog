@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import SiteFooter from '@/components/SiteFooter.astro';
 import SiteHeader from '@/components/SiteHeader.astro';
 import type { Locale } from '@/lib/i18n/locales';
@@ -29,15 +30,25 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="article" />
-    {/* Apply the stored/system theme before first paint to avoid a flash. */}
+    {/* SPA-like navigation: no white flash, no layout jump, instant prefetched loads. */}
+    <ClientRouter />
+    {/* Apply the stored/system theme before first paint and after every view-transition
+        swap (the swap copies the new document's <html data-theme> otherwise). */}
     <script is:inline>
       (function () {
-        try {
-          var stored = localStorage.getItem('theme');
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          document.documentElement.dataset.theme = stored || (prefersDark ? 'dark' : 'light');
-        } catch (error) {
-          document.documentElement.dataset.theme = 'light';
+        function applyTheme() {
+          try {
+            var stored = localStorage.getItem('theme');
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = stored || (prefersDark ? 'dark' : 'light');
+          } catch (error) {
+            document.documentElement.dataset.theme = 'light';
+          }
+        }
+        applyTheme();
+        if (!window.__themeBound) {
+          window.__themeBound = true;
+          document.addEventListener('astro:after-swap', applyTheme);
         }
       })();
     </script>
@@ -49,5 +60,14 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
       <slot />
     </main>
     <SiteFooter locale={locale} />
+    {/* Register the service worker that caches content-hashed assets long-term,
+        working around GitHub Pages' fixed max-age=600 on every response. */}
+    <script is:inline define:vars={{ swUrl: withBase('/sw.js') }}>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register(swUrl).catch(function () {});
+        });
+      }
+    </script>
   </body>
 </html>

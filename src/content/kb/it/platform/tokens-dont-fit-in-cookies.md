@@ -261,11 +261,11 @@ chiusa, cancelli l'UUID dallo store. Non c'è modo di "de-firmare" un JWT già e
 
 ## Vedi anche
 
-[Auth cross-origin che sopravvive al blocco dei cookie di terze parti](/kb/platform/cross-origin-auth-survives-cookie-blocking)
+[Auth cross-origin che sopravvive al blocco dei cookie di terze parti](/principles/platform/cross-origin-auth-survives-cookie-blocking)
 affronta il problema successivo: anche i cookie di dimensione corretta smettono di funzionare tra
 eTLD+1 diversi nei Chromium moderni, e il pattern di fallback Bearer copre entrambi i casi.
 
-[L'env di build viene cotto dentro](/kb/build-ci-deploy/build-time-env-is-baked) tratta il problema di
+[L'env di build viene cotto dentro](/principles/build-ci-deploy/build-time-env-is-baked) tratta il problema di
 deploy collegato. Il `client_secret` è un segreto runtime, non una variabile di build,
 quindi iniettalo a runtime attraverso l'ambiente del server invece di incorporarlo durante
 lo step di build statico.

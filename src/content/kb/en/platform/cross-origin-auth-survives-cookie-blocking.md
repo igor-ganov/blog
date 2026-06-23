@@ -291,6 +291,6 @@ CSRF header check explicitly when `Authorization: Bearer` is present.
 
 ## See also
 
-[Tokens don't fit in cookies](/kb/platform/tokens-dont-fit-in-cookies) — the related
+[Tokens don't fit in cookies](/principles/platform/tokens-dont-fit-in-cookies) — the related
 case where the token is too large for a cookie even on the same origin. Both problems push
 you toward server-side session stores that keep only a session ID in the cookie.

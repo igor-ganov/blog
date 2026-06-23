@@ -110,7 +110,7 @@ const findEventsByOrder = (db: Db) => (orderId: string) =>
 
 Сервис принимает событие любой формы на HTTP-границе, но проверяет структуру конверта перед
 постановкой в очередь. Содержимое payload остаётся непрозрачным: сервис записывает его, не
-заглядывая внутрь. См. [валидацию на границе](/kb/typescript/validate-at-the-boundary).
+заглядывая внутрь. См. [валидацию на границе](/principles/typescript/validate-at-the-boundary).
 
 ```ts
 // event-service/src/api/ingest-event.ts
@@ -255,6 +255,6 @@ type ChangeEvent = {
 ## Смотрите также
 
 Паттерн outbox и relay, которым продюсеры пользуются, чтобы надёжно слать POST на `/events`,
-описан в [Транзакционный outbox + идемпотентный потребитель](/kb/backend-events/transactional-outbox-idempotent-consumer).
+описан в [Транзакционный outbox + идемпотентный потребитель](/principles/backend-events/transactional-outbox-idempotent-consumer).
 Валидация конверта события на HTTP-границе без заглядывания внутрь payload разобрана в
-[валидации на границе](/kb/typescript/validate-at-the-boundary).
+[валидации на границе](/principles/typescript/validate-at-the-boundary).

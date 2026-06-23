@@ -40,7 +40,7 @@ blog section to the positions section triggers no observable HTTP request at all
 The test for section switching waited for content items to be visible after
 clicking the section link. Items *were* visible: the previous section's items, the
 ones about to be replaced. Run serially, the replacement always won the race. With
-[4 parallel workers](/kb/testing/parallel-workers-surface-races) the assertion
+[4 parallel workers](/principles/testing/parallel-workers-surface-races) the assertion
 landed mid-replacement and the test failed honestly. No network wait could fix it,
 because there is no request to wait for.
 
@@ -110,6 +110,6 @@ await page.evaluate(() => navigator.serviceWorker.controller!.postMessage(…));
 Code review: any feature whose data path crosses a worker boundary, channel, or
 other harness-invisible transport must expose completion as DOM state, and its
 tests must wait on identity rather than presence. The
-[three-run rule under parallel workers](/kb/testing/no-retries-no-flakes) is the
+[three-run rule under parallel workers](/principles/testing/no-retries-no-flakes) is the
 backstop. Presence-based waits over out-of-band data are exactly the class of race
 that parallelism flushes out into the open.

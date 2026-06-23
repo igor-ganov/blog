@@ -39,7 +39,7 @@ const text = localizeCategory(category, locale);
 
 <BaseLayout title={text.title} description={text.description} locale={locale}>
   <nav class="crumbs" aria-label={ui.breadcrumb.label}>
-    <a href={withLocale(locale, '/kb')}>{ui.breadcrumb.principles}</a>
+    <a href={withLocale(locale, '/principles')}>{ui.breadcrumb.principles}</a>
     <span aria-hidden="true">/</span>
     <span>{text.title}</span>
   </nav>

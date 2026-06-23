@@ -84,10 +84,10 @@ const isTicket = (value: unknown): value is Ticket =>
 `localStorage`. Запустите там настоящий рантайм-валидатор (рукописный гард или
 `effect/Schema` / `zod`) и верните типизированное значение либо ошибку. Внутри границы всё
 уже типизировано, так что приводить попросту нечего. Это
-[валидация на границе](/kb/typescript/validate-at-the-boundary).
+[валидация на границе](/principles/typescript/validate-at-the-boundary).
 
 Для отсутствующих значений берите `undefined` и моделируйте отсутствие в типе, а не через
-non-null `!`. См. [никаких null, используйте undefined](/kb/typescript/no-null-use-undefined).
+non-null `!`. См. [никаких null, используйте undefined](/principles/typescript/no-null-use-undefined).
 
 ## Анти-паттерны
 

@@ -19,7 +19,7 @@ updated: 2026-06-11
 
 ## Perché conta
 
-**Quando ripaga lo sforzo.** Il Domain-Driven Design è una risposta alla scala e alla complessità, non una postura di default. Disegnare bounded context e context map conviene su un sistema grande, con logica di dominio davvero complessa e più di un team. Su un progetto piccolo o semplice lo stesso apparato è solo zavorra: confini e contratti che costano più di quanto rendono, dove una banale suddivisione CRUD-per-entità avrebbe consegnato la feature. Organizzare il codice per feature e separarne i layer, invece, non dipende dalla dimensione. Questo è lo stile di casa a ogni scala (vedi [folder-by-usage](/kb/functional-architecture/one-function-per-file-folder-by-usage)). Tutto ciò che segue presuppone un dominio abbastanza grande da giustificare l'apparato.
+**Quando ripaga lo sforzo.** Il Domain-Driven Design è una risposta alla scala e alla complessità, non una postura di default. Disegnare bounded context e context map conviene su un sistema grande, con logica di dominio davvero complessa e più di un team. Su un progetto piccolo o semplice lo stesso apparato è solo zavorra: confini e contratti che costano più di quanto rendono, dove una banale suddivisione CRUD-per-entità avrebbe consegnato la feature. Organizzare il codice per feature e separarne i layer, invece, non dipende dalla dimensione. Questo è lo stile di casa a ogni scala (vedi [folder-by-usage](/principles/functional-architecture/one-function-per-file-folder-by-usage)). Tutto ciò che segue presuppone un dominio abbastanza grande da giustificare l'apparato.
 
 Eric Evans definisce un Bounded Context come "a defined part of software where particular terms, definitions and rules apply in a consistent way" (Evans, DDD Europe 2019). Il confine non si traccia attorno a una tabella del database o a una schermata di amministrazione. Si traccia attorno a un vocabolario coerente e a un insieme di regole di business che hanno senso solo come unità. Martin Fowler ribadisce lo stesso punto: "Total unification of the domain model for a large system will not be feasible or cost-effective" (Fowler, https://martinfowler.com/bliki/BoundedContext.html). Quindi spezzare un sistema in pezzi arbitrariamente piccoli, una feature per entità, crea tanti problemi quanti ne crea il big-ball-of-mud all'estremo opposto.
 
@@ -55,7 +55,7 @@ Cinque contesti invece di 27 feature. Ogni cluster porta un nome che un esperto 
 
 **Passo 2 — Formalizza l'Ubiquitous Language prima di scrivere codice.**
 
-Per ogni contesto candidato, produci un glossario: termine, definizione, ciò che NON è (disambiguazione degli omonimi) ed esempio d'uso in una frase che un esperto di dominio direbbe davvero. Finché questo glossario non esiste e non è stato rivisto da almeno un esperto di dominio, il confine resta provvisorio. Vedi `/kb/ddd/ubiquitous-language-first` per il processo completo.
+Per ogni contesto candidato, produci un glossario: termine, definizione, ciò che NON è (disambiguazione degli omonimi) ed esempio d'uso in una frase che un esperto di dominio direbbe davvero. Finché questo glossario non esiste e non è stato rivisto da almeno un esperto di dominio, il confine resta provvisorio. Vedi `/principles/ddd/ubiquitous-language-first` per il processo completo.
 
 **Passo 3 — Definisci esplicitamente i contratti tra contesti.**
 
@@ -75,7 +75,7 @@ Questa separazione non è cosmetica. Quando la forma di lettura deve cambiare pe
 
 **Passo 4 — Applica l'Inverse Conway Maneuver.**
 
-Una volta disegnata la context map logica, allinea l'ownership dei team a essa. Un team possiede uno o più bounded context; nessun contesto è condiviso tra team senza un'interfaccia formale. Vedi `/kb/ddd/conway-and-team-topologies` per la trattazione completa.
+Una volta disegnata la context map logica, allinea l'ownership dei team a essa. Un team possiede uno o più bounded context; nessun contesto è condiviso tra team senza un'interfaccia formale. Vedi `/principles/ddd/conway-and-team-topologies` per la trattazione completa.
 
 ## Anti-pattern
 

@@ -109,7 +109,7 @@ A test that was never red has never been shown to catch anything. Make it fail f
 Write the minimum code that makes the failing test pass. Do not add untested
 behaviour. Do not expand scope beyond the task boundary. If implementation reveals
 that the spec is wrong, stop and follow the spec-amendment process described in
-[traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).
 
 Commit atomically. Each commit should be:
 
@@ -146,7 +146,7 @@ The build must be clean. A PR that doesn't build isn't a PR.
 ### Step 8: Desktop-first verification
 
 If the project has a desktop target, build the desktop app and verify the feature
-there first. See [desktop-target-first](/kb/process/desktop-target-first) for the
+there first. See [desktop-target-first](/principles/process/desktop-target-first) for the
 full protocol. Screenshot evidence is mandatory.
 
 If the project is web-only, run the production build locally and verify in the browser
@@ -240,5 +240,5 @@ asset, or a bundler config. Build separately, verify separately.
 
 This cycle runs the spec-driven workflow. Its input is a task from `tasks.md`. The
 workflow that produces those tasks is documented in
-[spec-driven-ears-not-user-stories](/kb/process/spec-driven-ears-not-user-stories)
-and [traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[spec-driven-ears-not-user-stories](/principles/process/spec-driven-ears-not-user-stories)
+and [traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).

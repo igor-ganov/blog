@@ -208,5 +208,5 @@ That suppression comment is the recorded justification the `strong` severity rul
 
 ## See also
 
-- [Validate at the boundary, compute within](/kb/typescript/validate-at-the-boundary) — the companion rule that explains how to parse and normalize external data in one place.
-- [No casting](/kb/typescript/no-casting) — casting masks the same class of bug that null-vs-undefined confusion causes.
+- [Validate at the boundary, compute within](/principles/typescript/validate-at-the-boundary) — the companion rule that explains how to parse and normalize external data in one place.
+- [No casting](/principles/typescript/no-casting) — casting masks the same class of bug that null-vs-undefined confusion causes.

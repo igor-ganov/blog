@@ -57,7 +57,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
   </script>
 
   <nav class="crumbs" aria-label={ui.breadcrumb.label}>
-    <a href={withLocale(locale, '/kb')}>{ui.breadcrumb.principles}</a> <span aria-hidden="true">/</span>
+    <a href={withLocale(locale, '/principles')}>{ui.breadcrumb.principles}</a> <span aria-hidden="true">/</span>
     {category && <a href={withLocale(locale, `/c/${category.slug}`)}>{categoryTitle}</a>}
   </nav>
 

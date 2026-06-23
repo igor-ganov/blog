@@ -278,7 +278,7 @@ try {
 The first crashes the app on a transient telemetry failure. The second inflates cost and
 trace noise. The third produces disconnected traces that you cannot follow across a queue
 boundary. The fourth swallows the application error inside telemetry code, which directly
-violates [never swallow errors](/kb/error-handling/never-swallow-errors).
+violates [never swallow errors](/principles/error-handling/never-swallow-errors).
 
 ## Enforcement
 
@@ -295,6 +295,6 @@ violates [never swallow errors](/kb/error-handling/never-swallow-errors).
 
 The end-to-end trace that follows an event across producer, relay, and worker services
 relies on the outbox and delivery pattern described in
-[Transactional outbox + idempotent consumer](/kb/backend-events/transactional-outbox-idempotent-consumer).
+[Transactional outbox + idempotent consumer](/principles/backend-events/transactional-outbox-idempotent-consumer).
 The application-error side of the no-swallow rule is in
-[never swallow errors](/kb/error-handling/never-swallow-errors).
+[never swallow errors](/principles/error-handling/never-swallow-errors).

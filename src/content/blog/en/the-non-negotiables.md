@@ -17,36 +17,36 @@ them does alone.
 ## The nine
 
 **Type safety has no escape hatch.**
-[Never reach for `as`](/kb/typescript/no-casting). A cast overrules the compiler on the
+[Never reach for `as`](/principles/typescript/no-casting). A cast overrules the compiler on the
 one question it exists to answer. Model the types so inference comes out right, or validate
 at the boundary. Don't lie to the checker.
 
 **Errors are values or they propagate — never silence.**
-[Never swallow an error](/kb/error-handling/never-swallow-errors), and
-[always check `res.ok`](/kb/error-handling/always-check-res-ok). An empty `catch` and a
+[Never swallow an error](/principles/error-handling/never-swallow-errors), and
+[always check `res.ok`](/principles/error-handling/always-check-res-ok). An empty `catch` and a
 `fetch` whose status you never inspect are the same bug: a failure the code has decided to
 pretend didn't happen. Those are the failures that turn into incidents.
 
 **Tests synchronise on events, not on time.**
-[No timeouts, ever](/kb/testing/event-driven-no-timeouts), and
-[no retries, no flakes](/kb/testing/no-retries-no-flakes). A `waitForTimeout` hides either
+[No timeouts, ever](/principles/testing/event-driven-no-timeouts), and
+[no retries, no flakes](/principles/testing/no-retries-no-flakes). A `waitForTimeout` hides either
 a broken test or a non-deterministic app, and a retry hides a real race. Green means a
 full, stable pass three times running, not "probably green".
 
 **"Done" means proven, in the real thing.**
-[Prove it with production-grade screenshots](/kb/process/prove-with-production-screenshots)
+[Prove it with production-grade screenshots](/principles/process/prove-with-production-screenshots)
 from the real browser. A feature that has only been reasoned about isn't finished. It's a
 hypothesis.
 
 **The build is reproducible.**
-[Build-time environment is baked and audited](/kb/build-ci-deploy/build-time-env-is-baked)
+[Build-time environment is baked and audited](/principles/build-ci-deploy/build-time-env-is-baked)
 against CI. A build that depends on a value nobody wrote down is a build that breaks on
 someone else's machine.
 
 **Two operational rules round it out.**
-[Never kill all node processes](/kb/tooling-runtime/never-kill-all-node) when you only
+[Never kill all node processes](/principles/tooling-runtime/never-kill-all-node) when you only
 need the one on your port; and
-[the design phase is not the coding phase](/kb/design-ux/design-phase-is-not-code-phase),
+[the design phase is not the coding phase](/principles/design-ux/design-phase-is-not-code-phase),
 so don't open an editor to "design" in a framework. Different domains, same instinct:
 precision over the convenient sweep.
 
@@ -67,5 +67,5 @@ else finds it. The non-negotiables are the places where that trade was judged ne
 making.
 
 Everything else on the site is more negotiable than this, and some of it is explicitly
-[conditional on context](/kb). These nine are the spine. If a change violates one, the
+[conditional on context](/principles). These nine are the spine. If a change violates one, the
 change is wrong, not the rule.

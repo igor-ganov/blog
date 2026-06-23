@@ -226,7 +226,7 @@ COMMIT
 
 Un'unica traccia OpenTelemetry porta l'header `traceparent` attraverso la POST e fin dentro
 gli attributi del messaggio SQS, così i tre span finiscono in un'unica traccia nel viewer
-OTLP. Vedi [la telemetria non deve mai far crashare l'app](/kb/backend-events/telemetry-never-crashes).
+OTLP. Vedi [la telemetria non deve mai far crashare l'app](/principles/backend-events/telemetry-never-crashes).
 
 ## Anti-pattern
 
@@ -274,6 +274,6 @@ errori, dato che solo `code === 11000` è un no-op legittimo e tutto il resto de
 ## Vedi anche
 
 La strategia di adapter per-engine che fa entrare l'outbox in qualsiasi database è trattata
-in [Outbox nel DB del servizio stesso; adapter per-engine, mai 2PC](/kb/backend-events/storage-in-service-db-per-engine-adapters).
+in [Outbox nel DB del servizio stesso; adapter per-engine, mai 2PC](/principles/backend-events/storage-in-service-db-per-engine-adapters).
 La gestione di retry e dead-letter per il relay vive in
-[Retry e dead-letter sono concern di prima classe della libreria](/kb/backend-events/retry-and-dlq-first-class).
+[Retry e dead-letter sono concern di prima classe della libreria](/principles/backend-events/retry-and-dlq-first-class).

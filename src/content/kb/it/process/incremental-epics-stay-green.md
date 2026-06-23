@@ -99,7 +99,7 @@ Tutti e cinque i livelli devono essere verdi quando la PR dell'incremento viene 
 
 «Tutti i livelli verdi» significa nessuno skip, nessun flake, niente rimandato
 all'incremento successivo. Un test disabilitato con `test.skip` o `xit` per far passare
-un merge è un test che fallisce. Vedi [niente retry, niente flake](/kb/testing/no-retries-no-flakes).
+un merge è un test che fallisce. Vedi [niente retry, niente flake](/principles/testing/no-retries-no-flakes).
 
 ### Ordinamento dell'epic
 

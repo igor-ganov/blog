@@ -32,7 +32,7 @@ Questa è l'intera invocazione. La regola di stile in questo codebase non lascia
 
 Gli script del tooling di amministrazione Jira (2026-05-22) sono stati il primo posto dove questo è stato applicato ovunque. Quel tooling era un insieme di script `.ts` numerati (`01-fetch-sprint.ts`, `02-map-issues.ts`, ecc.) che giravano direttamente su Node 24 senza comando di build nel `package.json` e senza output compilato. Sono rimasti in TypeScript per tutta la loro vita: modifichi il file `.ts`, lo esegui, fatto.
 
-**Rapporto con bun**: il runtime di default del progetto è `bun` (vedi [bun-by-default](/kb/tooling-runtime/bun-by-default)). Questo articolo non sostiene Node al posto di bun. Anche bun esegue `.ts` nativamente ed è di solito la scelta migliore. Quello che entrambi i runtime hanno in comune è che **per gli script non serve alcuna pipeline di build**. Non scrivi `.js`, non lanci `tsc`, non installi `ts-node`.
+**Rapporto con bun**: il runtime di default del progetto è `bun` (vedi [bun-by-default](/principles/tooling-runtime/bun-by-default)). Questo articolo non sostiene Node al posto di bun. Anche bun esegue `.ts` nativamente ed è di solito la scelta migliore. Quello che entrambi i runtime hanno in comune è che **per gli script non serve alcuna pipeline di build**. Non scrivi `.js`, non lanci `tsc`, non installi `ts-node`.
 
 ## Come applicarlo
 
@@ -230,4 +230,4 @@ enum Direction { North = 'N', South = 'S' }
 
 ## Vedi anche
 
-- [bun-by-default](/kb/tooling-runtime/bun-by-default) — `bun` è il runtime di default; esegue anch'esso `.ts` nativamente ed è la scelta preferita per la maggior parte degli script.
+- [bun-by-default](/principles/tooling-runtime/bun-by-default) — `bun` è il runtime di default; esegue anch'esso `.ts` nativamente ed è la scelta preferita per la maggior parte degli script.

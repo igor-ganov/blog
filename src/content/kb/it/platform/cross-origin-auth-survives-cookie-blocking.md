@@ -295,7 +295,7 @@ saltare esplicitamente il controllo dell'header CSRF quando è presente
 
 ## Vedi anche
 
-[I token non entrano nei cookie](/kb/platform/tokens-dont-fit-in-cookies) — il caso
+[I token non entrano nei cookie](/principles/platform/tokens-dont-fit-in-cookies) — il caso
 correlato in cui il token è troppo grande per un cookie anche sullo stesso origin. Entrambi
 i problemi ti spingono verso store di sessione lato server che tengono nel cookie solo un
 ID di sessione.

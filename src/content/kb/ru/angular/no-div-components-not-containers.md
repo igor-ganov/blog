@@ -312,7 +312,7 @@ template: `<div class="ticket-status-badge">{{ status() }}</div>`
 
 - Тот же принцип «никаких безымянных обёрток» работает и для кастомных элементов; про
   сторону доступности этого аргумента см.
-  [ARIA на реальном элементе](/kb/web-components/aria-on-the-real-element).
+  [ARIA на реальном элементе](/principles/web-components/aria-on-the-real-element).
 - Хост-биндинги — естественный спутник стилизации через `:host`; см.
-  [inject() и метаданные хоста](/kb/angular/inject-and-host-bindings), чтобы управлять
+  [inject() и метаданные хоста](/principles/angular/inject-and-host-bindings), чтобы управлять
   состоянием хост-элемента из сигналов.

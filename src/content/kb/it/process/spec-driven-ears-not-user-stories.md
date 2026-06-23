@@ -111,13 +111,13 @@ Ogni criterio è:
 Il design risolve il come. Mappa ogni REQ-N su un componente, una struttura dati o una
 decisione di protocollo, e registra i compromessi ovunque siano state valutate
 alternative. Ogni sezione fa riferimento ai requisiti che soddisfa. Vedi
-[traceability-and-phase-reviews](/kb/process/traceability-and-phase-reviews).
+[traceability-and-phase-reviews](/principles/process/traceability-and-phase-reviews).
 
 ### Fase 3: tasks.md
 
 I task scompongono il design in passi di implementazione. Ogni task fa riferimento alla
 sezione di design e agli elementi REQ-N che realizza. I task sono l'input del ciclo di
-sviluppo — vedi [il ciclo dal ticket alla PR](/kb/process/dev-cycle-branch-commit-pr).
+sviluppo — vedi [il ciclo dal ticket alla PR](/principles/process/dev-cycle-branch-commit-pr).
 
 ### Quando le user story sono appropriate
 

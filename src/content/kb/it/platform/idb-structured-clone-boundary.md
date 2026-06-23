@@ -111,7 +111,7 @@ scritti e niente viene registrato.
 
 Devono valere due cose insieme: ti serve un confine `toPersistable`, e qualsiasi chiamata
 IDB fire-and-forget deve inoltrare il suo rifiuto in un posto visibile. Vedi [non
-ingoiare mai un errore](/kb/error-handling/never-swallow-errors).
+ingoiare mai un errore](/principles/error-handling/never-swallow-errors).
 
 ## Come applicarlo
 
@@ -248,10 +248,10 @@ void appendEntry(entry); // rejection silently swallowed
 
 ## Vedi anche
 
-[Non ingoiare mai un errore](/kb/error-handling/never-swallow-errors) è la regola gemella.
+[Non ingoiare mai un errore](/principles/error-handling/never-swallow-errors) è la regola gemella.
 Una volta messo a posto il confine `toPersistable`, la Promise rifiutata della scrittura
 IDB deve comunque raggiungere un gestore d'errore invece di sparire in un `void`.
 
-[Aspetta la stabilizzazione del service worker](/kb/testing/wait-for-service-worker-settle)
+[Aspetta la stabilizzazione del service worker](/principles/testing/wait-for-service-worker-settle)
 copre il caso in cui la persistenza IDB gira dentro un service worker: i test devono
 aspettare l'inizializzazione del SW prima di fare assert sui dati memorizzati.

@@ -68,7 +68,7 @@ article from git history.
 The same Windows-dev, Linux-CI pattern made biome and tsc report inconsistent errors
 depending on which platform ran the check. Adding `.gitattributes` with
 `* text=auto eol=lf` normalized every file to LF in the git object store and the
-divergence went away. See [standalone-submodule-ci](/kb/build-ci-deploy/standalone-submodule-ci).
+divergence went away. See [standalone-submodule-ci](/principles/build-ci-deploy/standalone-submodule-ci).
 
 ## How to apply
 
@@ -150,7 +150,7 @@ export const readTextFile = async (path: string): Promise<string> => {
 // Internal callers receive LF-only strings; no per-function normalization needed
 ```
 
-It is the [validate-at-the-boundary](/kb/typescript/validate-at-the-boundary) principle
+It is the [validate-at-the-boundary](/principles/typescript/validate-at-the-boundary) principle
 applied to line endings: normalize once at the entry point, then trust the normalized
 form everywhere inside.
 
@@ -230,7 +230,7 @@ const lines = content.split('\n');
 ## See also
 
 The silent-wrong-result failure mode of CRLF in regex is the same category as
-[never hand-roll a YAML parser](/kb/error-handling/no-self-rolled-yaml): the code looks
+[never hand-roll a YAML parser](/principles/error-handling/no-self-rolled-yaml): the code looks
 like it works, nothing throws, and the corruption only surfaces downstream when something
 consumes the wrong result. Both incidents hit the same content pipeline on the same day
 (2026-04-12).

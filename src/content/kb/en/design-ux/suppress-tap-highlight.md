@@ -121,7 +121,7 @@ catches both faster than any lint rule.
 ## See also
 
 This is the touch-input companion to proving the UI on
-[real mobile devices](/kb/design-ux/mobile-proof-real-devices): the flash only shows on
+[real mobile devices](/principles/design-ux/mobile-proof-real-devices): the flash only shows on
 a phone, so it only gets caught when you actually test on one. The focus-ring caveat
 ties back to putting interaction, along with its visible state, on
-[the real interactive element](/kb/web-components/aria-on-the-real-element).
+[the real interactive element](/principles/web-components/aria-on-the-real-element).

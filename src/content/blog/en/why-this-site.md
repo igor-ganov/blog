@@ -74,12 +74,12 @@ did, that pain became an article.
 
 ## How to read what follows
 
-Start with the [Principles](/kb), the reference: one rule per page, each with a severity
+Start with the [Principles](/principles), the reference: one rule per page, each with a severity
 badge that says how firmly it's held. The other essays here pull those rules into themes:
-which ones are [non-negotiable](/essays/the-non-negotiables), how the
-[functional core and the imperative shell](/essays/functional-core-imperative-shell) divide
+which ones are [non-negotiable](/blog/the-non-negotiables), how the
+[functional core and the imperative shell](/blog/functional-core-imperative-shell) divide
 the work, and why the tests insist on
-[determinism over convenient hacks](/essays/determinism-over-hacks).
+[determinism over convenient hacks](/blog/determinism-over-hacks).
 
 Disagree where you like. Every page tells you where it came from, so you can weigh the
 evidence instead of taking it on faith. That matters more here than any single rule does.

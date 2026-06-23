@@ -41,7 +41,7 @@ monitor custom della libreria pragmatic non gestisce gli eventi sintetici.
 Abbiamo scelto di sostituire la libreria invece di aggirarla, per tre motivi:
 
 1. Una funzionalità che i test non possono pilotare non si può confermare funzionante in
-   CI. La regola dei tre run (vedi [niente retry, niente flake](/kb/testing/no-retries-no-flakes))
+   CI. La regola dei tre run (vedi [niente retry, niente flake](/principles/testing/no-retries-no-flakes))
    richiede una verifica deterministica; un'implementazione di DnD che funziona solo sotto
    un pointer reale non è verificabile.
 
@@ -225,7 +225,7 @@ tramite `page.dragAndDrop`.
 
 L'harness deterministico (`E2E_TEST_MODE`, stato seminato, adapter mock) poggia sullo
 stesso principio delle strategie di attesa in
-[attese event-driven](/kb/testing/event-driven-no-timeouts): un test non deve dipendere
+[attese event-driven](/principles/testing/event-driven-no-timeouts): un test non deve dipendere
 dal timing, da servizi esterni o da qualsiasi altro input non deterministico. Il fallback
 da tastiera della board è stato aggiunto per accessibilità, e fa anche da secondo vettore
 di test a costo zero.

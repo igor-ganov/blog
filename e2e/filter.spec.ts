@@ -4,7 +4,7 @@ import { APP } from './base';
 
 test.describe('kb-filter island', () => {
   test('narrows the list to matching practices and clears again', async ({ page }) => {
-    await page.goto(`${APP}/kb`);
+    await page.goto(`${APP}/principles`);
 
     const filter = page.locator(KB_FILTER.tag);
     const input = filter.getByTestId(KB_FILTER.input);
@@ -24,7 +24,7 @@ test.describe('kb-filter island', () => {
   });
 
   test('shows an empty state when nothing matches', async ({ page }) => {
-    await page.goto(`${APP}/kb`);
+    await page.goto(`${APP}/principles`);
     const filter = page.locator(KB_FILTER.tag);
     const input = filter.getByTestId(KB_FILTER.input);
 
@@ -37,7 +37,7 @@ test.describe('kb-filter island', () => {
   });
 
   test('quick-filter tag chips narrow the list to that tag', async ({ page }) => {
-    await page.goto(`${APP}/kb`);
+    await page.goto(`${APP}/principles`);
 
     const chips = page.getByTestId(KB_FILTER.chip);
     await expect(chips.first()).toBeVisible();

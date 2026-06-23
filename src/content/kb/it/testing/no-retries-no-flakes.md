@@ -131,7 +131,7 @@ Il protocollo di triage è:
 2. Cattura un trace: `bun run playwright --trace on`. Aprilo nel viewer e leggi la timeline
    degli eventi — cosa è stato emesso, in che ordine, e dove l'aspettativa è venuta meno.
 3. Individua la causa radice: un wait mancante, un segnale di wait sbagliato, o una race nel
-   codice applicativo. Vedi [event-driven-no-timeouts](/kb/testing/event-driven-no-timeouts)
+   codice applicativo. Vedi [event-driven-no-timeouts](/principles/testing/event-driven-no-timeouts)
    per la strategia di wait corretta.
 4. Correggi la causa radice. Non riattivare i retry come scorciatoia.
 
@@ -175,6 +175,6 @@ e bloccare il push, rendendo il controllo automatico.
 ## Vedi anche
 
 Retry e skip di solito significano che il test sta aspettando il tempo invece degli eventi;
-vedi [attese guidate dagli eventi](/kb/testing/event-driven-no-timeouts). La race del service
+vedi [attese guidate dagli eventi](/principles/testing/event-driven-no-timeouts). La race del service
 worker sulla SPA di content-admin è un caso concreto in cui la correzione è stata un wait
-corretto e non un retry: [aspetta che il service worker si stabilizzi](/kb/testing/wait-for-service-worker-settle).
+corretto e non un retry: [aspetta che il service worker si stabilizzi](/principles/testing/wait-for-service-worker-settle).

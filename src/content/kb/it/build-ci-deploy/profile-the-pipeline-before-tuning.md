@@ -55,7 +55,7 @@ gh run view <run-id> --json jobs \
 
 Ordina per durata, decrescente, e spendi le energie rigorosamente dall'alto verso
 il basso. La [disciplina del più rischioso/più grande
-prima](/kb/process/spike-riskiest-first) vale anche per le pipeline.
+prima](/principles/process/spike-riskiest-first) vale anche per le pipeline.
 
 **Passo 2: metti in cache i download, usando come chiave la versione dello
 strumento.**

@@ -70,7 +70,7 @@ const parseFrontmatter = (raw: string): Record<string, string> => {
 несогласованные ошибки в зависимости от того, какая платформа запускала проверку.
 Добавление `.gitattributes` со строкой `* text=auto eol=lf` нормализовало каждый файл к
 LF в хранилище git-объектов, и расхождение исчезло. См.
-[standalone-submodule-ci](/kb/build-ci-deploy/standalone-submodule-ci).
+[standalone-submodule-ci](/principles/build-ci-deploy/standalone-submodule-ci).
 
 ## Как применять
 
@@ -153,7 +153,7 @@ export const readTextFile = async (path: string): Promise<string> => {
 // Internal callers receive LF-only strings; no per-function normalization needed
 ```
 
-Это принцип [validate-at-the-boundary](/kb/typescript/validate-at-the-boundary),
+Это принцип [validate-at-the-boundary](/principles/typescript/validate-at-the-boundary),
 применённый к окончаниям строк: нормализуй один раз в точке входа, а затем доверяй
 нормализованной форме везде внутри.
 
@@ -233,7 +233,7 @@ const lines = content.split('\n');
 ## Смотри также
 
 Молчаливый-неверный-результат как режим отказа CRLF в regex — та же категория, что и
-[никогда не пиши свой YAML-парсер](/kb/error-handling/no-self-rolled-yaml): код выглядит
+[никогда не пиши свой YAML-парсер](/principles/error-handling/no-self-rolled-yaml): код выглядит
 рабочим, ничего не падает, а порча всплывает дальше по цепочке, когда что-то потребляет
 неверный результат. Оба инцидента ударили по одному и тому же контент-пайплайну в один
 день (2026-04-12).

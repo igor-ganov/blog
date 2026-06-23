@@ -19,7 +19,7 @@ updated: 2026-04-29
 A `fetch` call returning a `4xx` or `5xx` does **not** throw. The `Promise` resolves
 normally, and only `res.ok` tells you whether the server accepted the request. A wrapper
 that ignores this and returns `{ success: true }` is fabricating a success signal out of
-a failure, which is [swallowing the error](/kb/error-handling/never-swallow-errors) with
+a failure, which is [swallowing the error](/principles/error-handling/never-swallow-errors) with
 extra steps. The caller believes the write landed, so the UI refreshes and renders the
 old state. The user sees nothing wrong, retries, sees nothing wrong again, and eventually
 files a report saying "nothing is saving."
@@ -178,7 +178,7 @@ const data = await fetch(url)
 
 Throwing is only half the contract. The caller has to catch `HttpError` and route it
 somewhere visible, like a toast, an error ref, or a retry queue, and never an empty catch.
-Pair this rule with [never swallow errors](/kb/error-handling/never-swallow-errors).
+Pair this rule with [never swallow errors](/principles/error-handling/never-swallow-errors).
 
 ```ts
 // In a Vue component handler:
@@ -249,6 +249,6 @@ structural enforcement:
 ## See also
 
 A fabricated `{ success: true }` is the HTTP-specific instance of the general principle
-at [never swallow errors](/kb/error-handling/never-swallow-errors). Telemetry helpers
+at [never swallow errors](/principles/error-handling/never-swallow-errors). Telemetry helpers
 that send analytics fire-and-forget hit the same failure mode, covered in
-[telemetry never crashes](/kb/backend-events/telemetry-never-crashes).
+[telemetry never crashes](/principles/backend-events/telemetry-never-crashes).

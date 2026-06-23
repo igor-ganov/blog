@@ -32,7 +32,7 @@ That is the whole invocation. The style rule in this codebase leaves no room: **
 
 The Jira admin tooling scripts (2026-05-22) were the first place this got applied across the board. That tooling was a set of numbered `.ts` scripts (`01-fetch-sprint.ts`, `02-map-issues.ts`, etc.) that ran straight on Node 24 with no `package.json` build command and no compiled output. They stayed in TypeScript for their whole life: edit the `.ts` file, run it, done.
 
-**Relationship to bun**: the project default runtime is `bun` (see [bun-by-default](/kb/tooling-runtime/bun-by-default)). This article is not arguing Node over bun. Bun also runs `.ts` natively and is usually the better pick. What both runtimes share is that **no build pipeline is needed for scripts**. You do not write `.js`, you do not run `tsc`, you do not install `ts-node`.
+**Relationship to bun**: the project default runtime is `bun` (see [bun-by-default](/principles/tooling-runtime/bun-by-default)). This article is not arguing Node over bun. Bun also runs `.ts` natively and is usually the better pick. What both runtimes share is that **no build pipeline is needed for scripts**. You do not write `.js`, you do not run `tsc`, you do not install `ts-node`.
 
 ## How to apply
 
@@ -230,4 +230,4 @@ enum Direction { North = 'N', South = 'S' }
 
 ## See also
 
-- [bun-by-default](/kb/tooling-runtime/bun-by-default) — `bun` is the default runtime; it also runs `.ts` natively and is the preferred choice for most scripts.
+- [bun-by-default](/principles/tooling-runtime/bun-by-default) — `bun` is the default runtime; it also runs `.ts` natively and is the preferred choice for most scripts.
