@@ -10,7 +10,9 @@ test.describe('theme-toggle island', () => {
     const initial = (await html.getAttribute('data-theme')) ?? 'light';
     const flipped = initial === 'light' ? 'dark' : 'light';
 
-    const button = page.locator(THEME_TOGGLE.tag).getByTestId(THEME_TOGGLE.button);
+    // Two toggles exist (inline header + mobile flying menu); only one shows per
+    // viewport, so scope to the visible instance.
+    const button = page.locator(`${THEME_TOGGLE.tag}:visible`).getByTestId(THEME_TOGGLE.button);
     await expect(button).toBeVisible();
     await button.click();
 

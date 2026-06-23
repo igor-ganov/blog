@@ -17,6 +17,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@igor-ganov/flying-menu": "^0.1.2",
     "astro": "^5.6.1",
     "lit": "^3.2.1"
   },

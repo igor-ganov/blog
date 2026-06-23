@@ -25,6 +25,13 @@ const base = withBase('/').replace(/\/$/, '');
 const afterBase = path.startsWith(base) ? path.slice(base.length) : path;
 const restParts = afterBase.split('/').filter(Boolean).slice(1);
 const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
+
+const langs = locales.map((loc) => ({
+  href: withLocale(loc, restPath),
+  loc,
+  label: localeLabels[loc],
+  current: loc === locale,
+}));
 ---
 
 <header class="site-header">
@@ -39,7 +46,7 @@ const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
       </svg>
       <span class="word">{ui.brand}</span>
     </a>
-    <nav class="primary" aria-label={ui.nav.primary}>
+    <nav class="primary desktop-only" aria-label={ui.nav.primary}>
       <ul>
         {
           nav.map((item) => (
@@ -52,30 +59,80 @@ const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
         }
       </ul>
     </nav>
-    <nav class="langs" aria-label={ui.language}>
+    <nav class="langs desktop-only" aria-label={ui.language}>
       <ul>
         {
-          locales.map((loc) => (
+          langs.map((item) => (
             <li>
               <a
-                href={withLocale(loc, restPath)}
-                lang={loc}
-                hreflang={loc}
-                aria-current={loc === locale ? 'true' : undefined}
+                href={item.href}
+                lang={item.loc}
+                hreflang={item.loc}
+                aria-current={item.current ? 'true' : undefined}
               >
-                {localeLabels[loc]}
+                {item.label}
               </a>
             </li>
           ))
         }
       </ul>
     </nav>
-    <theme-toggle label={ui.theme.toggle}></theme-toggle>
+    <theme-toggle class="desktop-only" label={ui.theme.toggle}></theme-toggle>
   </div>
+
+  {/* Mobile: the inline controls would overflow a phone width, so they move into a
+      draggable, corner-snapping flying menu (igor-ganov/flying-menu). */}
+  <flying-menu class="mobile-menu" corner="bottom-right" gap={12} storage-key="ep-menu-corner">
+    <button slot="trigger" class="fab" type="button" aria-label={ui.nav.menu}>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path
+          d="M3 6h18M3 12h18M3 18h18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"></path>
+      </svg>
+    </button>
+    <div slot="menu" class="menu-panel">
+      <nav aria-label={ui.nav.primary}>
+        <ul>
+          {
+            nav.map((item) => (
+              <li>
+                <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <nav class="menu-langs" aria-label={ui.language}>
+        <ul>
+          {
+            langs.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  lang={item.loc}
+                  hreflang={item.loc}
+                  aria-current={item.current ? 'true' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <theme-toggle label={ui.theme.toggle}></theme-toggle>
+    </div>
+  </flying-menu>
 </header>
 
 <script>
   import '@/components/islands/theme-toggle';
+  import '@igor-ganov/flying-menu';
 </script>
 
 <style>
@@ -141,15 +198,69 @@ const restPath = restParts.length > 0 ? `/${restParts.join('/')}` : '/';
     color: var(--text);
     font-weight: 600;
   }
+
+  /* The flying menu is mobile-only; hidden on wider screens where the inline bar fits. */
+  .mobile-menu {
+    display: none;
+  }
+
   @media (max-width: 48rem) {
     .word {
       display: none;
     }
-    .bar {
-      gap: var(--space-4);
+    .desktop-only {
+      display: none;
     }
-    .langs ul {
-      gap: var(--space-2);
+    .mobile-menu {
+      display: contents;
     }
+  }
+
+  /* Floating trigger button (the FAB). */
+  .fab {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-raised);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    touch-action: none;
+  }
+  .fab:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* The menu panel shown when the flying menu is open. */
+  .menu-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 12rem;
+    padding: var(--space-5);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .menu-panel nav ul {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .menu-panel .menu-langs ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+    font-size: var(--step--1);
+  }
+  .menu-panel .menu-langs a[aria-current='true'] {
+    color: var(--text);
+    font-weight: 600;
   }
 </style>

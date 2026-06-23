@@ -11,6 +11,7 @@ export interface UIStrings {
   readonly language: string;
   readonly nav: {
     readonly primary: string;
+    readonly menu: string;
     readonly blog: string;
     readonly principles: string;
     readonly skills: string;
@@ -140,6 +141,7 @@ const en: UIStrings = {
   language: 'Language',
   nav: {
     primary: 'Primary',
+    menu: 'Menu',
     blog: 'Blog',
     principles: 'Principles',
     skills: 'Skills',
@@ -262,6 +264,7 @@ const it: UIStrings = {
   language: 'Lingua',
   nav: {
     primary: 'Principale',
+    menu: 'Menu',
     blog: 'Blog',
     principles: 'Principi',
     skills: 'Competenze',
@@ -384,6 +387,7 @@ const ru: UIStrings = {
   language: 'Язык',
   nav: {
     primary: 'Основная',
+    menu: 'Меню',
     blog: 'Блог',
     principles: 'Принципы',
     skills: 'Навыки',
