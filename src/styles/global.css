@@ -9,6 +9,14 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Always reserve the vertical scrollbar's space, so a short page (no scrollbar)
+     and a long one (scrollbar) keep the same content width. Without it the centred
+     layout jumps ~15px sideways on every navigation between the two — invisible
+     behind a full-reload flash, but glaring once view transitions made nav smooth.
+     `overflow-y: scroll` is the reliable lever (scrollbar-gutter is ignored while
+     the root's overflow is visible); the gutter hint helps overlay-scrollbar UAs. */
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
   /* Kill the blue/grey flash mobile WebKit paints on tap. Inherited, so it
      reaches shadow-DOM islands too. Keyboard :focus-visible stays intact;
      touch feedback is the element's own :active state. */
