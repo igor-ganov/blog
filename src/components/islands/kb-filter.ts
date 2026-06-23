@@ -1,110 +1,64 @@
-import { html, LitElement, nothing } from 'lit';
-import { customElement, property, query, state } from 'lit/decorators.js';
 import { matchTokens } from '@/lib/search/match-tokens';
 import { matchesTags } from '@/lib/tags/matches-tags';
 import { toggleTag } from '@/lib/tags/toggle-tag';
 import { KB_FILTER } from './kb-filter.locators';
-import { kbFilterStyles } from './kb-filter.styles';
 
-// Filters its own light-DOM children (slotted cards) by data-haystack text and
-// by the active quick-filter tag chips. Cards stay in the light DOM, so a plain
-// querySelectorAll reaches them.
-@customElement(KB_FILTER.tag)
-export class KbFilter extends LitElement {
-  static override styles = kbFilterStyles;
+// Progressive enhancement for the practices filter. The controls (search box, tag
+// chips, live count, empty message) and the cards are all server-rendered; this
+// element only wires behaviour onto the existing light DOM. Nothing is created on
+// hydration, so the server HTML and the hydrated DOM are identical — no reflow.
+class KbFilter extends HTMLElement {
+  #active: readonly string[] = [];
 
-  // Comma-separated tag names for the quick-filter chips, ordered by the page.
-  @property({ type: String }) tags = '';
-
-  // Localized labels, passed by the page; English defaults keep the island usable
-  // on its own.
-  @property({ type: String }) placeholder = 'Filter practices…';
-  @property({ type: String }) label = 'Filter practices';
-  @property({ type: String }) emptyText = 'No practices match your filter.';
-  @property({ type: String }) byTagLabel = 'Filter by tag';
-
-  @state() private query = '';
-  @state() private active: readonly string[] = [];
-  @state() private visible = 1;
-  @state() private total = 0;
-  @query('input') private readonly input?: HTMLInputElement;
-
-  protected override firstUpdated(): void {
-    this.total = this.items().length;
-    this.applyFilter();
+  connectedCallback(): void {
+    this.#input()?.addEventListener('input', this.#apply);
+    for (const chip of this.#chips()) {
+      chip.addEventListener('click', () => this.#toggleChip(chip));
+    }
+    this.#apply();
   }
 
-  private readonly chips = (): readonly string[] => this.tags.split(',').filter(Boolean);
+  #input = (): HTMLInputElement | undefined =>
+    this.querySelector<HTMLInputElement>(`[data-testid="${KB_FILTER.input}"]`) ?? undefined;
 
-  private readonly items = (): readonly HTMLElement[] => [
+  #chips = (): readonly HTMLButtonElement[] => [
+    ...this.querySelectorAll<HTMLButtonElement>(`[data-testid="${KB_FILTER.chip}"]`),
+  ];
+
+  #items = (): readonly HTMLElement[] => [
     ...this.querySelectorAll<HTMLElement>(`[${KB_FILTER.item}]`),
   ];
 
-  private readonly itemTags = (el: HTMLElement): readonly string[] =>
+  #itemTags = (el: HTMLElement): readonly string[] =>
     (el.getAttribute(KB_FILTER.itemTags) ?? '').split(',').filter(Boolean);
 
-  private readonly applyFilter = (): void => {
-    const matches = this.items().filter(
-      (el) =>
-        matchTokens(this.query, el.getAttribute(KB_FILTER.haystack) ?? '') &&
-        matchesTags(this.active, this.itemTags(el)),
-    );
-    for (const el of this.items()) el.hidden = matches.includes(el) === false;
-    this.visible = matches.length;
+  #toggleChip = (chip: HTMLButtonElement): void => {
+    const tag = chip.getAttribute(KB_FILTER.chipTag) ?? '';
+    this.#active = toggleTag(this.#active, tag);
+    chip.setAttribute('aria-pressed', String(this.#active.includes(tag)));
+    this.#apply();
   };
 
-  private readonly onInput = (): void => {
-    this.query = this.input?.value ?? '';
-    this.applyFilter();
-  };
+  #apply = (): void => {
+    const query = this.#input()?.value ?? '';
+    const items = this.#items();
+    let visible = 0;
+    for (const el of items) {
+      const ok =
+        matchTokens(query, el.getAttribute(KB_FILTER.haystack) ?? '') &&
+        matchesTags(this.#active, this.#itemTags(el));
+      el.hidden = !ok;
+      if (ok) visible += 1;
+    }
 
-  private readonly onChip = (tag: string) => (): void => {
-    this.active = toggleTag(this.active, tag);
-    this.applyFilter();
-  };
+    const count = this.querySelector(`[data-testid="${KB_FILTER.count}"]`);
+    if (count) count.textContent = `${visible} / ${items.length}`;
 
-  private readonly renderChips = (): unknown => {
-    const chips = this.chips();
-    return chips.length === 0
-      ? nothing
-      : html`<div class="chips" role="group" aria-label=${this.byTagLabel}>
-          ${chips.map((tag) => {
-            const pressed = this.active.includes(tag);
-            // Attribute name is the literal KB_FILTER.chipTag ('data-tag').
-            return html`<button
-              type="button"
-              class="chip"
-              data-testid=${KB_FILTER.chip}
-              data-tag=${tag}
-              aria-pressed=${pressed}
-              @click=${this.onChip(tag)}
-            >
-              ${tag}
-            </button>`;
-          })}
-        </div>`;
+    const empty = this.querySelector<HTMLElement>(`[data-testid="${KB_FILTER.empty}"]`);
+    if (empty) empty.hidden = visible !== 0;
   };
+}
 
-  protected override render(): unknown {
-    return html`
-      <div class="bar">
-        <input
-          type="search"
-          inputmode="search"
-          placeholder=${this.placeholder}
-          aria-label=${this.label}
-          data-testid=${KB_FILTER.input}
-          @input=${this.onInput}
-        />
-        <p class="count" role="status" aria-live="polite" data-testid=${KB_FILTER.count}>
-          ${this.visible} / ${this.total}
-        </p>
-      </div>
-      ${this.renderChips()}
-      <slot></slot>
-      <p class="empty" data-testid=${KB_FILTER.empty} ?hidden=${this.visible !== 0}>
-        ${this.emptyText}
-      </p>
-    `;
-  }
+if (!customElements.get(KB_FILTER.tag)) {
+  customElements.define(KB_FILTER.tag, KbFilter);
 }

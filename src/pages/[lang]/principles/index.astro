@@ -8,6 +8,7 @@ import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locale
 import { t } from '@/lib/i18n/ui';
 import { topTags } from '@/lib/tags/top-tags';
 import { categories } from '@/lib/categories/categories';
+import { KB_FILTER } from '@/components/islands/kb-filter.locators';
 
 export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
 
@@ -17,9 +18,7 @@ const ui = t(locale);
 const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const ordered = categories.flatMap((category) => grouped.get(category.slug) ?? []);
-const chipTags = topTags(articles, 14)
-  .map((entry) => entry.tag)
-  .join(',');
+const chipTags = topTags(articles, 14).map((entry) => entry.tag);
 ---
 
 <BaseLayout title={ui.nav.principles} description={ui.pages.kbIndex.description} locale={locale}>
@@ -34,16 +33,42 @@ const chipTags = topTags(articles, 14)
     </p>
   </header>
 
-  <kb-filter
-    tags={chipTags}
-    placeholder={ui.filter.placeholder}
-    label={ui.filter.label}
-    emptyText={ui.filter.empty}
-    byTagLabel={ui.filter.byTag}
-  >
+  {/* Controls and cards are server-rendered; the island only wires behaviour onto
+      them, so the hydrated DOM matches the server HTML (no reflow on hydration). */}
+  <kb-filter>
+    <div class="bar">
+      <input
+        type="search"
+        inputmode="search"
+        placeholder={ui.filter.placeholder}
+        aria-label={ui.filter.label}
+        data-testid={KB_FILTER.input}
+      />
+      <p class="count" role="status" aria-live="polite" data-testid={KB_FILTER.count}>
+        {articles.length} / {articles.length}
+      </p>
+    </div>
+    {
+      chipTags.length > 0 && (
+        <div class="chips" role="group" aria-label={ui.filter.byTag}>
+          {chipTags.map((tag) => (
+            <button
+              type="button"
+              class="chip"
+              data-testid={KB_FILTER.chip}
+              data-tag={tag}
+              aria-pressed="false"
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )
+    }
     <div class="grid">
       {ordered.map((article) => <ArticleCard article={article} showCategory />)}
     </div>
+    <p class="empty" data-testid={KB_FILTER.empty} hidden>{ui.filter.empty}</p>
   </kb-filter>
 
   <script>
@@ -62,6 +87,70 @@ const chipTags = topTags(articles, 14)
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
       gap: var(--space-4);
+    }
+
+    /* Filter controls live in the page (server-rendered) so they occupy space before
+       hydration; the kb-filter island only wires behaviour onto them. */
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+    .bar input {
+      flex: 1;
+      min-width: 0;
+      font: inherit;
+      color: var(--text);
+      background: var(--bg-raised);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: var(--space-3) var(--space-4);
+    }
+    .bar input:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .count {
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-faint);
+      font-size: var(--step--1);
+      white-space: nowrap;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+    .chip {
+      font: inherit;
+      font-size: var(--step--1);
+      color: var(--text-muted);
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.25em 0.8em;
+      cursor: pointer;
+      transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+    }
+    .chip:hover {
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+    .chip:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .chip[aria-pressed='true'] {
+      color: var(--accent-contrast);
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .empty {
+      color: var(--text-muted);
+      padding: var(--space-6) 0;
     }
   </style>
 </BaseLayout>

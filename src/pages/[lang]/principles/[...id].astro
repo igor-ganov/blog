@@ -103,7 +103,21 @@ const toc = headings.filter((heading) => heading.depth === 2);
             heading={ui.toc.onThisPage}
             closeLabel={ui.toc.close}
             headings={JSON.stringify(toc.map((heading) => ({ id: heading.slug, text: heading.text })))}
-          />
+          >
+            {/* Server-rendered desktop TOC, matching the island's inline panel so the
+                sidebar does not reflow on hydration. Once the element upgrades, its
+                shadow root (which has no slot) hides this light-DOM skeleton. */}
+            <div class="toc-ssr" aria-hidden="true">
+              <h2 class="toc-ssr-label">{ui.toc.onThisPage}</h2>
+              <ul class="toc-ssr-list">
+                {toc.map((heading) => (
+                  <li>
+                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </toc-drawer>
         )
       }
       <ArticleAside
@@ -157,6 +171,41 @@ const toc = headings.filter((heading) => heading.depth === 2);
       display: flex;
       flex-direction: column;
       gap: var(--space-6);
+    }
+
+    /* Skeleton matching toc-drawer's inline desktop panel (same metrics), shown only
+       until the island upgrades. Hidden under 60rem where the drawer is a button. */
+    .toc-ssr-label {
+      font-family: var(--font-sans);
+      font-size: 0.74rem;
+      /* Match the shadow panel's h2, which is isolated from the global h2 rule and
+         so keeps the inherited body line-height/UA weight. */
+      font-weight: 700;
+      line-height: 1.65;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      margin: 0 0 var(--space-3);
+    }
+    .toc-ssr-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      font-size: var(--step--1);
+    }
+    .toc-ssr-list a {
+      display: block;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.15em 0;
+    }
+    @media (max-width: 60rem) {
+      .toc-ssr {
+        display: none;
+      }
     }
     .pager {
       display: flex;
