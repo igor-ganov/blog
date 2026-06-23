@@ -204,6 +204,13 @@ const langs = locales.map((loc) => ({
     display: none;
   }
 
+  /* Until the island's script upgrades the element, its slotted button + panel would
+     paint in the document flow at the top, then jump to the fixed corner on hydration.
+     Hide it until defined. Scoped here so it outranks the .mobile-menu rule below. */
+  flying-menu:not(:defined) {
+    display: none;
+  }
+
   @media (max-width: 48rem) {
     .word {
       display: none;

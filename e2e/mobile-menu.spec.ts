@@ -27,4 +27,27 @@ test.describe('mobile flying menu', () => {
       .getByRole('link', { name: 'Principles', exact: true });
     await expect(principles).toBeVisible();
   });
+
+  test('does not flash in the page flow before the island hydrates', async ({ page }) => {
+    // Stall every script so the pre-hydration paint is observable — this is the cold
+    // load where the user saw the menu render at the top and then jump to the corner.
+    await page.route('**/*.js', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    await page.goto(`${APP}/principles`, { waitUntil: 'commit' });
+
+    const fm = page.locator('flying-menu');
+    await fm.waitFor({ state: 'attached' });
+    const state = await fm.evaluate((el) => ({
+      defined: Boolean(customElements.get('flying-menu')),
+      display: getComputedStyle(el).display,
+    }));
+
+    // Confirm we are genuinely pre-hydration, then assert nothing is laid out: an
+    // undefined flying-menu must be display:none so its trigger/menu never paint
+    // in the document flow at the top.
+    expect(state.defined).toBe(false);
+    expect(state.display).toBe('none');
+  });
 });
