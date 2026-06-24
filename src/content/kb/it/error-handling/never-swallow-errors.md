@@ -26,7 +26,7 @@ Un catch vuoto diventa invisibile esattamente nel momento in cui ti serve.
 guasto è comunque successo, e ora nessun log, nessuna notifica e nessun test lo vedrà
 mai. Su una SPA di amministrazione contenuti è andata proprio così: i gestori catch
 silenziosi erano la ragione per cui un'intera classe di regressioni sul salvataggio in
-produzione è rimasta invisibile finché un umano non si è accorto, a mano, che non si
+produzione è rimasta invisibile finché qualcuno non si è accorto, a mano, che non si
 salvava niente.
 
 Quindi: non inghiottire mai un errore in silenzio. `try/catch` vuoti, `.catch(() => {})`,
@@ -39,7 +39,7 @@ Due incidenti, stessa causa radice.
 La SPA di amministrazione contenuti finiva per committare uno stato del repository non
 compilabile. La build del sito statico falliva, ma il percorso d'errore lato admin
 inghiottiva ogni segnale, così l'editor vedeva un successo mentre la produzione andava in
-rosso. La stessa forma stava sotto l'init del service worker, dove
+rosso. Lo stesso schema era nascosto sotto l'init del service worker, dove
 `.then(loadRoleAfterInit, () => {})` scartava i guasti di avvio dello SW.
 
 A parte questo, il livello RBAC (org-membership `PUT`, team `PUT`, invite `POST`, revoke
@@ -50,8 +50,8 @@ nulla in silenzio, e nessuno se ne accorgeva finché non passavano ore di tentat
 successo fabbricato è solo un altro errore inghiottito.
 
 Il costo è lo stesso in entrambi i casi. Il guasto è reale, ma affiora come un sintomo
-confuso lontano dalla causa, di solito solo dopo che un umano se ne accorge. Lo paghi in
-ore di debug, e lo paghi in fiducia persa su qualunque cosa pensavi di aver salvato.
+confuso lontano dalla causa, di solito solo dopo che qualcuno se ne accorge. Lo paghi in
+ore di debug e nella fiducia persa in ciò che pensavi di aver salvato.
 
 ## Come applicarla
 
