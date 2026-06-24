@@ -21,15 +21,14 @@ order: 1
 updated: 2026-05-09
 ---
 
-An empty catch is the most expensive line of code you can write, because it goes
-invisible at exactly the moment you need it. `.catch(() => {})` does not handle an
-error. It deletes the evidence that one occurred. The failure still happened, and now
-no log, no notification, and no test will ever see it. On a content-admin SPA this
-played out for real: silent catch handlers were the **structural reason** an entire
-class of production save-regressions stayed invisible until a human noticed, by hand,
-that nothing was saving.
+An empty catch goes invisible at exactly the moment you need it. `.catch(() => {})` does
+not handle an error; it discards the evidence that one occurred. The failure still
+happened, and now no log, no notification, and no test will see it. On a content-admin
+SPA this played out for real: silent catch handlers were the reason an entire class of
+production save-regressions stayed invisible until a human noticed, by hand, that nothing
+was saving.
 
-The rule: **never silently swallow an error.** Empty `try/catch`, `.catch(() => {})`,
+So: never silently swallow an error. Empty `try/catch`, `.catch(() => {})`,
 `.catch(() => undefined)`, and `.then(onOk, () => {})` are all banned.
 
 ## Why this matters
@@ -45,12 +44,11 @@ Separately, the RBAC layer (org-membership `PUT`, team `PUT`, invite `POST`, rev
 `DELETE`) returned `{ success: true }` from the service worker **while GitHub had
 returned a 4xx**. The handler never checked `res.ok`, so it fabricated success, the UI
 refreshed, and it showed the old state. Saves silently did nothing, and nobody knew
-until hours of retrying. A fabricated success is just a swallowed error that smiles
-back at you.
+until hours of retrying. A fabricated success is just another swallowed error.
 
 The cost is the same in both cases. The failure is real, but it surfaces as a
 confusing symptom far from the cause, usually only after a human notices. You pay in
-debugging hours, and you pay in lost trust about whatever you thought you saved.
+debugging hours and in lost trust about whatever you thought you saved.
 
 ## How to apply
 

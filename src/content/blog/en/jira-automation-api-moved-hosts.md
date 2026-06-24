@@ -84,5 +84,5 @@ A short checklist, written for me:
    than any of my header experiments. I should have weighed it that way the
    first time, not the third.
 
-The fix took ten minutes once I was on the right host. Finding the right host
-took the rest of the afternoon.
+The fix took ten minutes once I was on the right host. Most of the afternoon went into
+finding which host that was.

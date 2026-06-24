@@ -245,9 +245,8 @@ type ChangeEvent = {
 // Consumer: find orders by tenant → find events by orderId → two queries, no index coverage
 ```
 
-The bespoke-endpoint pattern couples the infrastructure to every domain change. Pushing
-domain logic into the service turns infrastructure into a feature service. And normalised
-storage throws away the single-query guarantee, dragging aggregation back into every read.
+Each of these drags domain knowledge into infrastructure that was supposed to stay
+domain-agnostic, and normalised storage also throws away the single-query guarantee.
 
 ## See also
 

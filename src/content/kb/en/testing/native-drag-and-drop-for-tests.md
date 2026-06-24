@@ -26,8 +26,8 @@ card never moves.
 
 The fix is to implement DnD against the browser's own HTML5 DnD API. Native DnD reacts to
 real user gestures and to Playwright's synthetic dispatch alike. It costs you roughly 150
-lines of hand-rolled logic, and in return you get an implementation that is testable,
-accessible, free of an extra dependency, and entirely yours to change.
+lines of hand-rolled logic, and in return you get an implementation that tests can drive,
+that supports the keyboard, that drops a dependency, and that you fully control.
 
 ## Why this matters
 
@@ -225,5 +225,4 @@ The deterministic harness (`E2E_TEST_MODE`, seeded state, mock adapter) rests on
 principle as the wait strategies in
 [event-driven waits](/principles/testing/event-driven-no-timeouts): a test should not depend on
 timing, external services, or any other non-deterministic input. The board's keyboard
-fallback was added for accessibility, and it doubles as a second test vector at no extra
-cost.
+fallback was added for accessibility, and it doubles as a second test vector.

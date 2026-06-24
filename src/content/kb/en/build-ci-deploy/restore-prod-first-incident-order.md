@@ -17,14 +17,14 @@ updated: 2026-05-05
 ---
 
 When production is broken, restore service. Understanding why it broke, writing a test that
-proves it broke, opening a PR with the clean architectural fix: all necessary, all after the
-site is green.
+proves it broke, and opening a PR with the clean architectural fix are all necessary, but
+they come after the site is green.
 
 The instinct to "fix it properly" while the site is down is understandable, because it avoids
 deploying a hotfix that gets immediately superseded by the real fix. What it actually does is
 keep the site down longer while you write tests and wait on review, with users and stakeholders
 watching the outage drag on. A two-step recovery (hotfix now, proper fix later) almost always
-costs less than a one-step recovery that takes three times as long.
+restores service sooner, even though it means deploying twice.
 
 ## Why this matters
 

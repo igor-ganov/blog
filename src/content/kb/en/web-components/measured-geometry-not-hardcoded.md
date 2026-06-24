@@ -15,8 +15,8 @@ order: 2
 updated: 2026-06-10
 ---
 
-Hardcoded pixel values in a positioning algorithm are a bet that the content never
-changes, and that bet loses. A FAB (floating action button) coded as "48 px wide"
+Hardcoded pixel values in a positioning algorithm assume the content never changes, and
+that assumption breaks. A FAB (floating action button) coded as "48 px wide"
 stays correct until someone swaps the icon, adds a label, or the user bumps their
 system font size. After that the menu overlaps its trigger or leaves a gap, and fixing
 it means a code change instead of a style change.

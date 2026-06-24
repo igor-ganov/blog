@@ -16,16 +16,16 @@ order: 2
 updated: 2026-04-29
 ---
 
-A `fetch` call returning a `4xx` or `5xx` does **not** throw. The `Promise` resolves
+A `fetch` call returning a `4xx` or `5xx` does not throw. The `Promise` resolves
 normally, and only `res.ok` tells you whether the server accepted the request. A wrapper
 that ignores this and returns `{ success: true }` is fabricating a success signal out of
-a failure, which is [swallowing the error](/principles/error-handling/never-swallow-errors) with
-extra steps. The caller believes the write landed, so the UI refreshes and renders the
-old state. The user sees nothing wrong, retries, sees nothing wrong again, and eventually
-files a report saying "nothing is saving."
+a failure, which is a form of [swallowing the error](/principles/error-handling/never-swallow-errors).
+The caller believes the write landed, so the UI refreshes and renders the
+old state. The user sees nothing wrong, retries, and eventually files a report saying
+"nothing is saving."
 
-The rule is absolute: **any code that wraps `fetch` or `swFetch` must throw on
-`!res.ok`** before returning anything to its caller.
+So any code that wraps `fetch` or `swFetch` must throw on `!res.ok` before returning
+anything to its caller.
 
 ## Why this matters
 
@@ -227,9 +227,9 @@ const getRole = async (username: string): Promise<Role> => {
 };
 ```
 
-Each of these produces the same symptom at runtime. The write appears to succeed from the
-caller's perspective, the UI re-renders with stale state, and nobody notices the failure
-until a user spots that the data did not change, potentially hours later.
+In each case the write appears to succeed from the caller's perspective, the UI re-renders
+with stale state, and nobody notices the failure until a user spots that the data did not
+change, potentially hours later.
 
 ## Enforcement
 

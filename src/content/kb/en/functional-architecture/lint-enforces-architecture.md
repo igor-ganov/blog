@@ -28,7 +28,7 @@ a rule that lives only in review comments or team convention erodes, while the s
 encoded in lint holds until someone deliberately deletes it. That asymmetry is the whole
 argument.
 
-The other half of the rule is **no overrides, no suppressions**. A `biome-ignore` or
+The other half of the rule is no overrides and no suppressions. A `biome-ignore` or
 `eslint-disable` comment is a hole in the architecture, and enough holes mean the rules
 no longer say anything. When a lint rule fights you, fix the design rather than silence
 the warning.
@@ -210,9 +210,9 @@ let count = 0;
 //    on the next onboarding, the next late-night PR, the next deadline push
 ```
 
-Every one of these opens a gap between the rule as written and the rule as enforced, and
-the gap only widens with time. The content-admin SPA had 148 such gaps before phase 8
-closed them.
+Each of these opens a gap between the rule as written and the rule as enforced, and the
+gap only widens with time. The content-admin SPA had 148 such gaps before phase 8 closed
+them.
 
 ## See also
 

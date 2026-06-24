@@ -35,13 +35,13 @@ didn't time out the usual way. It was racing a reload it didn't know was coming.
 ## Why this matters
 
 On the content-admin SPA (2026-04-30) the update-lifecycle module listens for
-`controllerchange` and reloads on the **first** SW activation. That is standard
+`controllerchange` and reloads on the first SW activation. That is standard
 progressive-web-app behaviour and correct application code. The problem lives entirely
 in the tests: in a fresh `BrowserContext`, every test run is a first activation.
 
 The first fix (2026-04-30) waited for `networkidle` plus a stable anchor. It passed,
 but it was the wrong wait. `networkidle` means "no network requests for 500ms", so it
-is a time-shaped wait wearing an event costume. Every visit pays a mandatory 500ms of
+is a time-shaped wait dressed up as an event. Every visit pays a mandatory 500ms of
 silence even when the SW settled instantly. Across a suite of dozens of visits that
 adds up to half a minute of pure sleep, and it still tells you nothing about the SW,
 because a page can be network-idle while the SW is mid-activation.
@@ -96,7 +96,7 @@ Pick the stable anchor element with care. It has to be present on every page und
 test, rendered by the application, and carry a deterministic `data-testid` (see
 [locator constants](/principles/testing/locator-constants)).
 
-And gate **before the next navigation** whenever the previous step registered the SW:
+And gate before the next navigation whenever the previous step registered the SW:
 
 ```ts
 // First authenticated load registers the SW.
@@ -146,8 +146,8 @@ if (browserName === 'webkit') await page.waitForTimeout(300);
 ```
 
 Disabling the SW in tests is a tempting shortcut, but it throws away real coverage.
-The lifecycle gate costs one shared helper and buys complete confidence that the DOM
-is post-activate and stable.
+The lifecycle gate costs one shared helper, and in return the DOM is reliably
+post-activate and stable when the test body runs.
 
 ## Enforcement
 

@@ -58,14 +58,14 @@ understand memory and let the VM eat all of it. And it was exactly those develop
 that JVM that would run your code on a flat-iron if you asked it to, who gave us the
 enterprise boom and Android.
 
-Every generation grumbled that the next one was losing the skills. Every next generation
-pushed the work onto a new level anyway, with a big jump in volume and, once the processes
-and the standards and the training had caught up, in quality too.
+Each generation grumbled that the next one was losing the skills, then pushed the work
+onto a new level anyway, with a big jump in volume and, once the processes and the
+standards and the training had caught up, in quality too.
 
 ## Coders and operators
 
-That is where we are now. There are carpenters and there are CNC operators. There are
-coders and there are LLM operators.
+That is where we are now. The carpenter and the CNC operator both have a place, and so do
+the coder and the LLM operator.
 
 So I would not call it deskilling, and I would not call it going soft. It is handing off
 the routine and moving up a level of abstraction, picking up new skills that get more done.
@@ -85,7 +85,7 @@ quality of the product. It is a preference, the professional deformation you pic
 the years, a bit of geekery, my own taste. But if I cannot get past it during actual work,
 if I cannot automate everything except what the product genuinely requires for a real
 reason, then I am doing crochet on the clock. If I can afford that, good. On average it is
-not what production needs from me, it is a hobby.
+not what production needs from me.
 
-What the factory and the progress behind it want more and more of is people who can run a
-team of agents and operate an LLM well, and fewer lone artists hand-writing JavaScript.
+What the work wants more and more of is people who can run a team of agents and operate an
+LLM well, and fewer people hand-writing every line of JavaScript.

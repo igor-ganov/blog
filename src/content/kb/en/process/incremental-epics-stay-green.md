@@ -18,8 +18,8 @@ updated: 2026-06-10
 
 An epic that ships in one large PR is hard to review and hard to bisect when something
 breaks, and you can't deploy half of it. But splitting it into increments buys you
-nothing if later increments skip ahead or let tests go red. That's still a large PR,
-just dressed up as several.
+nothing if later increments skip ahead or let tests go red. The work stays just as
+tangled; it has only been spread across several PRs.
 
 The content-admin SPA offline initiative (2026-04-30) settled on a concrete structure.
 Each increment is one GitHub issue. The issue body follows a fixed schema. All five
@@ -41,7 +41,7 @@ Phase C. If every increment merged green, the bisect range is a single increment
 worth of code. Relax the rule, let Phase B merge with known failures "to be fixed in
 Phase C," and the regression might be hiding in whatever corners Phase B cut.
 
-The issue body schema isn't decoration. Goal / Acceptance / Tests / Out of scope /
+The issue body schema earns its place. Goal / Acceptance / Tests / Out of scope /
 Depends on captures what a reviewer actually needs to evaluate the PR: the intended
 outcome, how we know it was achieved, what was verified, what was deliberately
 deferred, and what must already be merged before this starts.

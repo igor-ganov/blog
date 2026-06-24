@@ -16,12 +16,11 @@ order: 3
 updated: 2026-05-14
 ---
 
-"Why not use a saga?" comes up in every design discussion that touches distributed
-transactions. Sagas do handle multi-service consistency, so the question sounds
-reasonable, but it conflates two problems that live at two different layers. The
-confusion costs real time. Teams debate the pattern and prototype compensation logic,
-then come back to an outbox anyway, because the reliability problem was never about
-workflow management.
+Any design discussion that touches distributed transactions tends to raise the option of
+a saga. Sagas do handle multi-service consistency, so it sounds reasonable, but it
+conflates two problems that live at two different layers. The confusion costs real time.
+Teams debate the pattern and prototype compensation logic, then come back to an outbox
+anyway, because the reliability problem was never about workflow management.
 
 An event-sourcing service answered this explicitly on 2026-05-14, so there is a
 concrete decision to point at rather than reasoning in the abstract.
@@ -38,7 +37,7 @@ because both involve multiple services and eventual consistency. The decision no
 That is the minimal framing. The fuller argument needs you to know what each pattern
 actually does.
 
-**A saga is a workflow-level construct.** It models a long-running business process that
+A saga is a workflow-level construct. It models a long-running business process that
 spans multiple services as a sequence of local transactions, each one publishing an
 event or command to trigger the next step. When a step fails, the saga runs
 compensating transactions to undo the prior steps. The canonical example is an e-commerce
@@ -46,7 +45,7 @@ order that reserves inventory, charges a card, then schedules shipping: three se
 services, three local commits, and a defined set of compensations for when a step fails
 after others have committed.
 
-**An outbox is a transport-level construct.** It solves one problem. It guarantees
+An outbox is a transport-level construct. It solves one problem. It guarantees
 that a message is published to a broker exactly once relative to a local database commit,
 even if the process crashes between the write and the publish. It has no concept of
 workflow steps, compensation, or cross-service coordination. It only makes sure the message
@@ -72,9 +71,9 @@ The confusion arises because sagas and outboxes share surface-level features: bo
 involve events, both cross service boundaries, both respond to partial failures. What
 separates them is what "failure" means in each case.
 
-- Saga failure: a **business step** fails (payment declined, inventory insufficient).
+- Saga failure: a business step fails (payment declined, inventory insufficient).
   The response is compensation: reverse prior steps to restore business-level consistency.
-- Outbox failure: a **message delivery** fails (broker unavailable, process crash).
+- Outbox failure: a message delivery fails (broker unavailable, process crash).
   The response is retry: re-attempt the same delivery until it succeeds.
 
 Compensation logic and retry logic are not interchangeable. You cannot "retry" a payment
@@ -186,8 +185,8 @@ const reserveInventoryStep: SagaStep<OrderContext> = {
 // Each broker publish here needs its own outbox to be reliable.
 ```
 
-The first anti-pattern wastes design effort on compensation logic that is semantically
-meaningless for the actual failure mode. The second builds a saga on a transport that
+Both misplace the pattern: one spends design effort on compensation logic that is
+meaningless for the actual failure mode, the other builds a saga on a transport that
 silently loses messages, so the workflow it is supposed to guarantee never holds.
 
 ## See also

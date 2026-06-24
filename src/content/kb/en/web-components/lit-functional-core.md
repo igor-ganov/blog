@@ -21,9 +21,9 @@ updated: 2026-06-10
 ---
 
 A Lit `LitElement` is a class, and classes accumulate. Left unchecked, a custom element
-grows a shadow DOM, a positioning engine, an animation scheduler, ARIA bookkeeping,
-keyboard handling, and external API methods all in one file. None of that logic is
-testable without a real browser, and none of it is reusable outside this one element.
+grows a shadow DOM, a positioning engine, an animation scheduler, ARIA bookkeeping, and
+keyboard handling all in one file. That logic is hard to test without a real browser and
+cannot be reused outside this one element.
 
 The discipline that prevents this came out of the headless web-component library
 (2026-06-06). Treat the element class as a **thin shell**: a place to declare reactive

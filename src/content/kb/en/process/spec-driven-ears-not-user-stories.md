@@ -34,7 +34,7 @@ three artifacts in strict order: **requirements.md → design.md → tasks.md**.
 artifact gates the next. The spec is the source of truth and the code is derived from
 it, so when the implementation and the spec disagree, you interrogate the spec first.
 
-Here is the failure that motivated it. Work went straight from a vague ticket into code,
+The failure that motivated it: work went straight from a vague ticket into code,
 discovering requirements mid-implementation and encoding them as implicit decisions in
 the codebase. Those decisions were invisible to review and to anyone maintaining the
 thing later. Pulling them back into a written spec after the fact cost more than writing
@@ -43,8 +43,8 @@ the spec up front would have.
 The user-story format was a second, separate problem. On a private, single-person
 project the persona prose is corporate overhead and buys you nothing. It survived long
 enough to earn an explicit rejection in the project decision record: functional
-requirements written as user stories are harder to read as a spec, harder to map to
-tests, and harder to group by capability.
+requirements written as user stories are harder to read as a spec and harder to map to
+tests, and the persona wrapper gets in the way of grouping them by capability.
 
 ## How to apply
 
@@ -98,7 +98,7 @@ REQ-5: IF the outbox relay crashes mid-delivery THE SYSTEM SHALL detect the
 ```
 
 Each criterion is:
-- Unambiguous. "Mark delivered on 2xx" is a test condition, not a wish.
+- Unambiguous. "Mark delivered on 2xx" gives you a condition you can test directly.
 - Independently testable. Each maps to one or a few tests.
 - Not a solution. REQ-1 says "persist to outbox table" because that is a locked
   decision. Without the locked decision it would say "persist durably" and leave the

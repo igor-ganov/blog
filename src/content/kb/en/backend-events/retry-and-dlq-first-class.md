@@ -311,7 +311,7 @@ const MAX_RETRIES = 10; // in payments-service — different, undocumented reaso
 }
 ```
 
-Each of these produces invisible, permanent message loss. With no DLQ you can't tell how
+All of these end in permanent message loss with no record. With no DLQ you can't tell how
 many messages were lost, what they held, or when to replay them once the underlying issue
 is fixed.
 

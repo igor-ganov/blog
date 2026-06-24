@@ -25,15 +25,15 @@ construct forces exhaustiveness. Add a third case to a union and the compiler st
 silent: the unhandled case reaches the runtime, and the error surfaces far from where the
 branch should have been.
 
-**`??` for value-defaulting is acceptable.** It selects a fallback value when a result is
+Using `??` for value-defaulting is acceptable. It selects a fallback value when a result is
 absent, which is not control flow. The ban applies to branching on application logic:
 `if (status === 'pending')`, `type === 'admin' ? adminView : userView`,
 `isLoading && <Spinner />`.
 
 ## Why this matters
 
-A major refactoring of a content-admin SPA (2026-03-24) set an explicit goal: **zero
-`if` statements, zero imperative loops** across the entire codebase. That requirement
+A major refactoring of a content-admin SPA (2026-03-24) set an explicit goal: zero
+`if` statements and zero imperative loops across the entire codebase. That requirement
 came from pain. Branching was scattered through service-worker message handlers, UI
 components, and data-transform pipelines, so every new message type or status forced
 developers to grep for each branch point and add a case by hand. The misses stayed silent
@@ -184,8 +184,8 @@ switch (status) {
 }
 ```
 
-Every pattern above shares one symptom: a union grows, the compiler stays silent, and the
-new case reaches production unhandled.
+In every pattern above a union grows, the compiler stays silent, and the new case reaches
+production unhandled.
 
 ## Enforcement
 

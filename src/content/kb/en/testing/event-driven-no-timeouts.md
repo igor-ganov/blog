@@ -37,11 +37,11 @@ the app, not the wait.
 
 ## Why this matters
 
-The standard here predates the test suite and does not bend: **the app must
-open and respond in under one second, no exceptions** (a desktop UI tool, 2026-03-12).
+The standard here predates the test suite and does not bend: the app must
+open and respond in under one second, no exceptions (a desktop UI tool, 2026-03-12).
 Everything else follows from that. No idle timeouts as a completion signal, no test
-retries, and the acceptance bar is that you **run the tests three times and if any run
-fails, the code is broken and gets rewritten.** Timeouts and retries are crutches that
+retries, and the acceptance bar is that you run the tests three times and if any run
+fails, the code is broken and gets rewritten. Timeouts and retries are crutches that
 mask broken code.
 
 Here is the concrete failure that taught the discipline. On the admin panel, a fresh
@@ -53,8 +53,8 @@ platform-dependent, invisible until it hit CI. We did not fix it with a longer t
 We waited on the real settle signal: a predicate over the SW lifecycle state plus a
 stable anchor element. See [wait for the service worker to settle](/principles/testing/wait-for-service-worker-settle).
 
-There is a second-order trap we found later (2026-06-12). **`networkidle` is a timeout
-in disguise.** It resolves after 500ms of network silence, so every call pays a fixed
+There is a second-order trap we found later (2026-06-12). `networkidle` is a timeout
+in disguise: it resolves after 500ms of network silence, so every call pays a fixed
 half-second even when the page settled instantly, and a page can be network-idle while
 the thing you actually care about is still mid-flight. The same applies to any "idle"
 load state used as a completion signal. Wait on the state itself, not on silence.
@@ -89,8 +89,8 @@ When a test is genuinely flaky, the playbook is investigative, not cosmetic:
 1. Run the server, drive it with the Chrome DevTools / Playwright MCP, reproduce the
    action manually, and watch the console and network. Enable throttling.
 2. If it works under throttling and you cannot reproduce the failure, the test waited on
-   the wrong event — rewrite it to trigger on a different, correct DOM event. **Not a
-   timeout.**
+   the wrong event — rewrite it to trigger on a different, correct DOM event, not on a
+   timeout.
 3. If it is genuinely unstable under some scenarios, the application has a race. Fix the
    root cause. If the architecture cannot guarantee deterministic behaviour, the
    architecture is wrong — refactor it.
@@ -115,12 +115,12 @@ if (browserName === 'webkit') await page.waitForTimeout(300);
 
 Run suites with `--reporter=list` during development and `--reporter=json` to read
 traces when something is unstable. Programmatic test exclusion is forbidden — you may
-run a subset while developing, but the only definition of green is a **full, stable
-pass with zero retries, three runs in a row.** A flaky or skipped test is a failing
+run a subset while developing, but the only definition of green is a full, stable
+pass with zero retries, three runs in a row. A flaky or skipped test is a failing
 test.
 
 ## See also
 
-This comes back to one preference: deterministic systems over probabilistic hacks. The
+This comes back to preferring deterministic systems over probabilistic hacks. The
 same standard (sub-second response, no idle timeouts, no retries, run it three times) is
 what [no retries, no flakes](/principles/testing/no-retries-no-flakes) makes explicit.

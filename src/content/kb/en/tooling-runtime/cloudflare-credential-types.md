@@ -32,9 +32,9 @@ mistake ran the other way: a `cfk_` Global API Key was tested with a Bearer head
 which is the wrong scheme for Global Keys.
 
 Both incidents come down to the same root cause. Cloudflare has three credential types,
-each with its own authentication scheme, its own scope, and its own correct validation
-endpoint. Pick the wrong test for the type in your hand and you can waste an afternoon,
-or worse, throw away a credential that works.
+and each one has a different authentication scheme, scope, and correct validation
+endpoint. Pick the wrong test for the type in your hand and you can lose time debugging,
+or discard a credential that works.
 
 ## How to apply
 

@@ -24,10 +24,10 @@ unit of functional architecture worth caring about. Make every file this shape a
 codebase turns into a navigable tree. You find what you need by following the usage path
 instead of hunting through barrel exports or scanning a flat `utils/` folder.
 
-Size is the other half of the rule: **≤ 50 lines excluding import lines**. The limit
-earns its keep. A function that needs more than 50 lines of implementation is usually
-doing two jobs, in which case you split it, or it holds logic that should move down into
-a helper called from a subdirectory below.
+Size is the other half of the rule: 50 lines or fewer, excluding import lines. A function
+that needs more than 50 lines of implementation is usually doing two jobs, in which case
+you split it, or it holds logic that should move down into a helper called from a
+subdirectory below.
 
 ## Why this matters
 
@@ -177,8 +177,8 @@ export const processEvent = (event: AppEvent): State => { ... }
 export default (d: Date) => ...  // consumer names it anything
 ```
 
-Every one of these costs you the same thing. The file's name stops pointing reliably at
-what the code does, so refactoring turns into reading instead of navigating.
+In each case the file's name stops pointing reliably at what the code does, so refactoring
+turns into reading instead of navigating.
 
 ## Enforcement
 

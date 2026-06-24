@@ -23,11 +23,11 @@ updated: 2026-06-10
 
 TypeScript inherits both of JavaScript's absence sentinels, `null` and `undefined`, and that inheritance is a trap. Every nullable value forces a double-check: `if (x !== null && x !== undefined)`, or the shorthand `x != null`. The check is noise, but the worse cost is inconsistency. One function returns `null`, another returns `undefined`, and now the caller has to remember which is which. That kind of knowledge doesn't compose across a codebase.
 
-So the rule here is blunt: `null` does not exist in domain code. Only `undefined` means a value is absent. One sentinel, one check.
+So the rule here is that `null` does not exist in domain code. Only `undefined` means a value is absent, which leaves a single sentinel to check for.
 
 The incident that made this rule non-negotiable was a Jira client app on 2026-06-08. The Jira REST API returns unassigned issues with `"assignee": null` in the JSON payload, which is a deliberate JSON `null` rather than an omitted field. The internal `mapUser` helper guarded against `undefined` (TypeScript's absent value) but had no branch for `null`. When an unassigned issue came through, `mapUser(issue.assignee)` got `null`, slipped past the guard, and crashed at runtime trying to read `.displayName` off it. The fix was two lines: normalize `null` to `undefined` at the deserialization boundary, then strip every `null` reference out of the domain. The boundary swallowed the external convention so the domain never had to know about it.
 
-There's a second lesson here about richer absence. Sometimes `T | undefined` isn't expressive enough and you need to tell "not yet loaded" apart from "loaded but empty" and "loaded with data". The tempting move is to reach for `T | null | undefined` and hand each sentinel a meaning. Don't. Those meanings live nowhere the type system or a reader can see them. Use a discriminated union instead.
+There's a second lesson here about richer absence. Sometimes `T | undefined` isn't expressive enough and you need to tell "not yet loaded" apart from "loaded but empty" and "loaded with data". The tempting move is to reach for `T | null | undefined` and hand each sentinel a meaning, but those meanings live nowhere the type system or a reader can see them. Use a discriminated union instead.
 
 ## How to apply
 

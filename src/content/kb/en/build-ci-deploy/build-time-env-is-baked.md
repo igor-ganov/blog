@@ -29,7 +29,7 @@ A GitHub Actions runner is a clean Ubuntu VM and does not read your `.env` file.
 only exist if you declare them explicitly under `env:` in the workflow, sourced from
 `vars.*` (repository variables) or `secrets.*`.
 
-So the gap between "works locally" and "broken in CI" comes down entirely to what happens
+So whether the build works locally but fails in CI comes down entirely to what happens
 to be present in the environment at the moment `vite build` or `astro build` runs.
 
 ## Why this matters
@@ -173,9 +173,9 @@ export default defineConfig({
 ### 4. Never give a server secret the VITE_ prefix
 
 A variable prefixed `VITE_` is inlined into the client bundle and visible to anyone who
-downloads the page. A Cloudflare API token, a database password, any credential that must
-not be client-visible must not carry the `VITE_` prefix, even when the code that reads it
-only runs on the server side of a Vite-based project.
+downloads the page. A credential that must not be client-visible, such as a Cloudflare API
+token or a database password, must not carry the `VITE_` prefix, even when the code that
+reads it only runs on the server side of a Vite-based project.
 
 ```ts
 // ❌ Token visible in the client bundle

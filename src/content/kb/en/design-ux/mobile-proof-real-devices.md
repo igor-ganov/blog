@@ -98,8 +98,8 @@ up on the device.
 Mobile browsers have a dynamic viewport where the address bar hides on scroll, which
 makes the visual viewport taller than `100vh` once the user starts scrolling. An element
 set to `height: 100vh` ends up shorter than the available space once the address bar is
-gone, leaving gaps below hero sections, footers that never reach the bottom, and clipped
-full-page overlays.
+gone, which leaves gaps below hero sections, footers that never reach the bottom, and
+full-page overlays that get clipped.
 
 ```css
 /* Bad: 100vh is "initial viewport height" — shorter than full-screen on mobile after
@@ -177,9 +177,9 @@ When a mobile layout issue is reported or suspected, check in this order:
 
 **"I checked in DevTools, it looks fine"**
 
-DevTools is evidence for desktop-at-narrow-width, not for mobile. Mobile-specific
-properties and behaviours need real hardware or a real-device cloud, so a DevTools
-screenshot does not count as mobile proof.
+A DevTools check shows how the page behaves on desktop at a narrow width, which is not
+the same as mobile. Mobile-specific properties and behaviours need real hardware or a
+real-device cloud, so a DevTools screenshot does not count as mobile proof.
 
 **Fixing one page, not checking all pages**
 

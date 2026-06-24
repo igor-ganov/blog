@@ -16,17 +16,17 @@ order: 7
 updated: 2026-06-11
 ---
 
-Three GitHub Actions defaults are wrong for security, and you won't see any of them
-until an audit or an incident drags them into the light:
+Three GitHub Actions defaults are wrong for security, and they tend to stay invisible
+until an audit or an incident surfaces them:
 
-1. **The ambient `GITHUB_TOKEN` defaults to a broad grant** (it depends on the
+1. The ambient `GITHUB_TOKEN` defaults to a broad grant (it depends on the
    org/repo setting, and historically that meant read/write). Every step inherits
    it, including code inside a compromised action or a malicious transitive
    dependency that runs during `bun install`.
-2. **Tags are mutable.** `uses: some-org/some-action@v4` re-resolves on every run.
+2. Tags are mutable. `uses: some-org/some-action@v4` re-resolves on every run.
    Hijack a maintainer account, re-point the tag, and the next deploy runs attacker
    code sitting right next to `CLOUDFLARE_API_TOKEN`.
-3. **Job-level `env` hands secrets to every step.** On `pull_request` events that
+3. Job-level `env` hands secrets to every step. On `pull_request` events that
    job runs PR-authored code. GitHub withholds secrets from fork PRs by default,
    but same-repo PRs and loosened settings both walk straight past that protection.
 

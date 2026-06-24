@@ -18,7 +18,7 @@ updated: 2026-04-30
 
 IndexedDB serialises values with the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm),
 which is stricter than `JSON.stringify`. Where JSON silently drops functions and
-`undefined`, structured clone **throws** a `DOMException`. The throw is synchronous and
+`undefined`, structured clone throws a `DOMException`. The throw is synchronous and
 surfaces the moment `IDBObjectStore.put()` runs. If the call site is fire-and-forget
 (`void appendEntry(entry)`), that exception lands in a rejected promise nobody listens
 to, so the app keeps running, the entry never gets persisted, and the user sees nothing.
@@ -107,8 +107,8 @@ swallow those silently. So the exception is thrown, the data is not written, and
 is logged.
 
 Two things have to be true together: you need a `toPersistable` boundary, and any
-fire-and-forget IDB call has to forward its rejection somewhere visible. See [never
-swallow an error](/principles/error-handling/never-swallow-errors).
+fire-and-forget IDB call has to forward its rejection somewhere you can see it. See
+[never swallow an error](/principles/error-handling/never-swallow-errors).
 
 ## How to apply
 

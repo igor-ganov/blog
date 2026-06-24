@@ -71,4 +71,4 @@ The payoff is that the rules reinforce each other instead of competing:
 None of this survives on good intentions. It is
 [enforced by lint rules](/principles/functional-architecture/lint-enforces-architecture) that fail
 the build when the shape breaks, on a banned `as`, an empty block, a non-null assertion.
-The architecture is the rule set, and the linter is what keeps it honest.
+The linter is what holds the architecture in place.

@@ -10,8 +10,8 @@ The admin had OAuth with PKCE, a roles file, parameterized D1 queries, HMAC-sign
 unsubscribe tokens with constant-time comparison, and JWTs that verified the signature
 before decoding. By checklist standards it was a careful codebase. A structured
 audit still found three criticals in an afternoon, and the pattern behind them is
-worth more than the findings themselves: **every one was a boundary that moved after the code
-around it was written.**
+worth more than the findings themselves: every one was a boundary that moved after the code
+around it was written.
 
 ## The proxy that lost its threat model in a port
 
@@ -85,8 +85,8 @@ mutates is a bug class, not a style preference.
   route, an auth flow lifted into a popup: each port re-opens questions the
   original already answered. Diff the *protections*, not just the behaviour.
 - **Write the threat model where the code is.** The host pin that died in the port
-  would have survived as a `cors-allow.ts` module with tests asserting 403s. Tests
-  are the only documentation a refactor is forced to read.
+  would have survived as a `cors-allow.ts` module with tests asserting 403s. A refactor
+  has to make those tests pass, so it can't quietly drop the protection.
 - **Trust labels rot.** "Trusted content", "internal endpoint", "our own repo":
   every one of those phrases in a comment is a TODO to check who's actually on
   each side of the boundary today.
@@ -94,7 +94,7 @@ mutates is a bug class, not a style preference.
   client/auth, CI/supply-chain) found in hours what one generalist pass smears
   into days. The fixes then landed as one reviewed PR with a test per finding.
 
-The uncomfortable conclusion of a self-audit is never "the code was sloppy". It's
-that the code faithfully preserved decisions whose context had expired. The
-checklist hygiene held everywhere: parameterized queries, constant-time compares, signed tokens.
-What failed was everything that had *moved*.
+A self-audit rarely turns up sloppy code. What it turns up is code that faithfully
+preserved decisions whose context had expired. The checklist hygiene held everywhere,
+from parameterized queries to constant-time compares. What failed was everything that
+had moved.

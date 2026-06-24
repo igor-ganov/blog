@@ -37,8 +37,8 @@ all semantic HTML**. This was not a cosmetic goal. Before the cleanup we had com
 that were really page sections wearing a component costume. Take `UserCardComponent`,
 whose template was `<div class="card"><div class="card__header">...`; any parent that
 wanted to override a style first had to learn the inner layout. The coupling went both
-ways. Templates leaked structure up to parents, and parents leaked padding assumptions
-back down through deep CSS selectors.
+ways: the template exposed its structure to parents, and parents relied on padding
+assumptions reached through deep CSS selectors.
 
 Removing every `<div>` forced two outcomes:
 
@@ -271,8 +271,8 @@ template: `<div class="ticket-status-badge">{{ status() }}</div>`
 
 These patterns share one symptom. Parent templates break when the inner `<div>` is
 restructured, because the parent's CSS referenced `.card .card__header` and that path no
-longer exists. Styling through `:host` cuts the coupling, since the parent can only touch
-`app-user-card` as a black box.
+longer exists. Styling through `:host` cuts the coupling, since the parent can only
+reference `app-user-card` from the outside.
 
 ## Enforcement
 

@@ -18,7 +18,7 @@ was making "once" honestly mean once on a platform that fights you on it.
 
 ## What it does
 
-- Send a bare `value` → a one-time link, **nothing stored**.
+- Send a bare `value` → a one-time link, nothing stored.
 - Send `key value` → the pair is saved to your Telegram account *and* you get a
   one-time link to the value.
 - **List** (button or `/list`) manages saved keys, each row offering **get** (a fresh
@@ -33,8 +33,8 @@ The architecture exists so the business logic doesn't know where it runs. Storag
 three small ports, `OneTimeLinkStore`, `SecretStore`, and `PendingSetStore`, each with
 two adapters wired up at the entry point and nowhere else. This is the
 [functional core / imperative shell](/blog/functional-core-imperative-shell) split
-made concrete: closures over classes, dependencies injected, the core handed its
-effects instead of reaching for them.
+made concrete: it uses closures rather than classes, and the entry point injects each
+adapter so the core is handed its effects instead of reaching for them.
 
 - **Locally** (`main.ts`): long-polling bot, `bun:sqlite`, one-time tokens held in
   memory, `Bun.serve` for the link server.
@@ -47,7 +47,7 @@ the *safe* failure mode, so I left it as is.
 
 ## Making "once" actually mean once
 
-Three decisions carry the guarantee.
+Three decisions make a link consumable only once.
 
 - **Unguessable tokens.** Each is two `crypto.randomUUID()` values concatenated with
   the dashes stripped, 256 bits of randomness, far past brute-forcing the URL space.
@@ -103,4 +103,4 @@ threat model before writing the handler instead of after, and the rest followed.
 Open [@secret_manager_bot](https://t.me/secret_manager_bot), send it a value, share
 the link. The code is on [GitHub](https://github.com/igor-ganov/secret-manager): Bun,
 grammY, strict TypeScript with no escape hatches, and the same ports-and-adapters split
-this post describes. It's small on purpose, and the discipline lives in the corners.
+this post describes. It's small on purpose, and most of the care went into the edge cases.

@@ -128,7 +128,8 @@ html`<p aria-live="polite">Ready to save ${count} items</p>`
 
 All three make the same mistake: treating an accessible name as private to its
 component. It isn't. Every Playwright `getByRole` call anywhere in the suite can see it,
-on any page that renders the component. Accessible names are a **shared namespace**.
+on any page that renders the component, so accessible names are effectively a shared
+namespace.
 
 ## Enforcement
 

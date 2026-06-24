@@ -289,8 +289,8 @@ template: `
 ```
 
 All four share one root cause: the template states intent through directives rather than
-language constructs. To the compiler those directives are opaque strings, whereas the
-block syntax is parsed as real syntax it can check.
+language constructs. The compiler treats those directives as opaque strings. It parses
+block syntax as real syntax and can check it.
 
 ## Enforcement
 
