@@ -10,8 +10,8 @@ nav:
   skills: Skills
   about: About
 footer:
-  lede: A living knowledge base — engineering practices distilled from real project decisions. Newer decisions override older ones; every claim carries its provenance.
-  meta: Built with Astro 5, Lit, strict TypeScript and Biome — the same stack and rules it documents. © {year} Igor Ganov.
+  lede: Engineering practices taken from real project decisions. When two conflict the newer one wins, and every claim says where it came from.
+  meta: Built with Astro 5, Lit, strict TypeScript and Biome, the same stack it documents. © {year} Igor Ganov.
 breadcrumb:
   label: Breadcrumb
   principles: Principles

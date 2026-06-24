@@ -10,8 +10,8 @@ nav:
   skills: Competenze
   about: Informazioni
 footer:
-  lede: "Una base di conoscenza viva: pratiche di ingegneria distillate da decisioni reali di progetto. Le decisioni più recenti prevalgono sulle precedenti e ogni affermazione porta la sua provenienza."
-  meta: "Costruito con Astro 5, Lit, TypeScript rigoroso e Biome: lo stesso stack e le stesse regole che documenta. © {year} Igor Ganov."
+  lede: Pratiche di ingegneria ricavate da decisioni reali di progetto. Quando due sono in conflitto vince la più recente, e ogni affermazione dice da dove viene.
+  meta: Costruito con Astro 5, Lit, TypeScript rigoroso e Biome, lo stesso stack che documenta. © {year} Igor Ganov.
 breadcrumb:
   label: Breadcrumb
   principles: Principi

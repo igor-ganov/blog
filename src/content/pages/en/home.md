@@ -1,15 +1,15 @@
 ---
 title: Home
-description: A living knowledge base of engineering best practices and preferences, distilled from real project decisions and rendered with the very stack it documents.
-kicker: A living knowledge base
-h1: How I build software — written down, with the receipts.
-lede: "Every article below is a practice distilled from a real decision on a real project: the rule, <em>why</em> it exists (with the incident that taught it), how to apply it, and what to avoid. Newer decisions override older ones, and each carries its provenance so you can trust — or challenge — it."
+description: Engineering practices taken from real project decisions, each with the reason it exists and where it came from.
+kicker: A knowledge base
+h1: How I build software, written down
+lede: "Every article below is one practice, taken from an actual project decision: the rule, why it exists, how to apply it, and what to avoid. When two decisions conflict the newer one wins, and each article says where it came from so you can check it."
 statPractices: Practices
 statCategories: Categories
 statNonNegotiable: Non-negotiable
 blogHeading: From the blog
 blogAll: All essays
-blogLede: Essays that aggregate and explain the principles.
+blogLede: Essays that tie the principles together.
 nonNegHeading: Start with the non-negotiables
 nonNegLede: The rules that are never up for debate.
 browseHeading: Browse by topic
