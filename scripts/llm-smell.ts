@@ -139,7 +139,7 @@ const rules: readonly Rule[] = [
 // Derive the file's locale from its src/content/<kind>/<locale>/ path; default
 // to English for anything outside that layout.
 const localeOfFile = (file: string): Lang => {
-  const match = file.replace(/\\/g, '/').match(/\/content\/(?:kb|blog)\/(en|it|ru)\//);
+  const match = file.replace(/\\/g, '/').match(/\/content\/(?:kb|blog|pages)\/(en|it|ru)\//);
   return match?.[1] === 'it' ? 'it' : match?.[1] === 'ru' ? 'ru' : 'en';
 };
 
@@ -185,11 +185,27 @@ const scanFile = async (file: string): Promise<readonly Finding[]> => {
   const findings: Finding[] = [];
   let inFence = false;
   let inFrontmatter = lines[0]?.trim() === '---';
+  // Page copy lives in Markdown frontmatter (src/content/pages/**), so scan it as
+  // prose. Article frontmatter (kb/blog) stays skipped — there only the body is prose.
+  const scanFrontmatter = /[/\\]content[/\\]pages[/\\]/.test(file);
+
+  const scanLine = (line: string, index: number): void => {
+    for (const rule of active) {
+      const match = rule.re.exec(line);
+      if (match === null) continue;
+      if (suppressedFor(lines, index, rule.id)) continue;
+      findings.push({ file, line: index + 1, column: match.index + 1, rule, text: match[0] });
+    }
+  };
 
   lines.forEach((line, index) => {
     const trimmed = line.trim();
     if (inFrontmatter) {
-      if (index > 0 && trimmed === '---') inFrontmatter = false;
+      if (index > 0 && trimmed === '---') {
+        inFrontmatter = false;
+        return;
+      }
+      if (scanFrontmatter && index > 0) scanLine(line, index);
       return;
     }
     if (/^(```|~~~)/.test(trimmed)) {
@@ -197,13 +213,7 @@ const scanFile = async (file: string): Promise<readonly Finding[]> => {
       return;
     }
     if (inFence) return;
-
-    for (const rule of active) {
-      const match = rule.re.exec(line);
-      if (match === null) continue;
-      if (suppressedFor(lines, index, rule.id)) continue;
-      findings.push({ file, line: index + 1, column: match.index + 1, rule, text: match[0] });
-    }
+    scanLine(line, index);
   });
   return findings;
 };

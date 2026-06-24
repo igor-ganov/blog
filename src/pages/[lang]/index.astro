@@ -10,14 +10,14 @@ import { loadArticles } from '@/lib/articles/load-articles';
 import { sortEssays } from '@/lib/essays/sort-essays';
 import { type Locale, defaultLocale, isLocale, locales, splitLocaleId } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
-import { t } from '@/lib/i18n/ui';
+import { loadHome } from '@/lib/i18n/load-page';
 import { categories } from '@/lib/categories/categories';
 
 export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
 
 const param = String(Astro.params.lang ?? '');
 const locale: Locale = isLocale(param) ? param : defaultLocale;
-const home = t(locale).pages.home;
+const home = await loadHome(locale);
 const articles = await loadArticles(locale);
 const grouped = groupByCategory(articles);
 const nonNegotiables = articles.filter((article) => article.severity === 'non-negotiable');

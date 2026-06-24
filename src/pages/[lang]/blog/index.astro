@@ -5,6 +5,7 @@ import EssayCard from '@/components/EssayCard.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { sortEssays } from '@/lib/essays/sort-essays';
 import { type Locale, defaultLocale, isLocale, locales, splitLocaleId } from '@/lib/i18n/locales';
+import { loadBlog } from '@/lib/i18n/load-page';
 import { t } from '@/lib/i18n/ui';
 
 export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
@@ -12,6 +13,7 @@ export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ par
 const param = String(Astro.params.lang ?? '');
 const locale: Locale = isLocale(param) ? param : defaultLocale;
 const ui = t(locale);
+const page = await loadBlog(locale);
 const posts = sortEssays(
   (await getCollection('blog', (entry) => entry.data.draft === false)).filter(
     (entry) => splitLocaleId(entry.id).locale === locale,
@@ -19,10 +21,10 @@ const posts = sortEssays(
 );
 ---
 
-<BaseLayout title={ui.nav.blog} description={ui.pages.essaysIndex.description} locale={locale}>
+<BaseLayout title={ui.nav.blog} description={page.description} locale={locale}>
   <header class="page-head">
     <h1>{ui.nav.blog}</h1>
-    <p class="lede">{ui.pages.essaysIndex.lede}</p>
+    <p class="lede">{page.lede}</p>
   </header>
 
   <ul class="posts">

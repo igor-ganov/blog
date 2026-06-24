@@ -1,0 +1,50 @@
+skipToContent: Перейти к содержимому
+brand: Инженерные практики
+titleSuffix: Инженерные практики
+language: Язык
+nav:
+  primary: Основная
+  menu: Меню
+  blog: Блог
+  principles: Принципы
+  skills: Навыки
+  about: О проекте
+footer:
+  lede: "Живая база знаний: инженерные практики, выведенные из реальных проектных решений. Новые решения отменяют старые, и у каждого утверждения есть источник."
+  meta: Собрано на Astro 5, Lit, строгом TypeScript и Biome — на том же стеке и тех же правилах, которые описывает. © {year} Igor Ganov.
+breadcrumb:
+  label: Хлебные крошки
+  principles: Принципы
+  blog: Блог
+pager:
+  previous: ← Назад
+  next: Вперёд →
+  withinCategory: В этой категории
+aside:
+  provenance: Источник
+  tags: Теги
+  related: Связанные
+article:
+  principleLabel: Принцип.
+severity:
+  non-negotiable: Без компромиссов
+  strong: Строго
+  preferred: Предпочтительно
+  context: По контексту
+filter:
+  placeholder: Фильтр практик…
+  label: Фильтровать практики
+  empty: Ничего не найдено.
+  byTag: Фильтр по тегу
+toc:
+  onThisPage: Содержание
+  close: Закрыть содержание
+theme:
+  toggle: Переключить тему
+  light: светлая
+  dark: тёмная
+  system: системная
+card:
+  onePractice: 1 практика
+  manyPractices: "практик: {count}"
+categoryEmpty: В этой категории пока нет опубликованных практик.

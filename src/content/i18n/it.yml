@@ -1,0 +1,50 @@
+skipToContent: Vai al contenuto
+brand: Pratiche di ingegneria
+titleSuffix: Pratiche di ingegneria
+language: Lingua
+nav:
+  primary: Principale
+  menu: Menu
+  blog: Blog
+  principles: Principi
+  skills: Competenze
+  about: Informazioni
+footer:
+  lede: "Una base di conoscenza viva: pratiche di ingegneria distillate da decisioni reali di progetto. Le decisioni più recenti prevalgono sulle precedenti e ogni affermazione porta la sua provenienza."
+  meta: "Costruito con Astro 5, Lit, TypeScript rigoroso e Biome: lo stesso stack e le stesse regole che documenta. © {year} Igor Ganov."
+breadcrumb:
+  label: Breadcrumb
+  principles: Principi
+  blog: Blog
+pager:
+  previous: ← Precedente
+  next: Successivo →
+  withinCategory: In questa categoria
+aside:
+  provenance: Provenienza
+  tags: Tag
+  related: Correlati
+article:
+  principleLabel: Principio.
+severity:
+  non-negotiable: Non negoziabile
+  strong: Forte
+  preferred: Preferito
+  context: Contestuale
+filter:
+  placeholder: Filtra le pratiche…
+  label: Filtra le pratiche
+  empty: Nessuna pratica corrisponde al filtro.
+  byTag: Filtra per tag
+toc:
+  onThisPage: In questa pagina
+  close: Chiudi i contenuti
+theme:
+  toggle: Cambia tema
+  light: chiaro
+  dark: scuro
+  system: sistema
+card:
+  onePractice: 1 pratica
+  manyPractices: "{count} pratiche"
+categoryEmpty: Ancora nessuna pratica pubblicata in questa categoria.

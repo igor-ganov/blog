@@ -63,4 +63,13 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { kb, blog };
+// Page copy: one Markdown file per page per locale, mirroring the route tree.
+// Each page carries a flat map of strings in frontmatter (title/description plus
+// the page's own labels and prose), so the source of truth is a file under
+// `src/content` — discoverable and covered by the prose linter.
+const pages = defineCollection({
+  loader: glob({ pattern: ['**/*.md', '!**/README.md'], base: './src/content/pages' }),
+  schema: z.object({ title: z.string().optional(), description: z.string() }).catchall(z.string()),
+});
+
+export const collections = { kb, blog, pages };
