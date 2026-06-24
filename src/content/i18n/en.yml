@@ -1,0 +1,50 @@
+skipToContent: Skip to content
+brand: Engineering Practices
+titleSuffix: Engineering Practices
+language: Language
+nav:
+  primary: Primary
+  menu: Menu
+  blog: Blog
+  principles: Principles
+  skills: Skills
+  about: About
+footer:
+  lede: Engineering practices taken from real project decisions. When two conflict the newer one wins, and every claim says where it came from.
+  meta: Built with Astro 5, Lit, strict TypeScript and Biome, the same stack it documents. © {year} Igor Ganov.
+breadcrumb:
+  label: Breadcrumb
+  principles: Principles
+  blog: Blog
+pager:
+  previous: ← Previous
+  next: Next →
+  withinCategory: Within this category
+aside:
+  provenance: Provenance
+  tags: Tags
+  related: Related
+article:
+  principleLabel: Principle.
+severity:
+  non-negotiable: Non-negotiable
+  strong: Strong
+  preferred: Preferred
+  context: Contextual
+filter:
+  placeholder: Filter practices…
+  label: Filter practices
+  empty: No practices match your filter.
+  byTag: Filter by tag
+toc:
+  onThisPage: On this page
+  close: Close contents
+theme:
+  toggle: Toggle colour theme
+  light: light
+  dark: dark
+  system: system
+card:
+  onePractice: 1 practice
+  manyPractices: "{count} practices"
+categoryEmpty: No practices published in this category yet.

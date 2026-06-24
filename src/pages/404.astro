@@ -2,9 +2,9 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { defaultLocale } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
-import { t } from '@/lib/i18n/ui';
+import { loadNotFound } from '@/lib/i18n/load-page';
 
-const nf = t(defaultLocale).pages.notFound;
+const nf = await loadNotFound(defaultLocale);
 ---
 
 <BaseLayout title={nf.title} description={nf.description} locale={defaultLocale}>

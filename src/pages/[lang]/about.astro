@@ -4,6 +4,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { loadArticles } from '@/lib/articles/load-articles';
 import { type Locale, defaultLocale, isLocale, locales } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
+import { loadAbout } from '@/lib/i18n/load-page';
 import { t } from '@/lib/i18n/ui';
 import { categories } from '@/lib/categories/categories';
 
@@ -12,7 +13,7 @@ export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ par
 const param = String(Astro.params.lang ?? '');
 const locale: Locale = isLocale(param) ? param : defaultLocale;
 const ui = t(locale);
-const about = ui.pages.about;
+const about = await loadAbout(locale);
 const articles = await loadArticles(locale);
 const projects = new Set(articles.flatMap((a) => a.sources.map((s) => s.project)));
 const builtHtml = about.built
