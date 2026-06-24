@@ -1,4 +1,5 @@
 ---
+import ThemeToggle from '@/components/ThemeToggle.astro';
 import { type Locale, locales, localeLabels } from '@/lib/i18n/locales';
 import { withLocale } from '@/lib/i18n/locale-url';
 import { t } from '@/lib/i18n/ui';
@@ -77,16 +78,28 @@ const langs = locales.map((loc) => ({
         }
       </ul>
     </nav>
-    <theme-toggle class="desktop-only" label={ui.theme.toggle}></theme-toggle>
+    {/* Wrapped in a SiteHeader-owned node so the scoped `.desktop-only` rule applies:
+        a child component's root carries its own scope attribute, not the parent's. */}
+    <div class="theme-desktop desktop-only">
+      <ThemeToggle locale={locale} />
+    </div>
   </div>
 
   {/* Mobile: the inline controls would overflow a phone width, so they move into a
       draggable, corner-snapping flying menu (igor-ganov/flying-menu). */}
   <flying-menu class="mobile-menu" corner="bottom-right" gap={12} storage-key="ep-menu-corner">
     <button slot="trigger" class="fab" type="button" aria-label={ui.nav.menu}>
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <svg class="icon-open" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path
           d="M3 6h18M3 12h18M3 18h18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"></path>
+      </svg>
+      <svg class="icon-close" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path
+          d="M6 6l12 12M18 6L6 18"
           fill="none"
           stroke="currentColor"
           stroke-width="2"
@@ -125,7 +138,7 @@ const langs = locales.map((loc) => ({
           }
         </ul>
       </nav>
-      <theme-toggle label={ui.theme.toggle}></theme-toggle>
+      <ThemeToggle locale={locale} />
     </div>
   </flying-menu>
 </header>
@@ -199,6 +212,10 @@ const langs = locales.map((loc) => ({
     font-weight: 600;
   }
 
+  .theme-desktop {
+    display: inline-flex;
+  }
+
   /* The flying menu is mobile-only; hidden on wider screens where the inline bar fits. */
   .mobile-menu {
     display: none;
@@ -240,6 +257,20 @@ const langs = locales.map((loc) => ({
   .fab:focus-visible {
     outline: 3px solid var(--accent);
     outline-offset: 2px;
+  }
+  /* Hamburger ⇄ close: both icons share the FAB's single grid cell; the open state
+     (flying-menu reflects [open]) decides which one shows. */
+  .fab svg {
+    grid-area: 1 / 1;
+  }
+  .fab .icon-close {
+    display: none;
+  }
+  flying-menu[open] .fab .icon-open {
+    display: none;
+  }
+  flying-menu[open] .fab .icon-close {
+    display: block;
   }
 
   /* The menu panel shown when the flying menu is open. */

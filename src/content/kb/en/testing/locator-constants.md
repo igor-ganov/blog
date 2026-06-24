@@ -16,7 +16,7 @@ order: 3
 updated: 2026-06-02
 ---
 
-A `data-testid="theme-toggle-button"` string in a component and the same string copied
+A `data-testid="toc-toggle"` string in a component and the same string copied
 into a test are two independent facts pretending to describe one thing. Change the test
 id in the component and only one of the two strings moves. If you're lucky the test
 breaks at runtime; if you're not, nobody touches the component and the drift sits there
@@ -30,25 +30,27 @@ and have both the component and the test import it. Now it can't drift.
 The engineering standard (2026-06-02) says it plainly: keep the constants in a separate
 file next to the component, and reference them from the component too.
 
-This blog follows that across its Lit web component layer. The `theme-toggle` and
+This blog follows that across its web component layer. The `toc-drawer` and
 `kb-filter` components each ship a `.locators.ts` sibling:
 
 ```
 src/components/islands/
-  theme-toggle.ts              ← component
-  theme-toggle.locators.ts     ← constants exported as const
-  theme-toggle.styles.ts
+  toc-drawer.ts              ← component
+  toc-drawer.locators.ts     ← constants exported as const
+  toc-drawer.styles.ts
   kb-filter.ts
   kb-filter.locators.ts
-  kb-filter.styles.ts
 ```
 
-`theme-toggle.locators.ts` exports:
+`toc-drawer.locators.ts` exports:
 
 ```ts
-export const THEME_TOGGLE = {
-  tag: 'theme-toggle',
-  button: 'theme-toggle-button',
+export const TOC_DRAWER = {
+  tag: 'toc-drawer',
+  toggle: 'toc-toggle',
+  panel: 'toc-panel',
+  close: 'toc-close',
+  backdrop: 'toc-backdrop',
 } as const;
 ```
 
@@ -60,14 +62,17 @@ export const KB_FILTER = {
   input: 'kb-filter-input',
   count: 'kb-filter-count',
   empty: 'kb-filter-empty',
+  chip: 'kb-filter-chip',
+  chipTag: 'data-tag',
   item: 'data-kb-item',
   haystack: 'data-haystack',
+  itemTags: 'data-tags',
 } as const;
 ```
 
-The `theme-toggle.ts` component imports from its sibling and writes `THEME_TOGGLE.tag`
-as the custom element name and `THEME_TOGGLE.button` into `data-testid`. The test does
-the same import and calls `page.getByTestId(THEME_TOGGLE.button)`. Change the constant
+The `toc-drawer.ts` component imports from its sibling and writes `TOC_DRAWER.tag`
+as the custom element name and `TOC_DRAWER.toggle` into `data-testid`. The test does
+the same import and calls `page.getByTestId(TOC_DRAWER.toggle)`. Change the constant
 and TypeScript flags every reference in the same compilation pass.
 
 ## How to apply

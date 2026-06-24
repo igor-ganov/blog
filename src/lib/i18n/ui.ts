@@ -57,6 +57,9 @@ export interface UIStrings {
   };
   readonly theme: {
     readonly toggle: string;
+    readonly light: string;
+    readonly dark: string;
+    readonly system: string;
   };
   readonly card: {
     readonly onePractice: string;
@@ -168,7 +171,7 @@ const en: UIStrings = {
     byTag: 'Filter by tag',
   },
   toc: { onThisPage: 'On this page', close: 'Close contents' },
-  theme: { toggle: 'Toggle colour theme' },
+  theme: { toggle: 'Toggle colour theme', light: 'light', dark: 'dark', system: 'system' },
   card: { onePractice: '1 practice', manyPractices: '{count} practices' },
   pages: {
     home: {
@@ -291,7 +294,7 @@ const it: UIStrings = {
     byTag: 'Filtra per tag',
   },
   toc: { onThisPage: 'In questa pagina', close: 'Chiudi i contenuti' },
-  theme: { toggle: 'Cambia tema' },
+  theme: { toggle: 'Cambia tema', light: 'chiaro', dark: 'scuro', system: 'sistema' },
   card: { onePractice: '1 pratica', manyPractices: '{count} pratiche' },
   pages: {
     home: {
@@ -414,7 +417,7 @@ const ru: UIStrings = {
     byTag: 'Фильтр по тегу',
   },
   toc: { onThisPage: 'Содержание', close: 'Закрыть содержание' },
-  theme: { toggle: 'Переключить тему' },
+  theme: { toggle: 'Переключить тему', light: 'светлая', dark: 'тёмная', system: 'системная' },
   card: { onePractice: '1 практика', manyPractices: 'практик: {count}' },
   pages: {
     home: {

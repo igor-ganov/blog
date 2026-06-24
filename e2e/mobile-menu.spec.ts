@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { TOC_DRAWER } from '../src/components/islands/toc-drawer.locators';
 import { APP } from './base';
+
+const ARTICLE = '/principles/error-handling/never-swallow-errors';
 
 test.describe('mobile flying menu', () => {
   test.use({ viewport: { width: 390, height: 820 } });
@@ -15,8 +18,10 @@ test.describe('mobile flying menu', () => {
     );
     expect(overflows).toBe(false);
 
-    // The inline desktop nav is hidden; the floating trigger takes over.
+    // The inline desktop nav AND the desktop theme toggle are hidden; the floating
+    // trigger takes over (the theme toggle lives inside the flying menu on mobile).
     await expect(page.locator('nav.primary.desktop-only')).toBeHidden();
+    await expect(page.locator('.theme-desktop')).toBeHidden();
     const trigger = page.getByRole('button', { name: 'Menu' });
     await expect(trigger).toBeVisible();
 
@@ -26,6 +31,36 @@ test.describe('mobile flying menu', () => {
       .locator('flying-menu [slot="menu"]')
       .getByRole('link', { name: 'Principles', exact: true });
     await expect(principles).toBeVisible();
+  });
+
+  test('the flying trigger never overlaps the TOC FAB and shows a close icon when open', async ({
+    page,
+  }) => {
+    // The article page is the only one with two floating buttons (menu + contents).
+    await page.goto(`${APP}${ARTICLE}`);
+
+    const trigger = page.getByRole('button', { name: 'Menu' });
+    const tocToggle = page.getByTestId(TOC_DRAWER.toggle);
+    await expect(trigger).toBeVisible();
+    await expect(tocToggle).toBeVisible();
+
+    // The two FABs sit in opposite bottom corners — their boxes must not intersect.
+    const a = await trigger.boundingBox();
+    const b = await tocToggle.boundingBox();
+    const intersect = Boolean(
+      a &&
+        b &&
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y,
+    );
+    expect(intersect, 'the menu trigger and TOC FAB overlap').toBe(false);
+
+    // Opening the menu swaps the hamburger for a close icon.
+    await trigger.click();
+    await expect(page.locator('.fab .icon-close')).toBeVisible();
+    await expect(page.locator('.fab .icon-open')).toBeHidden();
   });
 
   test('does not flash in the page flow before the island hydrates', async ({ page }) => {

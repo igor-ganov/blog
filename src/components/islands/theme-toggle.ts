@@ -1,45 +1,79 @@
-import { html, LitElement } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { coerceTheme } from '@/lib/theme/coerce-theme';
-import { nextTheme } from '@/lib/theme/next-theme';
-import { themePresentation } from '@/lib/theme/theme-presentation';
-import type { Theme } from '@/lib/theme/theme-types';
+import { coerceThemePref } from '@/lib/theme/coerce-theme-pref';
+import { nextThemePref } from '@/lib/theme/next-theme-pref';
+import { resolveTheme } from '@/lib/theme/resolve-theme';
+import type { ThemePref } from '@/lib/theme/theme-types';
 import { THEME_TOGGLE } from './theme-toggle.locators';
-import { themeToggleStyles } from './theme-toggle.styles';
 
-@customElement(THEME_TOGGLE.tag)
-export class ThemeToggle extends LitElement {
-  static override styles = themeToggleStyles;
+// Progressive enhancer for the server-rendered theme button(s). It is NOT a custom
+// element: the button paints with the document (no hydration reflow) and this script
+// only wires behaviour — cycle light/dark/system, persist, and animate the swap as a
+// circular reveal from the click point (the public marketing site's transition).
 
-  // Optional localized accessible label; falls back to the per-theme English text.
-  @property({ type: String }) label = '';
+const root = document.documentElement;
+const darkQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
+const reduceQuery = globalThis.matchMedia('(prefers-reduced-motion: reduce)');
 
-  @state() private theme: Theme = 'light';
+// Maps a preference to the button's localized state-name data attribute.
+const nameKey: Record<ThemePref, 'nameLight' | 'nameDark' | 'nameSystem'> = {
+  light: 'nameLight',
+  dark: 'nameDark',
+  system: 'nameSystem',
+};
 
-  override connectedCallback(): void {
-    super.connectedCallback();
-    this.theme = coerceTheme(document.documentElement.dataset.theme);
+const buttons = (): readonly HTMLElement[] => [
+  ...document.querySelectorAll<HTMLElement>(`[${THEME_TOGGLE.attr}]`),
+];
+
+const currentPref = (): ThemePref => coerceThemePref(root.dataset.themePref);
+
+const labelFor = (button: HTMLElement, pref: ThemePref): string => {
+  const base = button.dataset.label ?? '';
+  const name = button.dataset[nameKey[pref]] ?? pref;
+  return `${base} (${name})`;
+};
+
+const syncButtons = (pref: ThemePref): void => {
+  for (const button of buttons()) button.setAttribute('aria-label', labelFor(button, pref));
+};
+
+// Commit a preference: reflect it on <html>, repaint the theme, persist it, relabel.
+const apply = (pref: ThemePref): void => {
+  root.dataset.themePref = pref;
+  root.dataset.theme = resolveTheme(pref, darkQuery.matches);
+  globalThis.localStorage.setItem('theme', pref);
+  syncButtons(pref);
+};
+
+const setOrigin = (event: MouseEvent): void => {
+  const { clientX: x, clientY: y } = event;
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  root.style.setProperty('--theme-x', `${x}px`);
+  root.style.setProperty('--theme-y', `${y}px`);
+  root.style.setProperty('--theme-r', `${radius}px`);
+};
+
+const canAnimate = (): boolean =>
+  typeof document.startViewTransition === 'function' && !reduceQuery.matches;
+
+const onClick = (event: MouseEvent): void => {
+  const next = nextThemePref(currentPref());
+  if (!canAnimate()) {
+    apply(next);
+    return;
   }
+  setOrigin(event);
+  document.startViewTransition({ update: () => apply(next), types: ['theme'] });
+};
 
-  private readonly apply = (): void => {
-    const value = nextTheme(this.theme);
-    document.documentElement.dataset.theme = value;
-    globalThis.localStorage.setItem('theme', value);
-    this.theme = value;
-  };
-
-  protected override render(): unknown {
-    const view = themePresentation(this.theme);
-    const label = this.label || view.label;
-    return html`<button
-      type="button"
-      part="button"
-      data-testid=${THEME_TOGGLE.button}
-      aria-label=${label}
-      title=${label}
-      @click=${this.apply}
-    >
-      <span aria-hidden="true">${view.glyph}</span>
-    </button>`;
+const bind = (): void => {
+  for (const button of buttons()) {
+    if (button.dataset.themeBound === 'true') continue;
+    button.dataset.themeBound = 'true';
+    button.addEventListener('click', onClick);
   }
-}
+  syncButtons(currentPref());
+};
+
+bind();
+// View transitions swap the <body>; re-bind the buttons in the new document.
+document.addEventListener('astro:after-swap', bind);

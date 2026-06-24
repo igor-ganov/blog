@@ -19,7 +19,7 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
 ---
 
 <!doctype html>
-<html lang={locale} data-theme="light">
+<html lang={locale} data-theme="light" data-theme-pref="system">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,23 +32,36 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
     <meta property="og:type" content="article" />
     {/* SPA-like navigation: no white flash, no layout jump, instant prefetched loads. */}
     <ClientRouter />
-    {/* Apply the stored/system theme before first paint and after every view-transition
-        swap (the swap copies the new document's <html data-theme> otherwise). */}
+    {/* Resolve the stored preference (light/dark/system) to a concrete theme before
+        first paint, after every view-transition swap, and whenever the OS scheme
+        changes while on `system`. `data-theme-pref` drives the toggle's active icon;
+        `data-theme` drives the colours. */}
     <script is:inline>
       (function () {
+        var root = document.documentElement;
+        var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        function known(value) {
+          return value === 'light' || value === 'dark' || value === 'system';
+        }
         function applyTheme() {
           try {
             var stored = localStorage.getItem('theme');
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.dataset.theme = stored || (prefersDark ? 'dark' : 'light');
+            var pref = known(stored) ? stored : 'system';
+            var dark = pref === 'dark' || (pref === 'system' && darkQuery.matches);
+            root.dataset.themePref = pref;
+            root.dataset.theme = dark ? 'dark' : 'light';
           } catch (error) {
-            document.documentElement.dataset.theme = 'light';
+            root.dataset.themePref = 'system';
+            root.dataset.theme = 'light';
           }
         }
         applyTheme();
         if (!window.__themeBound) {
           window.__themeBound = true;
           document.addEventListener('astro:after-swap', applyTheme);
+          darkQuery.addEventListener('change', function () {
+            if (root.dataset.themePref === 'system') applyTheme();
+          });
         }
       })();
     </script>

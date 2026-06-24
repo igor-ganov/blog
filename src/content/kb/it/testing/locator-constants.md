@@ -16,7 +16,7 @@ order: 3
 updated: 2026-06-02
 ---
 
-Una stringa `data-testid="theme-toggle-button"` in un componente e la stessa stringa
+Una stringa `data-testid="toc-toggle"` in un componente e la stessa stringa
 copiata in un test sono due fatti indipendenti che fingono di descrivere una cosa sola.
 Cambia il test id nel componente e si sposta solo una delle due stringhe. Se sei
 fortunato il test si rompe a runtime; se non lo sei, nessuno tocca il componente e la
@@ -31,25 +31,27 @@ più divergere.
 Lo standard ingegneristico (2026-06-02) lo dice chiaro: tieni le costanti in un file
 separato accanto al componente e richiamale anche dal componente.
 
-Questo blog lo applica su tutto il suo strato di web component Lit. I componenti
-`theme-toggle` e `kb-filter` portano ciascuno un fratello `.locators.ts`:
+Questo blog lo applica su tutto il suo strato di web component. I componenti
+`toc-drawer` e `kb-filter` portano ciascuno un fratello `.locators.ts`:
 
 ```
 src/components/islands/
-  theme-toggle.ts              ← component
-  theme-toggle.locators.ts     ← constants exported as const
-  theme-toggle.styles.ts
+  toc-drawer.ts              ← component
+  toc-drawer.locators.ts     ← constants exported as const
+  toc-drawer.styles.ts
   kb-filter.ts
   kb-filter.locators.ts
-  kb-filter.styles.ts
 ```
 
-`theme-toggle.locators.ts` esporta:
+`toc-drawer.locators.ts` esporta:
 
 ```ts
-export const THEME_TOGGLE = {
-  tag: 'theme-toggle',
-  button: 'theme-toggle-button',
+export const TOC_DRAWER = {
+  tag: 'toc-drawer',
+  toggle: 'toc-toggle',
+  panel: 'toc-panel',
+  close: 'toc-close',
+  backdrop: 'toc-backdrop',
 } as const;
 ```
 
@@ -61,14 +63,17 @@ export const KB_FILTER = {
   input: 'kb-filter-input',
   count: 'kb-filter-count',
   empty: 'kb-filter-empty',
+  chip: 'kb-filter-chip',
+  chipTag: 'data-tag',
   item: 'data-kb-item',
   haystack: 'data-haystack',
+  itemTags: 'data-tags',
 } as const;
 ```
 
-Il componente `theme-toggle.ts` importa dal suo fratello e scrive `THEME_TOGGLE.tag`
-come nome del custom element e `THEME_TOGGLE.button` dentro `data-testid`. Il test fa
-lo stesso import e chiama `page.getByTestId(THEME_TOGGLE.button)`. Cambia la costante e
+Il componente `toc-drawer.ts` importa dal suo fratello e scrive `TOC_DRAWER.tag`
+come nome del custom element e `TOC_DRAWER.toggle` dentro `data-testid`. Il test fa
+lo stesso import e chiama `page.getByTestId(TOC_DRAWER.toggle)`. Cambia la costante e
 TypeScript segnala ogni riferimento nella stessa passata di compilazione.
 
 ## Come applicarlo
