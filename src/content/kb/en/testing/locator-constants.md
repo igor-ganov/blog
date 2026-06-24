@@ -22,7 +22,7 @@ id in the component and only one of the two strings moves. If you're lucky the t
 breaks at runtime; if you're not, nobody touches the component and the drift sits there
 unnoticed. You find out in CI, not in your editor.
 
-The fix is mechanical. Put the string once, in a constants file next to the component,
+The fix is to put the string once, in a constants file next to the component,
 and have both the component and the test import it. Now it can't drift.
 
 ## Why this matters

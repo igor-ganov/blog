@@ -23,8 +23,8 @@ Windows usa `\r\n` (CRLF) come fine riga; Linux usa `\n` (LF). La modalità `tex
 di git converte i fine riga al checkout verso il default della piattaforma e di nuovo in LF
 al commit, a meno che tu non la sovrascriva. La discrepanza tra una macchina di sviluppo
 Windows e un runner CI Linux è uno dei rischi cross-platform più vecchi che ci siano, e nel
-2026 morde ancora perché il modo in cui fallisce è dare **risultati sbagliati in silenzio**
-invece di un errore che puoi vedere.
+2026 morde ancora perché fallisce dando in silenzio un risultato sbagliato invece di un
+errore che puoi vedere.
 
 Una regex scritta con un confine `\n` letterale combacia perfettamente su input LF. Dalle
 un CRLF e quel `\n` è preceduto da `\r`, così il confine non cade più dove te lo aspetti.
@@ -105,7 +105,7 @@ The file will have its original line endings in your working tree
 
 Questo è il comportamento corretto in un repo `text=auto eol=lf`. Git ti sta dicendo che la
 tua copia nella working tree avrà CRLF (perché Windows) mentre il blob memorizzato resta LF.
-**Non sopprimere né aggirare questo avviso.** Conferma che l'attributo sta funzionando.
+Non sopprimere né aggirare questo avviso; conferma che l'attributo sta funzionando.
 
 ### 3. Normalizza CRLF in LF prima di qualsiasi regex che contenga \n
 

@@ -17,10 +17,9 @@ updated: 2026-06-11
 ---
 
 Un Service Worker che fa da backend-for-frontend finisce per custodire il token
-dell'utente; non ha scelta, è il suo lavoro. Le rotte al suo interno eseguono poi
-chiamate alla API di GitHub con quel token. Ecco la modalità di guasto facile da
-non vedere. Il SW serve *ogni* script in esecuzione sull'origine, non solo i
-componenti di UI ben educati che hai scritto tu. Una rotta privilegiata che si fida
+dell'utente; è il suo lavoro. Le rotte al suo interno eseguono poi
+chiamate alla API di GitHub con quel token. Il SW serve *ogni* script in esecuzione
+sull'origine, non solo i componenti di UI che hai scritto tu. Una rotta privilegiata che si fida
 del proprio chiamante può essere pilotata da qualunque script same-origin, che sia
 un punto d'appoggio XSS, una dipendenza compromessa o un'estensione del browser con
 accesso alla pagina.
@@ -35,7 +34,7 @@ e la revoca dell'invito. Le rotte roles-config *nella stessa directory* il contr
 ce l'avevano. Quindi il pattern già esisteva, semplicemente non è mai stato applicato
 agli handler più recenti. Una sola
 `fetch('/api/github/org-role', {method: 'POST', body: '{"login":"me","role":"admin"}'})`
-da qualunque contesto same-origin trasforma l'intero modello RBAC in decorazione.
+da qualunque contesto same-origin aggira l'intero modello RBAC.
 
 ## Come applicarlo
 
@@ -64,7 +63,7 @@ Due scelte di design contano più dello snippet:
 - **GitHub continua comunque a far rispettare gli scope del token sotto.** Il gate del
   SW è difesa in profondità. Il suo compito è trasformare "qualsiasi XSS significa
   takeover dell'organizzazione" in "l'XSS è confinato a ciò che l'utente corrente
-  poteva già fare comunque", che è l'intera ragione per cui esistono i ruoli.
+  poteva già fare comunque".
 
 ## Anti-pattern
 

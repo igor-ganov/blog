@@ -16,9 +16,9 @@ order: 3
 updated: 2026-05-14
 ---
 
-"Perché non usare una saga?" salta fuori in ogni discussione di design che tocca le
-transazioni distribuite. Le saga gestiscono davvero la consistenza tra più servizi, quindi
-la domanda sembra ragionevole, ma mette insieme due problemi che vivono in due strati
+Ogni discussione di design che tocca le transazioni distribuite tende a tirare in ballo
+l'opzione di una saga. Le saga gestiscono davvero la consistenza tra più servizi, quindi
+l'idea sembra ragionevole, ma mette insieme due problemi che vivono in due strati
 diversi. La confusione costa tempo vero. I team discutono il pattern e prototipano la logica
 di compensazione, poi tornano comunque a un outbox, perché il problema di affidabilità non
 ha mai riguardato la gestione del workflow.
@@ -39,7 +39,7 @@ decisione:
 Questa è l'inquadratura minima. L'argomento più completo richiede di sapere cosa fa
 davvero ciascun pattern.
 
-**Una saga è un costrutto a livello di workflow.** Modella un processo di business di lunga
+Una saga è un costrutto a livello di workflow. Modella un processo di business di lunga
 durata che attraversa più servizi come una sequenza di transazioni locali, ognuna delle
 quali pubblica un evento o un comando per innescare lo step successivo. Quando uno step
 fallisce, la saga esegue transazioni di compensazione per annullare gli step precedenti.
@@ -47,7 +47,7 @@ L'esempio classico è un ordine e-commerce che riserva l'inventario, addebita un
 pianifica la spedizione: tre servizi distinti, tre commit locali e un insieme definito di
 compensazioni per quando uno step fallisce dopo che altri hanno fatto commit.
 
-**Un outbox è un costrutto a livello di trasporto.** Risolve un solo problema. Garantisce
+Un outbox è un costrutto a livello di trasporto. Risolve un solo problema. Garantisce
 che un messaggio venga pubblicato su un broker esattamente una volta rispetto a un commit
 sul database locale, anche se il processo va in crash tra la scrittura e la pubblicazione.
 Non ha alcun concetto di step di workflow, compensazione o coordinamento tra servizi.
@@ -193,8 +193,8 @@ const reserveInventoryStep: SagaStep<OrderContext> = {
 // Each broker publish here needs its own outbox to be reliable.
 ```
 
-Il primo anti-pattern spreca lavoro di design su una logica di compensazione che è
-semanticamente priva di senso per la modalità di fallimento reale. Il secondo costruisce una
+Entrambi collocano il pattern nel posto sbagliato: uno spende lavoro di design su una logica
+di compensazione che non ha senso per la modalità di fallimento reale, l'altro costruisce una
 saga su un trasporto che perde silenziosamente i messaggi, così il workflow che dovrebbe
 garantire non regge mai.
 

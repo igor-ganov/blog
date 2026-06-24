@@ -113,5 +113,5 @@ surfaces separately.
 Most of these aren't clever exploits. They're a boundary that moved (a proxy
 relocated, a repo went private, a token widened) or a default nobody changed (a
 write-all token, scanning off, a `state`-less flow). The shape is what's worth
-carrying around: once you've fixed a class, you spot it on sight everywhere
-else.
+carrying around, since recognising the class is most of the work once you've fixed
+it once.

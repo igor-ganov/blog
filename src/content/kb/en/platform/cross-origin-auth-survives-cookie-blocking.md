@@ -61,8 +61,8 @@ no way to tell the legitimate request from the forged one.
 `Authorization: Bearer <token>` never rides along automatically. An attacker's page also
 cannot read `sessionStorage` from a different origin, thanks to the same-origin policy. So
 a Bearer token in sessionStorage cannot be exfiltrated cross-site, and a forged request
-has no way to include it. Bearer tokens need no CSRF protection, and that comes from the
-credential transport itself rather than the token format.
+has no way to include it. Bearer tokens need no CSRF protection, because the protection
+comes from the credential transport rather than the token format.
 
 ```
 Cookie auth:     browser attaches automatically → CSRF protection required
@@ -263,8 +263,8 @@ Preview:    app.pages.dev → api.workers.dev   (different eTLD+1; Bearer path)
 Production: example.com → api.example.com      (same eTLD+1; cookie path)
 ```
 
-The upshot is that the auth system gets exercised under its harder condition, cross-origin,
-in preview before it ever reaches production, so a regression in the Bearer path surfaces
+The auth system gets exercised under its harder condition, cross-origin,
+in preview before it reaches production, so a regression in the Bearer path surfaces
 during review.
 
 ## Anti-patterns

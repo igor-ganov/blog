@@ -23,11 +23,11 @@ Windows uses `\r\n` (CRLF) as its line ending; Linux uses `\n` (LF). Git's `text
 mode converts line endings on checkout to the platform default and back to LF on commit,
 unless you override it. The mismatch between a Windows developer machine and a Linux CI
 runner is one of the oldest cross-platform hazards around, and it still bites in 2026
-because the failure mode is **silent wrong results** rather than an error you can see.
+because the failure mode is a silent wrong result rather than an error you can see.
 
 A regex written with a literal `\n` boundary matches perfectly on LF input. Feed it CRLF
 and the `\n` is preceded by `\r`, so the boundary no longer lands where you expect. You
-get no match, or a reduced range, or an empty capture group. Nothing throws. The caller
+get no match, a reduced range, or an empty capture group, and nothing throws. The caller
 takes the wrong result and keeps going.
 
 ## Why this matters
@@ -103,7 +103,7 @@ The file will have its original line endings in your working tree
 
 This is correct behavior in a `text=auto eol=lf` repo. Git is telling you that your
 working-tree copy will have CRLF (because Windows) while the stored blob stays LF.
-**Do not suppress or work around this warning.** It confirms the attribute is working.
+Do not suppress or work around this warning; it confirms the attribute is working.
 
 ### 3. Normalize CRLF to LF before any regex that contains \n
 

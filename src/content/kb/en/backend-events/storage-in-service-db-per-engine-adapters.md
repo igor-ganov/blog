@@ -278,9 +278,8 @@ export interface Outbox {
 // A MySQL service can never satisfy this interface without a fake session object.
 ```
 
-The first two patterns break the atomicity guarantee. The third one violates the adapter
-abstraction and pins the interface to a single engine, so you can no longer reuse it
-across a mixed-engine fleet.
+The shared-DB and 2PC patterns break the atomicity guarantee. Leaking the session pins the
+interface to a single engine, so you can no longer reuse it across a mixed-engine fleet.
 
 ## Enforcement
 

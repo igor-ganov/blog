@@ -32,8 +32,8 @@ accuracy and self-correction. The last two point outward, toward reuse and shari
 
 ## How the builder read it
 
-Read closely, the brief asks for an **instrument**, not documentation. The documentation
-falls out as a side effect.
+Read closely, the brief asks for an instrument. The documentation falls out as a side
+effect.
 
 - **"Bring the knowledge up to date"** meant the knowledge already existed, scattered
   across a conventions file, a handful of coding-standard skills, and dozens of dated
@@ -58,9 +58,9 @@ falls out as a side effect.
   compilation.
 
 - **"Share it with other developers"** set a hard constraint. Everything had to be
-  **anonymized** down to general concepts, with no companies and no project names, so the
+  anonymized down to general concepts, with no companies and no project names, so the
   ideas travel without the baggage. A practice that only makes sense inside one company
-  isn't a practice. It's a local habit.
+  is just a local habit.
 
 ## The medium is the message
 
@@ -70,7 +70,7 @@ rules it documents: static Astro, Lit islands loaded on the client, strict TypeS
 with no escape hatches, a functional core of small pure functions, and an event-driven
 end-to-end suite that has to pass three times running before anything ships. If the
 practices were wrong, building the site would have hurt. It mostly didn't, and where it
-did, that pain became an article.
+did, the friction turned into an article.
 
 ## How to read what follows
 
@@ -82,4 +82,4 @@ the work, and why the tests insist on
 [determinism over convenient hacks](/blog/determinism-over-hacks).
 
 Disagree where you like. Every page tells you where it came from, so you can weigh the
-evidence instead of taking it on faith. That matters more here than any single rule does.
+evidence instead of taking it on faith.

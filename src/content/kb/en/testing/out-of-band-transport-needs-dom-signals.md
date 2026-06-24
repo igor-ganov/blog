@@ -76,15 +76,15 @@ export const waitForSection = async (page: Page, section: string) => {
 
 Two details carry the weight:
 
-- **The predicate distinguishes old data from new.** A presence-based wait
+- The predicate distinguishes old data from new. A presence-based wait
   (`toBeVisible` on a generic item) cannot tell a stale list from a fresh one. An
   identity-based wait can, because it reads what the item actually is.
-- **Empty is a state, not an absence.** If the target section can be empty, the
+- An empty section is its own state. If the target section can be empty, the
   application has to render an explicit empty-state element. Without it the wait
   has no terminal condition and the test deadlocks on a perfectly healthy page.
 
-None of this is test trickery. The attribute is real rendered state, it helps when
-you are poking around in devtools, and it costs one binding.
+None of this is test trickery. The attribute is real rendered state that costs one
+binding and also helps when you are poking around in devtools.
 
 ## Anti-patterns
 

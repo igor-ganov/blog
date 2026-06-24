@@ -22,13 +22,13 @@ dica ciascuna da sola.
 sull'unica domanda a cui esiste per rispondere. Modella i tipi così che l'inferenza torni
 giusta, oppure valida al confine. Non mentire al type checker.
 
-**Gli errori sono valori oppure si propagano — mai silenziarli.**
+**Gli errori sono valori oppure si propagano.**
 [Mai ingoiare un errore](/principles/error-handling/never-swallow-errors) e
 [controlla sempre `res.ok`](/principles/error-handling/always-check-res-ok). Un `catch` vuoto e una
 `fetch` di cui non ispezioni mai lo stato sono lo stesso bug: un fallimento che il codice ha
 deciso di fingere non sia mai avvenuto. Sono questi i fallimenti che diventano incidenti.
 
-**I test si sincronizzano sugli eventi, non sul tempo.**
+**I test si sincronizzano sugli eventi.**
 [Niente timeout, mai](/principles/testing/event-driven-no-timeouts) e
 [niente retry, niente flake](/principles/testing/no-retries-no-flakes). Un `waitForTimeout` nasconde
 o un test rotto o un'app non deterministica, e un retry nasconde una race vera. Verde
@@ -36,7 +36,7 @@ significa un passaggio completo e stabile tre volte di fila, non "probabilmente 
 
 **"Fatto" significa dimostrato, sulla cosa vera.**
 [Dimostralo con screenshot di livello produzione](/principles/process/prove-with-production-screenshots)
-dal browser vero. Una funzionalità su cui si è solo ragionato non è finita. È un'ipotesi.
+dal browser vero. Una funzionalità su cui si è solo ragionato resta non dimostrata.
 
 **La build è riproducibile.**
 [L'ambiente di build è fissato e verificato](/principles/build-ci-deploy/build-time-env-is-baked)
@@ -47,19 +47,19 @@ una build che si rompe sulla macchina di qualcun altro.
 [Mai terminare tutti i processi node](/principles/tooling-runtime/never-kill-all-node) quando ti
 serve solo quello sulla tua porta; e
 [la fase di design non è la fase di codice](/principles/design-ux/design-phase-is-not-code-phase),
-quindi non aprire un editor per "fare design" in un framework. Domini diversi, stesso
-istinto: precisione invece della scorciatoia comoda.
+quindi non aprire un editor per "fare design" in un framework. In entrambi i casi si tratta
+di essere precisi invece di prendere la scorciatoia comoda.
 
 ## Cosa hanno in comune
 
-Leggile in fila e una convinzione emerge: **rifiuta l'espediente che baratta una verità nota
-con una probabile.**
+Leggile in fila e una convinzione emerge: rifiutare l'espediente che scambia una verità nota
+con una probabile.
 
-- Un cast baratta "il compilatore conosce il tipo" per "ho probabilmente ragione".
-- Un errore ingoiato baratta "questo è fallito" per "probabilmente non conterà".
-- Un timeout baratta "l'evento è scattato" per "ormai è probabilmente pronto".
-- Un retry baratta "funziona" per "funziona abbastanza spesso".
-- Ragionare-invece-di-dimostrare baratta "l'ho visto funzionare" per "dovrebbe funzionare".
+- Un cast sostiene che il compilatore conosce il tipo quando tu credi solo di avere ragione.
+- Un errore ingoiato finge che un fallimento non conterà.
+- Un timeout dà per scontato che ormai l'evento sia scattato.
+- Un retry si accontenta di codice che funziona abbastanza spesso.
+- Ragionare invece di dimostrare dà per scontato che funzioni senza averlo guardato funzionare.
 
 Ognuno è comodo sul momento e costoso dopo, perché sposta un fallimento dal momento della
 build, dove è economico e visibile, al momento dell'esecuzione, dove è costoso e lo trova
@@ -67,5 +67,5 @@ qualcun altro. Le regole su cui non si tratta sono i punti dove quel baratto è 
 giudicato mai conveniente.
 
 Tutto il resto sul sito è più negoziabile di questo, e parte di esso è esplicitamente
-[condizionato al contesto](/principles). Queste nove sono la spina dorsale. Se un cambiamento ne
-viola una, è sbagliato il cambiamento, non la regola.
+[condizionato al contesto](/principles). Queste nove sono quelle che reggono tutto il resto.
+Un cambiamento che ne viola una è sbagliato.

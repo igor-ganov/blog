@@ -25,7 +25,7 @@ block scalar, or a comment. Nothing complains at write time. The blow-up happens
 time, usually in CI or in a browser, where the stack trace points at the parser instead
 of the template string that produced the file.
 
-So: **never write a YAML or frontmatter serializer by hand.** Use
+So: never write a YAML or frontmatter serializer by hand. Use
 [`yaml`](https://github.com/eemeli/yaml) (the `eemeli/yaml` package) and let it quote,
 escape, and wrap values for you.
 
@@ -229,10 +229,9 @@ const silentFail = (raw: string): Record<string, unknown> => {
 };
 ```
 
-Every one of these has the same symptom. The file is written successfully, with no error
-at write time. Later the downstream build or parser chokes on the corrupted output, and
-the stack trace points at the parser rather than at the serializer that produced the bad
-data.
+In each case the file is written successfully, with no error at write time. Later the
+downstream build or parser chokes on the corrupted output, and the stack trace points at
+the parser rather than at the serializer that produced the bad data.
 
 ## Enforcement
 
@@ -250,6 +249,6 @@ data.
 
 The instinct that produces hand-rolled YAML serializers is the same one that produces
 [swallowed errors](/principles/error-handling/never-swallow-errors) in the catch path. Both start
-as "it is just a quick utility" shortcuts and end as multi-day production incidents. The
-colon incident directly triggered [restore-prod-first incident order](/principles/build-ci-deploy/restore-prod-first-incident-order),
+as "it is just a quick utility" shortcuts and end as multi-day production incidents. This
+colon incident triggered [restore-prod-first incident order](/principles/build-ci-deploy/restore-prod-first-incident-order),
 since the team had to triage while production was red.

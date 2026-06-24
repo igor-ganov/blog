@@ -21,12 +21,12 @@ di sistema, applica la propria CSP ed espone un insieme diverso di API: il bridg
 i permessi sul file system, la gestione delle finestre. Carica anche gli asset in modo
 diverso rispetto a un dev server. Codice che gira senza problemi in un dev server basato
 su Chromium può rompersi nella WebView di Tauri per motivi che non hanno nulla a che fare
-con la logica della tua applicazione. Un permesso IPC mancante. Una direttiva CSP che
-blocca uno script inline. Un percorso di asset che si risolve in modo diverso una volta
+con la logica della tua applicazione: un permesso IPC mancante, una direttiva CSP che
+blocca uno script inline o un percorso di asset che si risolve in modo diverso una volta
 che l'app è impacchettata.
 
-Se testi nel browser o nel dev server e poi dichiari finito il target desktop, non hai
-preso una scorciatoia. Hai saltato il test.
+Se testi nel browser o nel dev server e poi dichiari finito il target desktop, il target
+desktop non l'hai testato affatto.
 
 ## Perché conta
 
@@ -99,7 +99,7 @@ Prima di dichiarare completa la verifica desktop:
   configurazione, né richieste di rete fallite.
 - Conferma che le chiamate IPC si risolvano invece di restare appese.
 
-Un fallimento silenzioso nella console conta comunque come fallimento.
+Un fallimento silenzioso nella console significa che la verifica non è passata.
 
 ## Anti-pattern
 

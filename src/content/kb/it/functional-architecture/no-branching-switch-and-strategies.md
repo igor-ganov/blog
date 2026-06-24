@@ -25,9 +25,9 @@ Nessuno dei due costrutti impone l'esaustività. Aggiungi un terzo caso a una un
 compilatore resta zitto: il caso non gestito arriva al runtime, e l'errore salta fuori
 lontano da dove il ramo avrebbe dovuto esserci.
 
-**`??` per il valore di default va bene.** Sceglie un valore di ripiego quando un risultato
-manca, e questo non è controllo di flusso. Il divieto riguarda la diramazione sulla logica
-applicativa: `if (status === 'pending')`, `type === 'admin' ? adminView : userView`,
+Usare `??` per il valore di default è accettabile. Sceglie un valore di ripiego quando un
+risultato manca, e questo non è controllo di flusso. Il divieto riguarda la diramazione
+sulla logica applicativa: `if (status === 'pending')`, `type === 'admin' ? adminView : userView`,
 `isLoading && <Spinner />`.
 
 ## Perché conta
@@ -187,8 +187,8 @@ switch (status) {
 }
 ```
 
-Ogni pattern qui sopra condivide un sintomo: una union cresce, il compilatore resta zitto e
-il nuovo caso arriva in produzione non gestito.
+In ognuno dei pattern qui sopra una union cresce, il compilatore resta zitto e il nuovo
+caso arriva in produzione non gestito.
 
 ## Imposizione
 

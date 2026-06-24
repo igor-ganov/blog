@@ -24,8 +24,8 @@ begins.
 
 There is an opposite trap, which is over-engineering the PoC. You add multi-user
 machinery, real billing, dashboards, and encryption before anyone has checked whether
-the core gamble pays off. Skipping the spike wastes time; so does building too much in
-the PoC.
+the core gamble pays off. Building too much in the PoC wastes as much effort as skipping
+the spike does.
 
 ## Why this matters
 
@@ -171,8 +171,8 @@ answered, the spike is done, even if the code is rough. Whether that code become
 production code is a decision you make after the spike, not during it.
 
 **Skipping the spike because "it will probably work."** The whole point of the spike is
-that you do not actually know whether it will work. "Probably" is not a validated
-architecture.
+that you do not actually know whether it will work. A guess that it will work is not
+the same as having run it.
 
 **Building forward-compatibility machinery instead of discipline.** Standing up a full
 multi-tenant auth system "because we will need it eventually" before the core PoC works

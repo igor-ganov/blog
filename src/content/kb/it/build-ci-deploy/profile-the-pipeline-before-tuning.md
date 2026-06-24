@@ -17,16 +17,16 @@ order: 8
 updated: 2026-06-12
 ---
 
-"Il deploy è lento" è una sensazione. Una tabella dei tempi per singolo step è un
-piano. I provider di CI espongono la durata degli step tramite le loro API, quindi
-recuperala prima di toccare qualunque cosa. L'intuito su dove se ne vada il tempo
-della pipeline sbaglia con regolarità, e togliere 30 secondi a uno step da 30
-secondi è invisibile dentro un run da dieci minuti.
+"Il deploy è lento" non ti dice nulla su dove se ne vada il tempo; una tabella dei
+tempi per singolo step sì. I provider di CI espongono la durata degli step tramite
+le loro API, quindi recuperala prima di toccare qualunque cosa. L'intuito su dove se
+ne vada il tempo della pipeline sbaglia con regolarità, e togliere 30 secondi a uno
+step da 30 secondi è invisibile dentro un run da dieci minuti.
 
 ## Perché conta
 
 Un deploy da dieci minuti sulla SPA di content-admin (2026-06-12) si scomponeva
-così: test unitari 70s, build 29s, installazione browser 25s, **E2E 6m55s**, coda
+così: test unitari 70s, build 29s, installazione browser 25s, E2E 6m55s, coda
 del deploy 30s. Uno step era il 70% della pipeline, e nient'altro contava finché
 non si riduceva. Parallelizzare i worker E2E ha portato lo step a 2m46s e la
 pipeline a 5m36s. Le leve più piccole (caching, limiti sull'installazione) sono
@@ -35,7 +35,7 @@ diventate utili solo dopo che la grande era atterrata.
 Due guasti collaterali durante lo stesso lavoro hanno insegnato la metà operativa
 della regola:
 
-- Uno step `playwright install` **si è bloccato per oltre un'ora, due volte**,
+- Uno step `playwright install` si è bloccato per oltre un'ora, due volte,
   bruciando minuti del runner e bloccando la coda, perché Node 24 sul PATH rompeva
   l'installer. Senza `timeout-minutes`, una regressione dello strumento su quello
   step si trasforma in uno stallo silenzioso lungo un'ora. Mettigli un limite e la

@@ -25,10 +25,10 @@ questa forma e il codice diventa un albero navigabile. Trovi ciò che ti serve s
 percorso d uso, invece di scavare tra i barrel export o di passare in rassegna una
 cartella `utils/` piatta.
 
-La dimensione è l altra metà della regola: **≤ 50 righe escludendo le righe di import**.
-Il limite si ripaga da solo. Una funzione che ha bisogno di più di 50 righe di
-implementazione di solito fa due lavori, e allora la spezzi, oppure contiene logica che
-andrebbe spostata più in basso, in un helper richiamato da una sottocartella sottostante.
+La dimensione è l altra metà della regola: 50 righe o meno, escludendo le righe di import.
+Una funzione che ha bisogno di più di 50 righe di implementazione di solito fa due lavori,
+e allora la spezzi, oppure contiene logica che andrebbe spostata più in basso, in un helper
+richiamato da una sottocartella sottostante.
 
 ## Perché conta
 
@@ -182,9 +182,8 @@ export const processEvent = (event: AppEvent): State => { ... }
 export default (d: Date) => ...  // consumer names it anything
 ```
 
-Ognuno di questi ti costa la stessa cosa. Il nome del file smette di puntare in modo
-affidabile a ciò che fa il codice, così il refactoring diventa lettura invece che
-navigazione.
+In ognuno di questi casi il nome del file smette di puntare in modo affidabile a ciò che
+fa il codice, così il refactoring diventa lettura invece che navigazione.
 
 ## Imposizione
 

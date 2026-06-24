@@ -21,7 +21,7 @@ updated: 2026-06-10
 
 ## Why this matters
 
-Most type annotations are noise. The compiler already knows the type, so writing it again does not buy you any safety. What it buys you is brittleness: change a function's return type and every manual annotation at the call site has to change too. Lean on inference and your refactors stay local.
+Most type annotations are redundant. The compiler already knows the type, so writing it again does not buy you any safety. What it does add is brittleness: change a function's return type and every manual annotation at the call site has to change too. Lean on inference and your refactors stay local.
 
 The rest of the rules here keep that inference reliable and the code predictable:
 

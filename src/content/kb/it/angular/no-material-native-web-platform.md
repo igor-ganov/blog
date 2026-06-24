@@ -302,7 +302,7 @@ export class TabsComponent {
 }
 ```
 
-Niente libreria, niente CDK, niente Material, solo la piattaforma.
+Si appoggia solo alla Web Platform, senza libreria di componenti, CDK o Material.
 
 ## Anti-pattern
 

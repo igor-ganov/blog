@@ -201,9 +201,9 @@ abstract class Renderer {
 }
 ```
 
-They share one symptom. A change to shared behaviour drags in multiple classes or files,
-and testing means constructing (and usually mocking) the object graph instead of injecting
-a plain function argument.
+In each case a change to shared behaviour drags in multiple classes or files, and testing
+means constructing (and usually mocking) the object graph instead of injecting a plain
+function argument.
 
 ## Enforcement
 

@@ -168,7 +168,7 @@ There are only two legitimate reasons to use a different runtime:
 2. Bun is genuinely absent from `$PATH` and cannot be installed in the current
    environment.
 
-"I'm used to node" and "npm is simpler to type" do not count.
+Preferring node out of habit, or finding npm easier to type, is not one of them.
 
 ## Enforcement
 

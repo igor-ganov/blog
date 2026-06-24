@@ -20,15 +20,15 @@ Browser cookies have a hard size limit. The HTTP specification recommends at lea
 4096 bytes per cookie, and in practice browsers enforce a limit around 4 KB per cookie.
 The exact value varies (Chrome allows about 4096 bytes for the value alone; Firefox and
 Safari land near the same number). Once a `Set-Cookie` header exceeds that, the browser
-discards it without any error, warning, or console message. The response completes
-normally and the cookie is just gone.
+discards it without any error or warning. The response completes normally and the
+cookie is just gone.
 
 Atlassian OAuth access tokens are large JWTs, usually 1–3 KB for the token alone, before
 you add the refresh token and any metadata. A single cookie holding one of these tokens
 runs past 4 KB. On a Jira client app (2026-06-08) that is exactly what broke: the OAuth
 callback set the access token directly in a `Set-Cookie` header, the browser dropped it
 silently, every following API request went out with no credentials, and the user landed
-back on the login page. No console error showed up. The only thing you could see was the
+back on the login page. No console error showed up; the only visible symptom was the
 authentication loop.
 
 The fix is architectural. Tokens belong in a server-side session store, and the cookie

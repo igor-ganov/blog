@@ -25,12 +25,12 @@ order: 4
 updated: 2026-06-11
 ---
 
-`throw` is a goto. It exits the current call stack and hands control to whatever `catch`
-sits further up, or to the process error handler when nothing catches it. The type system
-knows nothing about it. A function that throws has the same signature as one that does not,
-so callers cannot reason about what can go wrong without reading the implementation. Ad-hoc
-`Promise` chains make it worse: `.catch` is optional, rejections are untyped, and any
-`await` can swallow an error without a trace.
+A `throw` exits the current call stack and hands control to whatever `catch` sits further
+up, or to the process error handler when nothing catches it. The type system knows nothing
+about it. A function that throws has the same signature as one that does not, so callers
+cannot reason about what can go wrong without reading the implementation. Ad-hoc `Promise`
+chains make it worse: `.catch` is optional, rejections are untyped, and any `await` can
+swallow an error without a trace.
 
 Effect models fallible and async logic as values. An `Effect<A, E, R>` describes a
 computation that, when run, may succeed with `A`, fail with `E`, or require services `R`.
@@ -40,8 +40,8 @@ error paths before the pipeline finishes.
 
 ## Why this matters
 
-The invariant that is **never** up for debate: errors and absence are *values in the type*,
-composed in pipelines, not thrown. `throw` erases the error from the signature, and a
+The invariant that is not up for debate: errors and absence are values in the type,
+composed in pipelines, not thrown. A `throw` erases the error from the signature, and a
 `Result`/`Either`/`Effect` puts it back. That much is settled.
 
 The judgement call is **the vehicle**, and the bundle is what decides it. Effect is a
@@ -75,7 +75,7 @@ scope, so the whole interpreter stays. You can tree-shake the leaves (`Effect.ma
 `useSWBridge` on the client. There the runtime was *used*, so the bundle cost bought
 something and was correctly accepted. A later 2026-06-10 frontend app went the other way.
 It needed only error-as-value, so it shipped custom result functions and skipped the
-62 KB. **Both are right, because the rule is conditional, not absolute:**
+62 KB. Both are right, because the rule is conditional:
 
 - Using Effect's runtime — structured concurrency, interruption, retries/scheduling,
   scope/resource-safety, `Layer`/DI? **Use Effect.** A hand-rolled equivalent would be a

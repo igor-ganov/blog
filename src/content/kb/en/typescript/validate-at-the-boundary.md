@@ -22,9 +22,9 @@ updated: 2026-06-10
 
 ## Why this matters
 
-TypeScript's type system covers every line of code it can see. What it cannot see is anything that arrives over the network, comes out of `localStorage`, gets passed as a CLI argument, or lands in a third-party webhook. At those entry points the runtime value is `unknown`, and the reflex is to cast it away: `const config = JSON.parse(raw) as Config`. The red squiggle disappears, and you've planted a lie. The annotation promises `Config` while the actual value could be anything at all.
+TypeScript's type system covers every line of code it can see. What it cannot see is anything that arrives over the network, comes out of `localStorage`, gets passed as a CLI argument, or lands in a third-party webhook. At those entry points the runtime value is `unknown`, and the reflex is to cast it away: `const config = JSON.parse(raw) as Config`. The red squiggle disappears, but the annotation now promises `Config` while the actual value could be anything at all.
 
-That lie tends to travel. It survives until it reaches some function that depends on a specific shape, and by then the failure is nowhere near the bad cast. The stack trace points at the wrong place, and the real cause stays hidden.
+That false promise tends to travel. It survives until it reaches some function that depends on a specific shape, and by then the failure is nowhere near the bad cast. The stack trace points at the wrong place, and the real cause stays hidden.
 
 So validate once, at the edge. Parse the unknown value into a typed one, or fail loudly with an explicit error. Past that single checkpoint, every internal function gets a type it can actually trust, with no casts, no defensive `typeof` sprinkled around, and none of those `as unknown as T` chains.
 

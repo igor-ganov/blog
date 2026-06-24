@@ -49,9 +49,8 @@ one of:
   data across origins. Requires user identification (session or fingerprint) — this is
   a tracker.
 
-None of these are neutral. Each one is a deliberate engineering choice to build cross-site
-visibility, and each one trades away some user privacy to do it. The boundary is the
-correct default, not a bug you have to defeat.
+None of these are neutral. Each one is a deliberate choice to build cross-site
+visibility that trades away some user privacy. The boundary is the correct default.
 
 ### The webring use case
 
@@ -161,8 +160,8 @@ terms of its privacy properties:
 </p>
 ```
 
-That copy is accurate and it earns trust. The feature isn't crippled by its inability to
-track cross-site visits; declining to track is the whole point.
+That copy is accurate and it earns trust. The feature works fine without cross-site
+visit tracking, which it was never meant to do.
 
 ### When cross-site state is genuinely required
 
@@ -179,7 +178,7 @@ The distinction:
   the account; user can view, export, and delete it.
 
 The webring case neither requires nor justifies an authenticated backend. Per-origin
-click intent is enough, and it's the right call.
+click intent is enough.
 
 ## Anti-patterns
 

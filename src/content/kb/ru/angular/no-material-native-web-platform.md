@@ -298,7 +298,7 @@ export class TabsComponent {
 }
 ```
 
-Ни библиотеки, ни CDK, ни Material — только платформа.
+Это опирается только на Web Platform, без набора компонентов, CDK или Material.
 
 ## Антипаттерны
 

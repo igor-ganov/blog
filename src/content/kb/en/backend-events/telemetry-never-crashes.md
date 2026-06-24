@@ -41,12 +41,12 @@ span design means knowing what deserves a span and what does not.
 
 The design decisions on this:
 
-- Telemetry failure is **always a no-op**, never a crash.
-- **Brokers do not emit spans.** The queue boundary is modelled as a PRODUCER/CONSUMER
+- A telemetry failure is a no-op, never a crash.
+- Brokers do not emit spans. The queue boundary is modelled as a PRODUCER/CONSUMER
   span pair: the producer closes its span before enqueuing, the consumer starts a new
   span on receive, and the two are linked via `traceparent` in the message attributes.
   The broker itself (SQS, RabbitMQ) does not participate in the trace.
-- **/health is not traced.** Health endpoints are polled at high frequency by load
+- /health is not traced. Health endpoints are polled at high frequency by load
   balancers and produce noise with zero signal.
 - The viewer is pluggable via `OTEL_EXPORTER_OTLP_ENDPOINT`: OpenObserve, Aspire,
   LGTM, Uptrace, or any OTLP-compatible backend. No SDK changes, no redeploy.
@@ -275,9 +275,9 @@ try {
 }
 ```
 
-The first crashes the app on a transient telemetry failure. The second inflates cost and
-trace noise. The third produces disconnected traces that you cannot follow across a queue
-boundary. The fourth swallows the application error inside telemetry code, which directly
+These let the observability layer hurt the thing it is meant to observe: crashing the app
+on a transient failure, inflating cost and trace noise, breaking the trace across a queue
+boundary, or swallowing the application error inside telemetry code, which directly
 violates [never swallow errors](/principles/error-handling/never-swallow-errors).
 
 ## Enforcement

@@ -26,8 +26,8 @@ entrambe le cose.
 
 La regola: la CI esegue la suite con worker paralleli, e qualunque fallimento
 provocato dal parallelismo è un difetto reale dell'applicazione o del segnale di
-attesa. Ridurre i worker per "stabilizzare" la suite è la stessa bugia di aggiungere
-retry. Compri il verde togliendo lo stress che espone la race.
+attesa. Ridurre i worker per "stabilizzare" la suite fa quello che fa aggiungere
+retry: compra il verde togliendo lo stress che espone la race.
 
 ## Perché conta
 

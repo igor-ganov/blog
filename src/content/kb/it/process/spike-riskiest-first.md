@@ -24,8 +24,8 @@ lavoro sulle feature.
 
 C'è una trappola opposta: sovraingegnerizzare il PoC. Aggiungi meccanismi multiutente,
 fatturazione vera, dashboard e cifratura prima che qualcuno abbia verificato se la
-scommessa di fondo paga. Saltare lo spike fa perdere tempo; anche costruire troppo nel
-PoC lo fa.
+scommessa di fondo paga. Costruire troppo nel PoC spreca tanto lavoro quanto saltare lo
+spike.
 
 ## Perché conta
 
@@ -170,7 +170,8 @@ risposto, lo spike è finito, anche se il codice è grezzo. Se quel codice diven
 di produzione è una decisione che prendi dopo lo spike, non durante.
 
 **Saltare lo spike perché "probabilmente funzionerà".** Tutto il senso dello spike è che
-in realtà non sai se funzionerà. "Probabilmente" non è un'architettura validata.
+in realtà non sai se funzionerà. Supporre che funzioni non è la stessa cosa che averlo
+eseguito.
 
 **Costruire i meccanismi di compatibilità futura invece della disciplina.** Tirare su un
 sistema di autenticazione multi-tenant completo "perché prima o poi ci servirà" prima che

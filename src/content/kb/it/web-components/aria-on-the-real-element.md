@@ -37,7 +37,7 @@ l’elemento che porta `role="button"` (o il `<button>` nativo) e risolve `aria-
 `aria-label="Open menu"` su un `<div>` wrapper senza ruolo e l’etichetta si attacca a
 qualcosa che l’albero di accessibilità non espone mai come interattivo, mentre il `<button>`
 al suo interno mantiene il proprio nodo interattivo senza etichetta. Ti ritrovi con due nodi:
-uno con etichetta e senza ruolo, uno con ruolo e senza etichetta.
+il wrapper ha l’etichetta ma non il ruolo, e il pulsante ha il ruolo ma non l’etichetta.
 
 Gli screen reader gestiscono la cosa in modo incoerente. VoiceOver su macOS spesso legge il
 testo del wrapper e poi rilegge il pulsante come controllo senza etichetta; NVDA su Windows
@@ -210,8 +210,8 @@ test('no axe violations on the demo page', async ({ page }) => {
 ```
 
 L’articolo `aria-label-test-locator-hygiene` tratta l’uso degli attributi ARIA come locator
-di test stabili. Le stesse etichette che servono all’accessibilità servono alla suite di test,
-quindi portarle sull’elemento corretto rende il doppio.
+di test stabili. Le stesse etichette che servono all’accessibilità servono anche alla suite di test,
+quindi vale la pena metterle sull’elemento corretto.
 
 ## Vedi anche
 

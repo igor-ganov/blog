@@ -34,11 +34,11 @@ pulito", ed è sbagliata per qualche motivo:
   fuori job che non c'entrano.
 - La causa radice è un server vecchio su una porta precisa, non node in generale.
 
-Il `.vscode/settings.json` di questo blog contiene un hook `PreToolUse` che **NEGA**
-qualsiasi comando bash che uccide tutti i processi node. Provaci e sbatti contro uno stop
-netto.
+Il `.vscode/settings.json` di questo blog contiene un hook `PreToolUse` che nega qualsiasi
+comando bash che uccide tutti i processi node, così un comando del genere si ferma prima di
+partire.
 
-Quindi identifica i processi per porta o per PID, mai per nome del binario.
+Identifica i processi per porta o per PID, mai per nome del binario.
 
 ## Come applicarlo
 

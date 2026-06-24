@@ -34,10 +34,10 @@ reasons:
   unrelated jobs.
 - The root cause is a stale server on a specific port, not node in general.
 
-This blog's own `.vscode/settings.json` contains a `PreToolUse` hook that **DENIES** any
-bash command that kills all node processes. Try it and you hit a hard stop.
+This blog's own `.vscode/settings.json` contains a `PreToolUse` hook that denies any
+bash command that kills all node processes, so such a command stops before it runs.
 
-So identify processes by port or PID, never by the binary name.
+Identify processes by port or PID, never by the binary name.
 
 ## How to apply
 

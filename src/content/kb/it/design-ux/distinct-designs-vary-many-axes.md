@@ -21,14 +21,14 @@ Chiedi "sei direzioni di design" e stai chiedendo sei risposte davvero diverse a
 "cosa potrebbe essere questo prodotto?". Non stai chiedendo un layout con sei valori diversi di
 `--color-primary`, e la distanza tra queste due cose non è una questione di gusti. Una
 direzione è un'ipotesi di design su a cosa serve il prodotto, a chi è rivolto e cosa si prova
-a usarlo. Ricolorare lascia l'ipotesi intatta. Cambia solo la vernice.
+a usarlo. Ricolorare lascia l'ipotesi intatta e cambia solo la vernice in superficie.
 
 Su un sito di annunci immobiliari (2026-05-12) ho consegnato sei varianti di design per una
 piattaforma di listing. Tutte e sei condividevano lo stesso albero di componenti `MarketShell`,
 la stessa architettura informativa, la stessa densità, la stessa scala tipografica e gli stessi
 componenti. Differivano solo nelle custom property CSS pilotate dagli attributi `data-material`,
-`data-shape` e `data-palette`. Il feedback è tornato indietro: terribilmente simili. Che è la
-reazione giusta di fronte a sei varianti che sono, strutturalmente, la stessa cosa.
+`data-shape` e `data-palette`. Il riscontro è stato che erano troppo simili, il che è giusto
+per sei varianti che sono, strutturalmente, la stessa cosa.
 
 Il secondo giro è stato accettato. Tre prototipi, ognuno autonomo, ognuno una risposta diversa
 a "cos'è questo prodotto":
@@ -41,8 +41,8 @@ a "cos'è questo prodotto":
 - Una direzione bento-marketplace: una griglia bento a bassa densità, neo-brutalismo leggero,
   alto contrasto, tipografia netta e marcata, una metafora da banco di mercato.
 
-Gusci diversi, font diversi, architetture informative diverse, metafore di prodotto diverse.
-È questo che ti dà avere "direzioni distinte".
+Ognuno aveva il proprio guscio, i propri font, la propria architettura informativa e la
+propria metafora di prodotto, ed è questo che ne fa direzioni distinte.
 
 ## Perché è importante
 
@@ -166,7 +166,7 @@ Mettilo a confronto con l'anti-pattern:
 Lascia stare i system font nell'esplorazione di design, a meno che una direzione non li richieda
 esplicitamente. Carica font veri e caratterizzanti da Google Fonts, Bunny Fonts o file locali.
 Lo scarto di resa tra Fraunces a `optical-sizing: auto` e un sans-serif di sistema non è
-sottile; è l'intero registro del design. Un prototipo senza font veri è un wireframe.
+sottile; è l'intero registro del design. Un prototipo senza font veri è più vicino a un wireframe.
 
 Rendi la scelta del font portante e specifica per ogni prototipo. Se la direzione è "mercato
 neo-brutalista", il font non è "un sans marcato". È Unbounded, o Space Grotesk, o Monument

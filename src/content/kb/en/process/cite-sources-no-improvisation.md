@@ -16,14 +16,14 @@ order: 7
 updated: 2026-06-10
 ---
 
-An unattributed "best practice" is just an opinion in a costume. Without a source you
+An unattributed "best practice" is just an assertion. Without a source you
 cannot judge how old the claim is, what context it came from, or whether it applies to
 the situation in front of you. The research behind a design decision is part of the
 decision. It records what was known when the choice was made, where to look when the
 circumstances change, and what evidence would invalidate it.
 
 This knowledge base follows the rule it documents. Every article carries a `sources`
-block with a project name, date, and note. That block is provenance, not decoration.
+block with a project name, date, and note. That block records where each claim came from.
 
 ## Why this matters
 
@@ -37,10 +37,9 @@ CRUD systems, or the actual guidance from Vaughn Vernon's _Implementing Domain-D
 Design_ (2013). Same wording, wildly different applicability. A citation tells you
 which one you are reading.
 
-**Menu of alternatives.** Presenting three options and asking the reader to choose is
-comfortable for the writer and unhelpful for the reader, because it hands over the
-decision work without handing over the research. A strong proposal (one option, with
-the reasoning) beats a survey. The reader can still reject it and ask for alternatives,
+**Menu of alternatives.** Presenting three options and asking the reader to choose
+moves the decision work onto the reader without giving them the research that would let
+them decide well. A strong proposal (one option, with the reasoning) beats a survey. The reader can still reject it and ask for alternatives,
 which is a different conversation from "here are three options, you decide."
 
 **Blaming individuals.** A critique that names a person ("the previous developer made
@@ -97,7 +96,7 @@ this repo's angular/signals-resource-compute article.
 ```
 
 The reader may disagree and ask for alternatives, and that is fine. The default stays
-a single strong recommendation rather than a buffet.
+a single strong recommendation.
 
 ### Critique systems, not people
 

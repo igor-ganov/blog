@@ -257,8 +257,9 @@ try {
 }
 ```
 
-I primi due rompono le garanzie di consegna. Il terzo rompe il contratto di gestione degli
-errori, dato che solo `code === 11000` è un no-op legittimo e tutto il resto deve propagarsi.
+Le due varianti di doppia scrittura rompono la garanzia di consegna. Inghiottire l'errore di
+insert rompe il contratto di gestione degli errori, dato che solo `code === 11000` è un no-op
+legittimo e tutto il resto deve propagarsi.
 
 ## Enforcement
 

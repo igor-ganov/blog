@@ -20,12 +20,12 @@ updated: 2026-06-11
 Tap any link or button on a mobile WebKit browser and, by default, it paints a
 translucent box over the element for as long as your finger is down. The colour comes
 from the platform rather than from you, usually a blue or grey rectangle that ignores
-your border radius and clips to the element box. Nothing else marks an interface as "a
-web page" rather than "an app" so quickly, and it fires on every control you have: nav
-links, cards, icon buttons, all of them.
+your border radius and clips to the element box. It is a strong tell that an interface is
+a web page rather than an app, and it fires on every control you have, from nav
+links to cards to icon buttons.
 
-The fix is one inherited declaration. The harder part is the two things you must
-*not* do while applying it.
+The fix is one inherited declaration, but you also need to avoid two mistakes
+while applying it.
 
 ## Why this matters
 
@@ -35,8 +35,8 @@ style, a focus ring, and an `:active` transform, and the flash sat on top of all
 and undid the work. The element looked hand-built right up until you touched it, when
 the platform stamped its default over the top.
 
-`-webkit-tap-highlight-color` is the property that paints it. It is **inherited**, and
-that is what lets you fix it cleanly. Set it once on the root and every descendant
+`-webkit-tap-highlight-color` is the property that paints it. It is inherited, which is
+what lets you fix it cleanly. Set it once on the root and every descendant
 inherits the value, including the contents of shadow-DOM custom elements, since
 inherited properties cross the boundary. One line removes the flash everywhere instead
 of you chasing it control by control.

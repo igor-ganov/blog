@@ -30,8 +30,8 @@ cambiare la forma reale dei dati mentre i tipi continuano a sostenere la vecchia
 L'asserzione non-null `!` fa lo stesso gioco: dice al compilatore «fidati, non è
 undefined» esattamente nel punto in cui il compilatore stava cercando di proteggerti.
 
-La regola è assoluta. Niente `as`, niente `!`. Non «ridurre al minimo», non «solo nei
-test», nessuna eccezione.
+La regola è niente `as` e niente `!`, senza eccezioni per i test o per «solo questa
+volta».
 
 ## Perché è importante
 
@@ -127,5 +127,5 @@ correggi il design.
 
 Il refactoring che ha dimostrato tutto questo su larga scala ha anche rimosso, nello
 stesso passaggio, ogni `<div>` e ogni ciclo imperativo. Sicurezza dei tipi,
-decomposizione funzionale e componenti dichiarativi nascono da un'unica postura coerente,
-non da tre preferenze separate.
+decomposizione funzionale e componenti dichiarativi sono usciti dallo stesso atteggiamento
+coerente.

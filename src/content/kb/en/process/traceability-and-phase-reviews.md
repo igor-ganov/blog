@@ -26,7 +26,8 @@ traceability as mandatory rather than optional documentation.
 Phase reviews are how that gets enforced. A review is a deliberate pause at the
 boundary between phases (requirements → design, design → tasks, tasks →
 implementation) that checks completeness and correctness before the next phase begins.
-Fixing a spec is cheap; fixing code built on a wrong spec is not.
+Fixing a spec costs a paragraph edit; fixing code built on a wrong spec means unwinding
+the implementation and its tests.
 
 ## Why this matters
 
@@ -123,8 +124,8 @@ Implementation often reveals spec errors. The response is a fixed sequence:
 5. **Continue.** Only after the spec is correct does the implementation resume.
 
 This isn't bureaucracy. It's the minimum work to keep the spec authoritative. A spec
-that gets amended once and re-reviewed is still a source of truth, whereas a spec that
-code silently contradicts has become a historical document.
+that gets amended and re-reviewed when reality diverges stays a source of truth. Once
+the code silently contradicts it, it is only a record of what someone once intended.
 
 ### Versioning and location
 

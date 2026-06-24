@@ -37,8 +37,8 @@ element that carries `role="button"` (or the native `<button>`) and resolves
 `aria-label`, `aria-labelledby`, or text content against that element. Put
 `aria-label="Open menu"` on a roleless `<div>` wrapper and the label attaches to
 something the accessibility tree never exposes as interactive, while the `<button>` inside
-keeps its own unlabelled interactive node. You end up with two nodes: one with a label and
-no role, one with a role and no label.
+keeps its own unlabelled interactive node. You end up with two nodes: the wrapper carries
+the label but no role, and the button carries the role but no label.
 
 Screen readers cope with this inconsistently. VoiceOver on macOS often reads the wrapper
 text and then re-reads the button as an unlabelled control; NVDA on Windows may skip the
@@ -211,8 +211,8 @@ test('no axe violations on the demo page', async ({ page }) => {
 ```
 
 The `aria-label-test-locator-hygiene` article covers using ARIA attributes as stable test
-locators. The same labels that serve accessibility serve the test suite, so getting them
-onto the correct element pays off twice.
+locators. The same labels that serve accessibility also serve the test suite, so it is
+worth getting them onto the correct element.
 
 ## See also
 

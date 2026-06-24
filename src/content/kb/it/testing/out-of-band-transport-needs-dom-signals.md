@@ -76,10 +76,10 @@ export const waitForSection = async (page: Page, section: string) => {
 
 Due dettagli reggono tutto il peso:
 
-- **Il predicato distingue i dati vecchi da quelli nuovi.** Un'attesa basata sulla presenza
+- Il predicato distingue i dati vecchi da quelli nuovi. Un'attesa basata sulla presenza
   (`toBeVisible` su un elemento generico) non sa distinguere una lista stantia da una appena
   caricata. Un'attesa basata sull'identità sì, perché legge ciò che l'elemento è davvero.
-- **Vuoto è uno stato, non un'assenza.** Se la sezione di destinazione può essere vuota, l'applicazione
+- Una sezione vuota è uno stato a sé. Se la sezione di destinazione può essere vuota, l'applicazione
   deve renderizzare un elemento di stato-vuoto esplicito. Senza di esso l'attesa
   non ha una condizione terminale e il test va in deadlock su una pagina perfettamente sana.
 

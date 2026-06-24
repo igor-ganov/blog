@@ -17,18 +17,18 @@ order: 2
 updated: 2026-05-12
 ---
 
-Ask for "six design directions" and you're asking for six genuinely different answers to
-"what could this product be?" You're not asking for one layout with six different
+A request for "six design directions" is a request for six genuinely different answers to
+"what could this product be?", not for one layout with six different
 `--color-primary` values, and the gap between those two things isn't a matter of taste. A
 direction is a design hypothesis about what the product is for, who it's for, and what
-using it feels like. Recolouring leaves the hypothesis untouched. It just changes the paint.
+using it feels like. Recolouring leaves the hypothesis untouched and only changes the surface paint.
 
 On a real-estate listings site (2026-05-12) I shipped six design variants for a listing
 platform. All six shared the same `MarketShell` component tree, the same information
 architecture, the same density, the same type scale, and the same components. They differed
 only in CSS custom properties driven by `data-material`, `data-shape`, and `data-palette`
-attributes. The feedback came back: disgustingly similar. Which is the right reaction to
-six variants that are structurally the same thing.
+attributes. The feedback came back that they were too similar, which is fair for six
+variants that are structurally the same thing.
 
 The second round got accepted. Three prototypes, each self-contained, each a different
 answer to "what is this product":
@@ -40,8 +40,8 @@ answer to "what is this product":
 - A bento-marketplace direction: a low-density bento grid, neo-brutalist-lite, high
   contrast, bold cut typography, a market-stall metaphor.
 
-Different shells, different fonts, different information architectures, different product
-metaphors. That's what "distinct directions" buys you.
+Each had its own shell, fonts, information architecture, and product
+metaphor, which is what makes them distinct directions.
 
 ## Why this matters
 
@@ -165,7 +165,7 @@ Set that against the anti-pattern:
 Skip system fonts for design exploration unless a direction specifically asks for them.
 Load real, distinctive fonts from Google Fonts, Bunny Fonts, or local files. The rendering
 gap between Fraunces at `optical-sizing: auto` and a system sans-serif isn't subtle; it's
-the whole register of the design. A prototype without real fonts is a wireframe.
+the whole register of the design. A prototype without real fonts is closer to a wireframe.
 
 Make the font choice load-bearing and specific for every prototype. If the direction is
 "neo-brutalist market", the font isn't "a bold sans". It's Unbounded, or Space Grotesk, or

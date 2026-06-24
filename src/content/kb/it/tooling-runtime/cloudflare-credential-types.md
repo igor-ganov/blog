@@ -33,8 +33,8 @@ un header Bearer, che è lo schema sbagliato per le Global Key.
 
 Entrambi gli episodi hanno la stessa causa di fondo. Cloudflare ha tre tipi di credenziale,
 ciascuno con il proprio schema di autenticazione, il proprio scope e il proprio endpoint di
-validazione corretto. Scegli il test sbagliato per il tipo che hai in mano e puoi buttare via un
-pomeriggio, o peggio, cestinare una credenziale che funziona.
+validazione corretto. Se scegli il test sbagliato per il tipo che hai in mano, puoi perdere tempo
+a fare debug o scartare una credenziale che funziona.
 
 ## Come applicarlo
 

@@ -20,12 +20,12 @@ A Tauri app and a browser tab are different runtimes. Tauri embeds a system WebV
 applies its own CSP, and exposes a different set of APIs: the `invoke` bridge, file
 system permissions, window management. It also loads assets differently from a dev
 server. Code that runs fine in a Chromium-backed dev server can break in Tauri's
-WebView for reasons that have nothing to do with your application logic. A missing IPC
-permission. A CSP directive that blocks an inline script. An asset path that resolves
+WebView for reasons that have nothing to do with your application logic: a missing IPC
+permission, a CSP directive that blocks an inline script, or an asset path that resolves
 differently once the app is bundled.
 
 If you test in the browser or the dev server and then say the desktop target is done,
-you have not taken a shortcut. You skipped the test.
+you have not tested the desktop target at all.
 
 ## Why this matters
 
@@ -97,7 +97,7 @@ Before declaring the desktop verification complete:
   problem, and no failed network requests.
 - Confirm that IPC calls resolve rather than hanging.
 
-A silent failure in the console still counts as a failure.
+A silent failure in the console means the verification has not passed.
 
 ## Anti-patterns
 

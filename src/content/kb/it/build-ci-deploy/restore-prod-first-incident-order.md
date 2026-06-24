@@ -23,8 +23,8 @@ sito è verde.
 L'istinto di "sistemarlo come si deve" mentre il sito è giù è comprensibile, perché evita di
 distribuire un hotfix che viene subito rimpiazzato dalla correzione vera. Quello che fa davvero è
 tenere il sito giù più a lungo mentre scrivi i test e aspetti la review, con utenti e stakeholder
-che guardano il disservizio trascinarsi. Un recupero in due passi (hotfix ora, correzione pulita dopo) costa quasi sempre
-meno di un recupero in un solo passo che richiede tre volte il tempo.
+che guardano il disservizio trascinarsi. Un recupero in due passi (hotfix ora, correzione pulita dopo) ripristina
+quasi sempre il servizio prima, anche se vuol dire distribuire due volte.
 
 ## Perché conta
 

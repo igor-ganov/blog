@@ -22,13 +22,13 @@ updated: 2026-06-10
 
 A function that validates returns `boolean`. It computes whether the input conforms to a
 shape, then throws that answer away. The caller is left holding the same untyped value it
-started with, so to use it as the expected type it has to cast. The cast is unverified.
-It asserts the exact shape the validator just checked, but nothing in the compiler ties
-those two facts together. You are trusted on your word.
+started with, so to use it as the expected type it has to cast. That cast asserts the exact
+shape the validator just checked, but nothing in the compiler ties those two facts
+together, so it is unverified.
 
-A function that parses returns the typed value or an error. The conformance check and the
+A parser instead returns the typed value or an error. The conformance check and the
 type assignment are the same operation, so there is no cast. Downstream code receives a
-value that already has the precise type. It never re-checks, and it can't forget to check.
+value that already has the precise type, and it can't forget to re-check.
 
 The phrase comes from Alexis King's 2019 essay "Parse, don't validate". In this codebase
 the practice rests on Effect.Schema and on runtime guards written at explicit boundary
@@ -199,9 +199,9 @@ const applyDiscount = (raw: unknown): number => {
 const order: Order = JSON.parse(localStorage.getItem('order')!); // cast + no check
 ```
 
-Every one of these has the same flaw. Untyped input reaches code that assumes it is typed,
-and the compiler never checked that assumption. When the input doesn't match, the error
-surfaces far away from where the untyped value first entered.
+In each case untyped input reaches code that assumes it is typed, and the compiler never
+checked that assumption. When the input doesn't match, the error surfaces far away from
+where the untyped value first entered.
 
 ## Enforcement
 

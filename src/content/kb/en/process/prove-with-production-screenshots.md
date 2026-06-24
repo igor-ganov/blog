@@ -20,15 +20,15 @@ order: 4
 updated: 2026-06-10
 ---
 
-"It works" without evidence is just a claim. Green tests locally, a passing CI
+"It works" without evidence has not been demonstrated. Green tests locally, a passing CI
 pipeline, and a working dev server are all necessary, but none of them proves the
 production deployment is correct. Production runs against a different set of conditions:
 assets that may be stale from a cached service worker, branch pins left in browser
 storage, CSP headers that differ, CDN caching that behaves on its own schedule. Each of
 those has broken production after local and CI both came back green, more than once.
 
-The rule is non-negotiable: **every "done" claim must be backed by screenshots from
-production, shown in the response, not summarised.**
+The rule is non-negotiable: every "done" claim must be backed by screenshots from
+production, shown in the response, not summarised.
 
 ## Why this matters
 
@@ -167,4 +167,4 @@ description. A PR without screenshots for a UI change is not ready for merge.
 
 The standing override: if you are told to connect to a Chrome instance or open the
 browser via a token and you ignore that in favour of a local test, the work is not done.
-A request to use a specific browser or environment is an instruction, not a suggestion.
+A request to use a specific browser or environment has to be followed as given.

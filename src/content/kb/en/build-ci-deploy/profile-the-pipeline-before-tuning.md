@@ -17,15 +17,16 @@ order: 8
 updated: 2026-06-12
 ---
 
-"The deploy is slow" is a feeling. A per-step timing table is a plan. CI providers
-expose step durations through their APIs, so pull them before you touch anything.
+"The deploy is slow" tells you nothing about where the time goes; a per-step timing
+table does. CI providers expose step durations through their APIs, so pull them before
+you touch anything.
 Intuition about where pipeline time goes is reliably wrong, and shaving 30 seconds
 off a 30-second step is invisible inside a ten-minute run.
 
 ## Why this matters
 
 A ten-minute deploy on the content-admin SPA (2026-06-12) broke down like this:
-unit tests 70s, build 29s, browser install 25s, **E2E 6m55s**, deploy tail 30s. One
+unit tests 70s, build 29s, browser install 25s, E2E 6m55s, deploy tail 30s. One
 step was 70% of the pipeline, and nothing else mattered until it shrank.
 Parallelising the E2E workers cut the step to 2m46s and the pipeline to 5m36s. The
 smaller levers (caching, install bounds) only became worth doing once the big one
@@ -34,7 +35,7 @@ had landed.
 Two incidental failures during the same work taught the operational half of the
 rule:
 
-- A `playwright install` step **hung for over an hour, twice**, burning runner
+- A `playwright install` step hung for over an hour, twice, burning runner
   minutes and blocking the queue, because Node 24 on PATH broke the installer.
   With no `timeout-minutes`, a tool regression on that step turns into an hour-long
   silent stall. Bound it and the same regression shows up as a red X in minutes.

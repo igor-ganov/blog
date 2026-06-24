@@ -254,8 +254,9 @@ try {
 }
 ```
 
-The first two break delivery guarantees. The third breaks the error-handling contract,
-since only `code === 11000` is a legitimate no-op and everything else has to propagate.
+The two dual-write variants break the delivery guarantee. Swallowing the insert error
+breaks the error-handling contract, since only `code === 11000` is a legitimate no-op and
+everything else has to propagate.
 
 ## Enforcement
 

@@ -19,16 +19,16 @@ updated: 2026-04-26
 
 A project has phases, and the rules that govern one phase do not automatically carry into
 the next. The coding conventions in CLAUDE.md (use Angular, organise by feature, use
-signals, set up Storybook) are rules for the **implementation phase**. They say nothing
+signals, set up Storybook) are rules for the implementation phase. They say nothing
 about the design phase, because at the design phase there is no code yet. Proposing an
-Angular workspace while the user is working in Penpot is not thoroughness. It is a
-category error: it shifts the conversation to a phase the user never asked for, wastes
-their time, and signals that nobody read the task description.
+Angular workspace while the user is working in Penpot shifts the conversation to a phase
+the user never asked for, wastes their time, and signals that nobody read the task
+description.
 
 On a design-stage project (2026-04-26) exactly this happened. The team was working on a
 Penpot mockup task and got back a proposal for an Angular workspace plus Storybook. The
 feedback was blunt. The Angular rules do exist and they are not wrong, but they are
-**coding rules**, and a design task is not a coding task.
+coding rules, and a design task is not a coding task.
 
 ## Why this matters
 
@@ -43,9 +43,9 @@ time; the second drags premature implementation decisions into a stage where the
 design constraints aren't known yet.
 
 Design decisions and implementation decisions depend on each other, but you make them
-separately. The design phase settles what to build: layout, visual hierarchy, interaction
-model, component boundaries as visual concepts. The coding phase settles how to implement
-it. Collapse the two and you force implementation choices before the design is stable,
+separately. The design phase decides on layout, visual hierarchy, interaction
+model, and component boundaries as visual concepts, and the coding phase then decides how
+to implement those. Collapse the two and you force implementation choices before the design is stable,
 which is how you end up with a component that looks wrong but can't be changed because it
 is already wired into a state management graph.
 

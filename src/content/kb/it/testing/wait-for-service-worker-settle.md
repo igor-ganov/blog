@@ -151,8 +151,8 @@ if (browserName === 'webkit') await page.waitForTimeout(300);
 ```
 
 Disabilitare il SW nei test è una scorciatoia allettante, ma butta via copertura vera.
-L'attesa sul ciclo di vita costa un singolo helper condiviso e compra piena fiducia che
-il DOM sia post-attivazione e stabile.
+L'attesa sul ciclo di vita costa un singolo helper condiviso e in cambio, quando parte il
+corpo del test, il DOM è affidabilmente post-attivazione e stabile.
 
 ## Applicazione
 

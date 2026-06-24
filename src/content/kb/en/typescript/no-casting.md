@@ -30,7 +30,7 @@ the data while the types go on claiming the old shape. The non-null assertion `!
 the same trick: it tells the compiler "trust me, not undefined" at the exact point where
 the compiler was trying to protect you.
 
-The rule is absolute. No `as`, no `!`. Not "minimise", not "only in tests", none.
+The rule is no `as` and no `!`, with no exception for tests or for "just this once".
 
 ## Why this matters
 
@@ -41,11 +41,11 @@ and hit it. The motivation was not aesthetic. The state before the refactoring c
 and non-null assertions let malformed data slip past the type checker, crashing at
 runtime far from the cast that let it through.
 
-The deeper reason is that a cast is **non-local**. When you write `data as Ticket`, the
+The deeper reason is that a cast is non-local. When you write `data as Ticket`, the
 bug it enables does not surface at that line. It surfaces three modules away when
-something reads `ticket.assignee.login` and `assignee` was actually `null`. The whole
-value of a type system is locality: it points at the real problem. A cast trades that
-away for a moment's convenience and pays it back later as a production incident.
+something reads `ticket.assignee.login` and `assignee` was actually `null`. The value
+of a type system is locality: it points at the real problem. A cast gives that up for a
+moment's convenience and bills you later as a production incident.
 
 ## How to apply
 
@@ -121,4 +121,4 @@ When a rule is fighting you, the design is wrong, so fix the design.
 
 The refactoring that proved this at scale also removed every `<div>` and every
 imperative loop in the same pass. Type safety, functional decomposition and declarative
-components come from one consistent stance, not three separate preferences.
+components came out of the same consistent stance.

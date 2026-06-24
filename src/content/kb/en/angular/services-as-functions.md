@@ -229,10 +229,9 @@ export class FilterStore {
 // Fix: separate filters = this._filters.asReadonly() and setFilters = (f) => this._filters.set(f)
 ```
 
-These patterns produce the same symptoms over and over. You end up setting up `TestBed`
-for logic that has no Angular dependency. State gets mutated from anywhere with no
-traceable write path. Domain rules rot inside the service layer where nobody else can
-reuse them.
+These patterns produce the same symptoms: you set up `TestBed` for logic that has no
+Angular dependency, state gets mutated from anywhere with no traceable write path, and
+domain rules end up stuck inside the service layer where nobody else can reuse them.
 
 ## See also
 

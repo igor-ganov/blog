@@ -73,4 +73,4 @@ Il guadagno è che le regole si rafforzano a vicenda invece di farsi concorrenza
 Niente di tutto questo sopravvive sulle buone intenzioni. È
 [imposto da regole di lint](/principles/functional-architecture/lint-enforces-architecture) che
 fanno fallire la build quando la forma si rompe, su un `as` vietato, un blocco vuoto, un'asserzione non-null.
-L'architettura è l'insieme delle regole, e il linter è ciò che la tiene onesta.
+È il linter a tenere l'architettura al suo posto.

@@ -19,16 +19,15 @@ order: 3
 updated: 2026-05-27
 ---
 
-Every decorative element is a claim on the user's attention. An emoji next to a label, a
-clipart illustration in a slide, a stat chip with a coloured background, a price tag with
-a rotation transform: each says "look at me" while competing with the content that
+Every decorative element competes for the user's attention. An emoji next to a label, a
+clipart illustration in a slide, a stat chip with a coloured background, or a price tag with
+a rotation transform draws the eye away from the content that
 actually carries meaning. Pile up enough of them and the page reads as busy, amateur, or
 like a 2000s spam site. That last description is what triggered a full redesign of the
 bento marketplace direction prototype in May 2026.
 
-The rule is not "be boring". It is to let structure and typography carry the design
-instead of decoration. Schematic SVG lines and geometric shapes communicate information;
-emoji and clipart communicate noise.
+The goal is to let structure and typography carry the design instead of decoration.
+Schematic SVG lines and geometric shapes carry information that emoji and clipart do not.
 
 ## Why this matters
 
@@ -67,8 +66,8 @@ decorative. Add a third hue, then a fourth, and each addition has to answer "why
 answer usually turns out to be that the previous two were not used cleanly enough yet.
 
 Duotone plus grays also compresses well. A UI that renders cleanly in two colours is
-almost always readable in a single colour (print, accessibility, low-quality screens). A
-UI that needs five colours to read correctly has a structural problem that the fifth
+almost always readable in a single colour (print, accessibility, low-quality screens),
+while one that needs five colours to read correctly has a structural problem that the fifth
 colour is papering over.
 
 ## How to apply
@@ -162,8 +161,8 @@ leading, use a more distinctive weight contrast) before you reach for more conte
 ```
 
 If the page still needs more visual weight after the typography is fixed, add white space
-around a single strong element rather than adding a new element. One large, well-spaced
-image with strong typography beats three medium images with captions.
+around a single strong element rather than adding a new element. A single large, well-spaced
+image with strong typography usually works better than several medium images with captions.
 
 ## Anti-patterns
 

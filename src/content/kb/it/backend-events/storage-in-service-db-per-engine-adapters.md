@@ -281,9 +281,9 @@ export interface Outbox {
 // A MySQL service can never satisfy this interface without a fake session object.
 ```
 
-I primi due pattern rompono la garanzia di atomicità. Il terzo viola l'astrazione
-dell'adapter e inchioda l'interfaccia a un singolo motore, così non puoi più riutilizzarla
-su una flotta con motori misti.
+I pattern con DB condiviso e con 2PC rompono la garanzia di atomicità. Far trapelare la
+session inchioda l'interfaccia a un singolo motore, così non puoi più riutilizzarla su una
+flotta con motori misti.
 
 ## Come imporlo
 

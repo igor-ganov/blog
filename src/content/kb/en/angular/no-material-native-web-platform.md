@@ -295,7 +295,7 @@ export class TabsComponent {
 }
 ```
 
-No library, no CDK, no Material, just the platform.
+This builds on the Web Platform alone, with no component library, CDK, or Material.
 
 ## Anti-patterns
 

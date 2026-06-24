@@ -19,17 +19,17 @@ order: 3
 updated: 2026-05-27
 ---
 
-Ogni elemento decorativo è una pretesa sull'attenzione dell'utente. Un'emoji accanto a
+Ogni elemento decorativo compete per l'attenzione dell'utente. Un'emoji accanto a
 un'etichetta, un'illustrazione clipart in una slide, un chip con statistiche su sfondo
-colorato, un cartellino del prezzo con una rotazione: ognuno grida "guarda me" mentre
-compete con il contenuto che porta davvero un significato. Accumulane abbastanza e la
+colorato o un cartellino del prezzo con una rotazione distoglie lo sguardo dal contenuto
+che porta davvero un significato. Accumulane abbastanza e la
 pagina risulta confusa, dilettantesca, o come un sito spam degli anni 2000. È proprio
 quest'ultima descrizione ad aver fatto scattare un redesign completo del prototipo della
 direzione bento marketplace, a maggio 2026.
 
-La regola non è "sii noioso". È lasciare che struttura e tipografia portino il design al
-posto della decorazione. Le linee schematiche degli SVG e le forme geometriche comunicano
-informazione; emoji e clipart comunicano rumore.
+L'obiettivo è lasciare che struttura e tipografia portino il design al posto della
+decorazione. Le linee schematiche degli SVG e le forme geometriche portano informazione che
+emoji e clipart non danno.
 
 ## Perché conta
 

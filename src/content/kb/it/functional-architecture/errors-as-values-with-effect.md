@@ -25,7 +25,7 @@ order: 4
 updated: 2026-06-11
 ---
 
-`throw` è un goto. Esce dallo stack di chiamate corrente e passa il controllo al primo
+Un `throw` esce dallo stack di chiamate corrente e passa il controllo al primo
 `catch` più in alto, oppure all'error handler del processo quando nessuno lo intercetta. Il
 type system non ne sa nulla. Una funzione che lancia ha la stessa firma di una che non lo
 fa, quindi chi la chiama non può ragionare su cosa può andare storto senza leggere
@@ -42,7 +42,7 @@ finisca.
 
 ## Perché conta
 
-L'invariante che **non** è mai in discussione: errori e assenza sono *valori nel tipo*,
+L'invariante che non è in discussione: errori e assenza sono *valori nel tipo*,
 composti nelle pipeline, non lanciati. `throw` cancella l'errore dalla firma, e un
 `Result`/`Either`/`Effect` lo rimette. Su questo non si torna indietro.
 
@@ -77,8 +77,8 @@ larga scala: `Effect.gen`/`tryPromise`/`forEach`/`Match` in tutto il core del se
 `useAuth`/`useSWBridge` sul client. Lì il runtime *veniva usato*, quindi il costo del bundle
 comprava qualcosa ed è stato accettato a ragione. Più tardi, il 2026-06-10, una app frontend
 ha fatto la scelta opposta. Le serviva solo l'errore-come-valore, quindi ha spedito funzioni
-result custom e ha risparmiato i 62 KB. **Hanno ragione entrambe, perché la regola è
-condizionale, non assoluta:**
+result custom e ha risparmiato i 62 KB. Hanno ragione entrambe, perché la regola è
+condizionale:
 
 - Usi il runtime di Effect — concorrenza strutturata, interruzione, retry/scheduling,
   scope/resource-safety, `Layer`/DI? **Usa Effect.** Un equivalente fatto a mano sarebbe una

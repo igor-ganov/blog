@@ -34,8 +34,8 @@ condivisione.
 
 ## Come l'ha letto chi l'ha costruito
 
-A leggerlo con attenzione, il brief chiede uno **strumento**, non documentazione. La
-documentazione viene fuori come effetto collaterale.
+A leggerlo con attenzione, il brief chiede uno strumento. La documentazione viene fuori
+come effetto collaterale.
 
 - **«Portare la conoscenza al passo coi tempi»** voleva dire che la conoscenza esisteva
   già, sparsa tra un file di convenzioni, una manciata di skill sugli standard di codifica
@@ -62,9 +62,9 @@ documentazione viene fuori come effetto collaterale.
   compilazione.
 
 - **«Condividilo con altri sviluppatori»** ha imposto un vincolo rigido. Tutto doveva
-  essere **anonimizzato** fino a concetti generali, senza aziende e senza nomi di progetto,
-  così le idee viaggiano senza zavorra. Una pratica che ha senso solo dentro un'azienda non
-  è una pratica. È un'abitudine locale.
+  essere anonimizzato fino a concetti generali, senza aziende e senza nomi di progetto,
+  così le idee viaggiano senza zavorra. Una pratica che ha senso solo dentro un'azienda è
+  soltanto un'abitudine locale.
 
 ## Il mezzo è il messaggio
 
@@ -86,4 +86,4 @@ dividono il lavoro, e perché i test pretendono la
 [il determinismo sopra gli espedienti comodi](/blog/determinism-over-hacks).
 
 Dissenti dove vuoi. Ogni pagina ti dice da dove viene, così puoi pesare le prove invece di
-prenderle sulla fiducia. Qui questo conta più di qualsiasi singola regola.
+prenderle sulla fiducia.

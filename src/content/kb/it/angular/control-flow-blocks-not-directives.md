@@ -290,10 +290,10 @@ template: `
 `
 ```
 
-Tutti e quattro condividono una stessa causa di fondo: il template dichiara l'intento
+Tutti e quattro hanno una stessa causa di fondo: il template dichiara l'intento
 tramite direttive invece che tramite costrutti del linguaggio. Per il compilatore quelle
-direttive sono stringhe opache, mentre la sintassi a blocchi viene analizzata come vera
-sintassi che puo controllare.
+direttive sono stringhe opache. La sintassi a blocchi la analizza come vera sintassi e la
+puo controllare.
 
 ## Applicazione forzata
 

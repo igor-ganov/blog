@@ -100,7 +100,7 @@ REQ-5: IF the outbox relay crashes mid-delivery THE SYSTEM SHALL detect the
 ```
 
 Ogni criterio è:
-- Non ambiguo. "Mark delivered on 2xx" è una condizione di test, non un desiderio.
+- Non ambiguo. "Mark delivered on 2xx" ti dà una condizione che puoi testare direttamente.
 - Testabile in modo indipendente. Ognuno mappa su uno o pochi test.
 - Non una soluzione. REQ-1 dice "persist to outbox table" perché quella è una decisione
   bloccata. Senza la decisione bloccata direbbe "persist durably" e lascerebbe il

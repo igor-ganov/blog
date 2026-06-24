@@ -25,7 +25,7 @@ was passing by accident starts failing honestly. You want both of those.
 
 The rule: CI runs the suite with parallel workers, and any failure that parallelism
 provokes is a real defect in the application or in the wait signal. Reducing workers
-to "stabilise" the suite is the same lie as adding retries. It buys green by removing
+to "stabilise" the suite does what adding retries does: it buys green by removing
 the stress that exposes the race.
 
 ## Why this matters

@@ -19,7 +19,7 @@ updated: 2026-06-10
 Un'epic che arriva in una sola PR enorme è difficile da revisionare e difficile da
 bisezionare quando qualcosa si rompe, e non puoi rilasciarne metà. Ma spezzarla in
 incrementi non ti dà nulla se gli incrementi successivi saltano avanti o lasciano i
-test in rosso. Resta comunque una PR enorme, solo travestita da diverse.
+test in rosso. Il lavoro resta altrettanto aggrovigliato, solo distribuito su più PR.
 
 L'iniziativa offline della SPA di amministrazione contenuti (2026-04-30) si è fissata
 su una struttura concreta. Ogni incremento è una singola issue GitHub. Il corpo della
@@ -43,7 +43,7 @@ l'intervallo di bisect è il codice di un singolo incremento. Allenta la regola,
 unire la Fase B con fallimenti noti «da sistemare nella Fase C», e la regressione
 potrebbe nascondersi in uno degli angoli tagliati dalla Fase B.
 
-Lo schema del corpo della issue non è decorazione. Obiettivo / Accettazione / Test /
+Lo schema del corpo della issue si guadagna il suo posto. Obiettivo / Accettazione / Test /
 Fuori ambito / Dipende da cattura ciò che a chi revisiona serve davvero per valutare la
 PR: il risultato atteso, come sappiamo che è stato raggiunto, cosa è stato verificato,
 cosa è stato deliberatamente rimandato e cosa deve essere già unito prima di partire.

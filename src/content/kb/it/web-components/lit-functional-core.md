@@ -22,9 +22,9 @@ updated: 2026-06-10
 
 Un `LitElement` di Lit è una classe, e le classi si gonfiano. Se lo lasci correre, un
 custom element finisce per contenere shadow DOM, motore di posizionamento, scheduler di
-animazioni, gestione ARIA, gestione della tastiera e metodi dell'API esterna tutti in un
-unico file. Niente di quella logica è testabile senza un browser reale, e niente è
-riutilizzabile fuori da questo singolo elemento.
+animazioni, gestione ARIA e gestione della tastiera tutti in un unico file. Quella logica
+è difficile da testare senza un browser reale e non si può riutilizzare fuori da questo
+singolo elemento.
 
 La disciplina che lo evita è nata dalla libreria di web component headless
 (2026-06-06). Tratta la classe dell'elemento come un **guscio sottile**: un posto dove

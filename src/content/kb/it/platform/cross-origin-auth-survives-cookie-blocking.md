@@ -265,9 +265,9 @@ Preview:    app.pages.dev → api.workers.dev   (different eTLD+1; Bearer path)
 Production: example.com → api.example.com      (same eTLD+1; cookie path)
 ```
 
-Il risultato è che il sistema di auth viene messo alla prova nella sua condizione più dura,
-cioè cross-origin, in preview prima ancora di arrivare in produzione, così una regressione
-nel percorso Bearer salta fuori già durante la review.
+Il sistema di auth viene messo alla prova nella sua condizione più dura, cioè cross-origin,
+in preview prima di arrivare in produzione, così una regressione nel percorso Bearer salta
+fuori durante la review.
 
 ## Anti-pattern
 
