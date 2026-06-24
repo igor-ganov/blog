@@ -65,6 +65,34 @@ test.describe('theme toggle', () => {
     expect(radius).not.toBe('');
   });
 
+  test('keeps the dark theme through view-transition navigation (no light flash)', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto(APP);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    // Record the theme the INCOMING document carries at swap time. If it is ever light,
+    // the view transition snapshots a light frame — the flash the user reported.
+    await page.evaluate(() => {
+      const w = window as unknown as { __themeAtSwap: (string | undefined)[] };
+      w.__themeAtSwap = [];
+      document.addEventListener('astro:before-swap', (event) => {
+        const e = event as unknown as { newDocument: Document };
+        w.__themeAtSwap.push(e.newDocument.documentElement.dataset.theme);
+      });
+    });
+
+    await page.getByRole('link', { name: 'Principles', exact: true }).first().click();
+    await page.waitForURL('**/principles');
+
+    const themes = await page.evaluate(
+      () => (window as unknown as { __themeAtSwap: (string | undefined)[] }).__themeAtSwap,
+    );
+    expect(themes.length).toBeGreaterThan(0);
+    expect(themes.every((theme) => theme === 'dark')).toBe(true);
+  });
+
   test('skips the reveal under reduced motion', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
     await page.goto(APP);

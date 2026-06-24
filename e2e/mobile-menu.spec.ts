@@ -63,6 +63,32 @@ test.describe('mobile flying menu', () => {
     await expect(page.locator('.fab .icon-open')).toBeHidden();
   });
 
+  test('lifts the TOC FAB above the menu when the menu rests bottom-left', async ({ page }) => {
+    // The flying menu persists its corner; dragging it to bottom-left would land it on
+    // the TOC FAB. Seed that corner and assert the TOC FAB gets out of the way (up).
+    await page.addInitScript(() => localStorage.setItem('ep-menu-corner', 'bottom-left'));
+    await page.goto(`${APP}${ARTICLE}`);
+
+    const trigger = page.getByRole('button', { name: 'Menu' });
+    const tocToggle = page.getByTestId(TOC_DRAWER.toggle);
+    await expect(trigger).toBeVisible();
+    await expect(tocToggle).toBeVisible();
+
+    const a = await trigger.boundingBox();
+    const b = await tocToggle.boundingBox();
+    const intersect = Boolean(
+      a &&
+        b &&
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y,
+    );
+    expect(intersect, 'the TOC FAB overlaps the bottom-left menu trigger').toBe(false);
+    // It clears the trigger by sitting entirely above it.
+    expect(b && a ? b.y + b.height <= a.y + 1 : false).toBe(true);
+  });
+
   test('does not flash in the page flow before the island hydrates', async ({ page }) => {
     // Stall every script so the pre-hydration paint is observable — this is the cold
     // load where the user saw the menu render at the top and then jump to the corner.
