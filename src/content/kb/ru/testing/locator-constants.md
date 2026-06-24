@@ -16,7 +16,7 @@ order: 3
 updated: 2026-06-02
 ---
 
-Строка `data-testid="theme-toggle-button"` в компоненте и та же строка, скопированная
+Строка `data-testid="toc-toggle"` в компоненте и та же строка, скопированная
 в тест, — это два независимых факта, которые делают вид, что описывают одно и то же.
 Поменяйте test id в компоненте — и сдвинется только одна из двух строк. Повезёт — тест
 упадёт на прогоне; не повезёт — компонент никто не трогает, и рассинхрон тихо лежит на
@@ -30,25 +30,27 @@ updated: 2026-06-02
 Инженерный стандарт (2026-06-02) формулирует это прямо: держите константы в отдельном
 файле рядом с компонентом и ссылайтесь на них в том числе из самого компонента.
 
-Этот блог придерживается такого подхода по всему слою Lit-компонентов. У `theme-toggle` и
+Этот блог придерживается такого подхода по всему слою веб-компонентов. У `toc-drawer` и
 `kb-filter` есть собственный сосед `.locators.ts`:
 
 ```
 src/components/islands/
-  theme-toggle.ts              ← component
-  theme-toggle.locators.ts     ← constants exported as const
-  theme-toggle.styles.ts
+  toc-drawer.ts              ← component
+  toc-drawer.locators.ts     ← constants exported as const
+  toc-drawer.styles.ts
   kb-filter.ts
   kb-filter.locators.ts
-  kb-filter.styles.ts
 ```
 
-`theme-toggle.locators.ts` экспортирует:
+`toc-drawer.locators.ts` экспортирует:
 
 ```ts
-export const THEME_TOGGLE = {
-  tag: 'theme-toggle',
-  button: 'theme-toggle-button',
+export const TOC_DRAWER = {
+  tag: 'toc-drawer',
+  toggle: 'toc-toggle',
+  panel: 'toc-panel',
+  close: 'toc-close',
+  backdrop: 'toc-backdrop',
 } as const;
 ```
 
@@ -60,14 +62,17 @@ export const KB_FILTER = {
   input: 'kb-filter-input',
   count: 'kb-filter-count',
   empty: 'kb-filter-empty',
+  chip: 'kb-filter-chip',
+  chipTag: 'data-tag',
   item: 'data-kb-item',
   haystack: 'data-haystack',
+  itemTags: 'data-tags',
 } as const;
 ```
 
-Компонент `theme-toggle.ts` импортирует из своего соседа и подставляет `THEME_TOGGLE.tag`
-как имя кастомного элемента, а `THEME_TOGGLE.button` — в `data-testid`. Тест делает тот же
-импорт и вызывает `page.getByTestId(THEME_TOGGLE.button)`. Поменяйте константу — и
+Компонент `toc-drawer.ts` импортирует из своего соседа и подставляет `TOC_DRAWER.tag`
+как имя кастомного элемента, а `TOC_DRAWER.toggle` — в `data-testid`. Тест делает тот же
+импорт и вызывает `page.getByTestId(TOC_DRAWER.toggle)`. Поменяйте константу — и
 TypeScript подсветит каждую ссылку в одном и том же проходе компиляции.
 
 ## Как применять

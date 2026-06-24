@@ -167,3 +167,26 @@ blockquote {
   white-space: nowrap;
   border: 0;
 }
+
+/* Theme switch: a circular reveal of the new theme growing from the click point,
+   ported from the public marketing site. The toggle starts a view transition of
+   type `theme` (see theme-toggle.ts); scoping to that type leaves the ClientRouter
+   navigation transitions untouched. The old snapshot holds still underneath while
+   the new one is clipped open. `--theme-x/-y/-r` are published on <html> per click;
+   the toggle skips the transition entirely under reduced motion. */
+html:active-view-transition-type(theme)::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+html:active-view-transition-type(theme)::view-transition-new(root) {
+  animation: theme-reveal 0.45s ease-in-out forwards;
+  z-index: 2;
+}
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}

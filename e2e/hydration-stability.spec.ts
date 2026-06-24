@@ -38,12 +38,15 @@ test.describe('hydration stability (server HTML matches hydrated render)', () =>
       // hydration, so anything that moves — in the main flow OR a sidebar column — is
       // caught. (Footer alone would miss a sidebar-only reflow.)
       const undefinedBefore = await page.evaluate(() => {
-        const w = window as unknown as { __anchors: { el: Element; top: number }[] };
-        const sel = 'footer, main > *, .layout > *, .sidebar > *, .grid > *';
+        const w = window as unknown as { __anchors: { el: Element; top: number; left: number }[] };
+        // Header controls are anchors too: the theme island used to server-render empty
+        // and gain a box on hydration, shifting the nav cluster sideways — a horizontal
+        // reflow the footer-only, top-only snapshot never saw.
+        const sel = 'footer, main > *, .layout > *, .sidebar > *, .grid > *, .bar > *';
         w.__anchors = [...document.querySelectorAll(sel)]
           .map((el) => ({ el, rect: el.getBoundingClientRect() }))
           .filter(({ rect }) => rect.width > 0 && rect.height > 0) // skip not-yet-shown islands
-          .map(({ el, rect }) => ({ el, top: rect.top }));
+          .map(({ el, rect }) => ({ el, top: rect.top, left: rect.left }));
         return document.querySelectorAll(':not(:defined)').length;
       });
 
@@ -53,13 +56,17 @@ test.describe('hydration stability (server HTML matches hydrated render)', () =>
         () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
       );
       const moved = await page.evaluate(() => {
-        const w = window as unknown as { __anchors: { el: Element; top: number }[] };
+        const w = window as unknown as { __anchors: { el: Element; top: number; left: number }[] };
         return w.__anchors
-          .map((a) => ({
-            tag: a.el.tagName.toLowerCase(),
-            delta: Math.round(Math.abs(a.el.getBoundingClientRect().top - a.top)),
-          }))
-          .filter((a) => a.delta > 1);
+          .map((a) => {
+            const rect = a.el.getBoundingClientRect();
+            return {
+              tag: a.el.tagName.toLowerCase(),
+              dy: Math.round(Math.abs(rect.top - a.top)),
+              dx: Math.round(Math.abs(rect.left - a.left)),
+            };
+          })
+          .filter((a) => a.dy > 1 || a.dx > 1);
       });
 
       // Sanity: the baseline really was captured before hydration.
@@ -68,7 +75,7 @@ test.describe('hydration stability (server HTML matches hydrated render)', () =>
       );
       expect(
         moved,
-        `elements moved when islands hydrated: ${JSON.stringify(moved)}`,
+        `elements moved (dx/dy px) when islands hydrated: ${JSON.stringify(moved)}`,
       ).toEqual([]);
     });
   }
