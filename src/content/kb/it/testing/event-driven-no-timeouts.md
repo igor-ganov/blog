@@ -44,7 +44,7 @@ segnale di completamento, niente retry dei test, e l'asticella di accettazione �
 esegui i test tre volte e se anche un solo run fallisce, il codice è rotto e va
 riscritto. Timeout e retry sono stampelle che mascherano codice rotto.
 
-Ecco il fallimento concreto che ha insegnato la disciplina. Nel pannello di
+Il fallimento concreto che ha insegnato la disciplina: nel pannello di
 amministrazione, un `BrowserContext` di test appena creato va in corsa contro il ciclo
 del service worker install → activate → `controllerchange` → `location.reload()`. Un
 test che attendeva un tempo fisso, o solo `domcontentloaded`, finiva per cliccare un

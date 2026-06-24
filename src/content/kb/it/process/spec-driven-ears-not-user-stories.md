@@ -35,7 +35,7 @@ design.md → tasks.md**. Ogni artefatto fa da cancello al successivo. La specif
 fonte di verità e il codice ne deriva, quindi quando implementazione e specifica non
 concordano, è la specifica che interroghi per prima.
 
-Ecco il fallimento che lo ha motivato. Il lavoro passava dritto da un ticket vago al
+Il fallimento che lo ha motivato: il lavoro passava dritto da un ticket vago al
 codice, scoprendo i requisiti a metà implementazione e codificandoli come decisioni
 implicite nella codebase. Quelle decisioni erano invisibili alla review e a chiunque
 dovesse mantenere la cosa in seguito. Riportarle in una specifica scritta dopo il fatto
