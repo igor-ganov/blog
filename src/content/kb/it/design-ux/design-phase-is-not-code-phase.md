@@ -21,9 +21,9 @@ Un progetto ha delle fasi, e le regole che governano una fase non passano in aut
 quella successiva. Le convenzioni di codice in CLAUDE.md (usa Angular, organizza per
 feature, usa i signal, configura Storybook) sono regole per la **fase di implementazione**.
 Non dicono nulla sulla fase di design, perché in fase di design il codice ancora non
-esiste. Proporre un workspace Angular mentre l'utente lavora in Penpot non è scrupolosità.
-È un errore di categoria: sposta la conversazione su una fase che l'utente non ha mai
-chiesto, gli fa perdere tempo e segnala che nessuno ha letto la descrizione del compito.
+esiste. Proporre un workspace Angular mentre l'utente lavora in Penpot sposta la
+conversazione su una fase che l'utente non ha mai chiesto, gli fa perdere tempo e segnala
+che nessuno ha letto la descrizione del compito.
 
 In un progetto in fase di design (2026-04-26) è successo esattamente questo. Il team stava
 lavorando a un compito di mockup in Penpot e si è ritrovato una proposta di workspace
@@ -44,9 +44,9 @@ fallimenti. Il primo gli brucia tempo; il secondo trascina decisioni di implemen
 premature in uno stadio in cui i veri vincoli di design ancora non si conoscono.
 
 Le decisioni di design e quelle di implementazione dipendono le une dalle altre, ma le
-prendi separatamente. La fase di design definisce cosa costruire: layout, gerarchia visiva,
-modello di interazione, confini dei componenti intesi come concetti visivi. La fase di
-codice definisce come implementarlo. Fondi le due e costringi a scelte di implementazione
+prendi separatamente. La fase di design decide layout, gerarchia visiva, modello di
+interazione e confini dei componenti intesi come concetti visivi, e la fase di codice decide
+poi come implementarli. Fondi le due e costringi a scelte di implementazione
 prima che il design sia stabile, ed è così che ti ritrovi con un componente che sta male ma
 non si può cambiare perché è già cablato dentro un grafo di gestione dello stato.
 

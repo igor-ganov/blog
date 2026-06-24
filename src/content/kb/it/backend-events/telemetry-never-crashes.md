@@ -42,12 +42,12 @@ no.
 
 Le decisioni di design su questo punto:
 
-- Il guasto della telemetria è **sempre un no-op**, mai un crash.
-- **I broker non emettono span.** Il confine della coda è modellato come una coppia di
+- Il guasto della telemetria è un no-op, mai un crash.
+- I broker non emettono span. Il confine della coda è modellato come una coppia di
   span PRODUCER/CONSUMER: il producer chiude il proprio span prima di accodare, il consumer
   apre un nuovo span alla ricezione, e i due sono collegati tramite `traceparent` negli
   attributi del messaggio. Il broker stesso (SQS, RabbitMQ) non partecipa alla trace.
-- **/health non viene tracciato.** Gli endpoint di health vengono interrogati ad alta
+- /health non viene tracciato. Gli endpoint di health vengono interrogati ad alta
   frequenza dai load balancer e producono rumore con segnale zero.
 - Il viewer è sostituibile tramite `OTEL_EXPORTER_OTLP_ENDPOINT`: OpenObserve, Aspire,
   LGTM, Uptrace o qualsiasi backend compatibile con OTLP. Nessuna modifica all'SDK, nessun
@@ -280,9 +280,9 @@ try {
 }
 ```
 
-Il primo manda in crash l'app per un guasto transitorio della telemetria. Il secondo
-gonfia il costo e il rumore delle trace. Il terzo produce trace scollegate che non riesci
-a seguire attraverso il confine di una coda. Il quarto inghiotte l'errore applicativo
+Questi lasciano che lo strato di osservabilità danneggi proprio ciò che dovrebbe osservare:
+mandare in crash l'app per un guasto transitorio, gonfiare il costo e il rumore delle trace,
+spezzare la trace attraverso il confine di una coda, oppure inghiottire l'errore applicativo
 dentro il codice di telemetria, il che viola direttamente
 [non inghiottire mai gli errori](/principles/error-handling/never-swallow-errors).
 

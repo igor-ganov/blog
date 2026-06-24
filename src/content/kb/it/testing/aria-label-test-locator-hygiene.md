@@ -23,7 +23,7 @@ componente che non c'entra nulla si ritrova con un'aria-label che per caso conti
 vocabolario di test, il locator inizia a fare match con più elementi e il test muore con
 "strict mode violation: locator resolved to 2 elements".
 
-Risolvi a livello dell'etichetta. Allentare il locator non fa che nascondere la causa vera, che è una
+Risolvi a livello dell'etichetta. Allentare il locator nasconde solo la causa reale, che è una
 collisione di nomi.
 
 ## Perché è importante
@@ -128,7 +128,7 @@ html`<p aria-live="polite">Ready to save ${count} items</p>`
 
 Tutti e tre commettono lo stesso errore: trattare un nome accessibile come privato del suo
 componente. Non lo è. Qualunque chiamata `getByRole` di Playwright, ovunque nella suite, può vederlo,
-su qualsiasi pagina che renderizza quel componente. I nomi accessibili sono uno **spazio dei nomi condiviso**.
+su qualsiasi pagina che renderizza quel componente, quindi i nomi accessibili sono di fatto uno spazio dei nomi condiviso.
 
 ## Come farlo rispettare
 

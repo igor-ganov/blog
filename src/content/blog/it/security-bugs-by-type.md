@@ -123,5 +123,5 @@ alla riscrittura, quindi pianifica le rimozioni su quelle superfici a parte.
 Quasi nessuno di questi è un exploit ingegnoso. Sono un confine che si è
 spostato (un proxy traslocato, un repo diventato privato, un token allargato) o
 un default che nessuno ha cambiato (un token write-all, lo scanning spento, un
-flusso senza `state`). La forma è ciò che vale la pena portarsi dietro: una
-volta che hai sistemato una classe, la riconosci a colpo d'occhio ovunque.
+flusso senza `state`). La forma è ciò che conviene portarsi dietro, perché
+riconoscere la classe è gran parte del lavoro una volta che l'hai sistemata la prima volta.

@@ -23,11 +23,11 @@ updated: 2026-06-10
 
 TypeScript eredita entrambi i sentinella di assenza di JavaScript, `null` e `undefined`, e quell'eredità è una trappola. Ogni valore nullable obbliga a un doppio controllo: `if (x !== null && x !== undefined)`, oppure la forma abbreviata `x != null`. Il controllo è rumore, ma il costo peggiore è l'incoerenza. Una funzione restituisce `null`, un'altra restituisce `undefined`, e ora chi chiama deve ricordarsi qual è quale. Una conoscenza del genere non si compone in tutta una codebase.
 
-Quindi la regola qui è netta: `null` non esiste nel codice di dominio. Solo `undefined` significa che un valore è assente. Un sentinella, un controllo.
+Quindi la regola qui è che `null` non esiste nel codice di dominio. Solo `undefined` significa che un valore è assente, il che lascia un unico sentinella da controllare.
 
 L'incidente che ha reso questa regola non negoziabile è stato un'app client per Jira l'8 giugno 2026. La REST API di Jira restituisce le issue non assegnate con `"assignee": null` nel payload JSON, ovvero un `null` JSON deliberato e non un campo omesso. L'helper interno `mapUser` proteggeva contro `undefined` (il valore assente di TypeScript) ma non aveva un ramo per `null`. Quando arrivava una issue non assegnata, `mapUser(issue.assignee)` riceveva `null`, passava oltre il controllo e crashava a runtime nel tentativo di leggere `.displayName` da esso. La correzione era di due righe: normalizzare `null` a `undefined` al confine di deserializzazione, poi togliere ogni riferimento a `null` dal dominio. Il confine ha assorbito la convenzione esterna in modo che il dominio non dovesse mai saperne nulla.
 
-C'è una seconda lezione qui, sull'assenza più ricca. A volte `T | undefined` non è abbastanza espressivo e devi distinguere "non ancora caricato" da "caricato ma vuoto" e da "caricato con dati". La mossa allettante è ricorrere a `T | null | undefined` e dare a ciascun sentinella un significato. Non farlo. Quei significati non vivono da nessuna parte che il sistema di tipi o chi legge possa vedere. Usa invece una union discriminata.
+C'è una seconda lezione qui, sull'assenza più ricca. A volte `T | undefined` non è abbastanza espressivo e devi distinguere "non ancora caricato" da "caricato ma vuoto" e da "caricato con dati". La mossa allettante è ricorrere a `T | null | undefined` e dare a ciascun sentinella un significato, ma quei significati non vivono in nessun posto che il sistema di tipi o chi legge possa vedere. Usa invece una union discriminata.
 
 ## Come applicarla
 

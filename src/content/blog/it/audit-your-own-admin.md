@@ -10,8 +10,8 @@ L'admin aveva OAuth con PKCE, un file dei ruoli, query D1 parametrizzate, token 
 disiscrizione firmati con HMAC e confronto a tempo costante, e JWT che verificavano la
 firma prima di decodificarla. Secondo i criteri di una checklist era una codebase curata.
 Un audit strutturato ha comunque trovato tre criticità in un pomeriggio, e lo schema che
-le accomuna conta più dei singoli ritrovamenti: **ognuna era un confine che si è spostato
-dopo che il codice intorno era già stato scritto.**
+le accomuna conta più dei singoli ritrovamenti: ognuna era un confine che si è spostato
+dopo che il codice intorno era già stato scritto.
 
 ## Il proxy che ha perso il suo threat model in un cambio di porta
 
@@ -86,8 +86,8 @@ silenzio. Un handler GET che muta lo stato è una classe di bug, non una questio
   riapre domande a cui l'originale aveva già risposto. Confronta le *protezioni*, non solo
   il comportamento.
 - **Scrivi il threat model dove sta il codice.** L'host pin morto nel porting sarebbe
-  sopravvissuto come modulo `cors-allow.ts` con test che verificano i 403. I test sono
-  l'unica documentazione che un refactor è costretto a leggere.
+  sopravvissuto come modulo `cors-allow.ts` con test che verificano i 403. Un refactor deve
+  far passare quei test, quindi non può lasciar cadere la protezione di nascosto.
 - **Le etichette di fiducia marciscono.** "Contenuto fidato", "endpoint interno", "il
   nostro repo": ognuna di queste frasi in un commento è un TODO per controllare chi sta
   davvero da ciascun lato del confine oggi.
@@ -96,7 +96,7 @@ silenzio. Un handler GET che muta lo stato è una classe di bug, non una questio
   generalista spalma su giorni. Le correzioni sono poi atterrate come un'unica PR
   revisionata, con un test per ogni ritrovamento.
 
-La conclusione scomoda di un self-audit non è mai "il codice era sciatto". È che il codice
-ha conservato fedelmente decisioni il cui contesto era ormai scaduto. L'igiene da checklist
-ha retto ovunque: query parametrizzate, confronti a tempo costante, token firmati. A
-fallire è stato tutto ciò che si era *spostato*.
+Un self-audit raramente fa emergere codice sciatto. Quello che fa emergere è codice che ha
+conservato fedelmente decisioni il cui contesto era ormai scaduto. L'igiene da checklist ha
+retto ovunque, dalle query parametrizzate ai confronti a tempo costante. A fallire è stato
+tutto ciò che si era spostato.

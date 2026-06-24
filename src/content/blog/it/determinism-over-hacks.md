@@ -7,7 +7,7 @@ order: 4
 ---
 
 I principi di test su questo sito sono tra i più severi che si possano trovare, e hanno
-tutti la stessa origine: **un test che a volte fallisce sta riportando qualcosa di vero.** La
+tutti la stessa origine: un test che a volte fallisce sta riportando qualcosa di vero. La
 reazione tipica è aggiungere un wait, aggiungere un retry o marcarlo come instabile, cosa che
 si limita a zittire il messaggero. Qui la disciplina è prendere il messaggio sul serio e
 sistemare ciò che lo ha causato.
@@ -28,16 +28,16 @@ all'orologio.
 ## Niente retry
 
 [Un test che ha bisogno di retry sta riportando una race reale](/principles/testing/no-retries-no-flakes),
-e i retry la nascondono. Verde significa un passaggio completo e stabile con **zero retry,
-tre run di fila**. Tutto ciò che è meno è "probabilmente verde", e il probabilmente-verde è
+e i retry la nascondono. Verde significa un passaggio completo e stabile con zero retry,
+tre run di fila. Tutto ciò che è meno è "probabilmente verde", e il probabilmente-verde è
 il modo in cui una race arriva in produzione mentre ogni dashboard resta del colore del
 successo.
 
 Quando un test è davvero instabile, il lavoro è investigativo, non cosmetico. Riproducilo
 contro il browser reale, mettilo sotto throttle e trova l'evento che avresti dovuto
 aspettare, oppure la race architetturale che rende il comportamento non deterministico fin
-dall'inizio. Se l'architettura non può garantire un comportamento deterministico,
-l'architettura è il bug.
+dall'inizio. Quando l'architettura non riesce a garantire un comportamento deterministico,
+è quello che va sistemato.
 
 ## Test che sopravvivono ai refactoring
 
@@ -61,8 +61,8 @@ spruzzata di wait.
 ## Il filo conduttore
 
 Ognuna di queste regole è la stessa mossa applicata ai test: rifiutare il probabile a favore
-del certo. Aspetta l'evento che *è* avvenuto, non il momento entro cui *probabilmente* è
-avvenuto. Pretendi un passaggio che *è* stabile, non uno stabile *abbastanza*. Lo stesso
+del certo. Aspetta l'evento che è davvero avvenuto, non il momento entro cui probabilmente è
+avvenuto. Pretendi un passaggio davvero stabile. Lo stesso
 istinto attraversa i [punti non negoziabili](/blog/the-non-negotiables) e il
 [nucleo funzionale](/blog/functional-core-imperative-shell), e si manifesta nel modo più
 netto nei test, perché i test sono il posto dove il non-determinismo è più facile da

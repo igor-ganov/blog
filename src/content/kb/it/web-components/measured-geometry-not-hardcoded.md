@@ -15,8 +15,8 @@ order: 2
 updated: 2026-06-10
 ---
 
-I valori in pixel scritti a mano dentro un algoritmo di posizionamento sono una scommessa
-sul fatto che il contenuto non cambi mai, ed è una scommessa che perdi. Un FAB (floating
+I valori in pixel scritti a mano dentro un algoritmo di posizionamento danno per scontato
+che il contenuto non cambi mai, e quel presupposto salta. Un FAB (floating
 action button) codificato come "largo 48 px" resta corretto finché qualcuno non sostituisce
 l'icona, aggiunge una label, o l'utente alza la dimensione del font di sistema. Dopodiché il
 menu si sovrappone al suo trigger oppure lascia uno spazio vuoto, e per sistemarlo serve un

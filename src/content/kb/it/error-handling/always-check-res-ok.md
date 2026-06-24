@@ -19,14 +19,14 @@ updated: 2026-04-29
 Una chiamata `fetch` che riceve un `4xx` o un `5xx` **non** lancia un'eccezione. La
 `Promise` si risolve normalmente, e solo `res.ok` ti dice se il server ha accettato la
 richiesta. Un wrapper che ignora questo dettaglio e restituisce `{ success: true }` sta
-fabbricando un segnale di successo a partire da un fallimento, cosa che equivale a
-[ingoiare l'errore](/principles/error-handling/never-swallow-errors) con qualche passaggio in più.
+fabbricando un segnale di successo a partire da un fallimento, che è una forma di
+[ingoiare l'errore](/principles/error-handling/never-swallow-errors).
 Chi chiama crede che la scrittura sia andata a buon fine, quindi la UI si ricarica e mostra
-lo stato vecchio. L'utente non vede nulla di strano, riprova, di nuovo non vede nulla di
-strano, e alla fine apre una segnalazione che dice "non si salva niente".
+lo stato vecchio. L'utente non vede nulla di strano, riprova e alla fine apre una
+segnalazione che dice "non si salva niente".
 
-La regola è assoluta: **qualunque codice che incapsula `fetch` o `swFetch` deve lanciare
-su `!res.ok`** prima di restituire qualsiasi cosa a chi lo chiama.
+Quindi qualunque codice che incapsula `fetch` o `swFetch` deve lanciare su `!res.ok`
+prima di restituire qualsiasi cosa a chi lo chiama.
 
 ## Perché conta
 
@@ -233,8 +233,8 @@ const getRole = async (username: string): Promise<Role> => {
 };
 ```
 
-Ognuno di questi produce lo stesso sintomo a runtime. Dal punto di vista di chi chiama la
-scrittura sembra riuscita, la UI si ridisegna con uno stato vecchio, e nessuno si accorge
+In ognuno di questi casi, dal punto di vista di chi chiama la scrittura sembra riuscita,
+la UI si ridisegna con uno stato vecchio, e nessuno si accorge
 del fallimento finché un utente non nota che i dati non sono cambiati, magari ore dopo.
 
 ## Come imporlo

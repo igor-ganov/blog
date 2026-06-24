@@ -207,7 +207,7 @@ abstract class Renderer {
 }
 ```
 
-Condividono un solo sintomo. Una modifica al comportamento condiviso si trascina dietro più
+In ognuno di questi casi una modifica al comportamento condiviso si trascina dietro più
 classi o file, e testare significa costruire (e di solito mockare) il grafo di oggetti
 invece di iniettare un semplice argomento di tipo funzione.
 

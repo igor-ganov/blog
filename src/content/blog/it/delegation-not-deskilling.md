@@ -66,8 +66,8 @@ qualità.
 
 ## Programmatori e operatori
 
-È qui che siamo adesso. Ci sono falegnami e ci sono operatori CNC. Ci sono programmatori e
-ci sono operatori di LLM.
+È qui che siamo adesso. Il falegname e l'operatore CNC hanno entrambi un posto, e così
+valgono il programmatore e l'operatore di LLM.
 
 Quindi non lo chiamerei perdita del mestiere, e non lo chiamerei rammollirsi. È passare ad
 altri la routine e salire di un livello di astrazione, imparando nuove competenze che
@@ -88,8 +88,7 @@ professionale che ti porti dietro negli anni, un po' di smania da nerd, il mio g
 personale. Ma se durante il lavoro vero non riesco a superarla, se non riesco ad
 automatizzare tutto tranne ciò che il prodotto richiede davvero per un motivo reale, allora
 sto facendo l'uncinetto in orario di lavoro. Se me lo posso permettere, bene. In media non è
-ciò che la produzione si aspetta da me, è un hobby.
+ciò che la produzione si aspetta da me.
 
-Ciò di cui la fabbrica, e il progresso che ci sta dietro, ha sempre più bisogno sono persone
-capaci di gestire una squadra di agenti e di pilotare bene un LLM, e meno artisti solitari
-che scrivono JavaScript a mano.
+Quel che il lavoro chiede sempre di più sono persone capaci di gestire una squadra di agenti
+e di pilotare bene un LLM, e sempre meno gente che scrive a mano ogni riga di JavaScript.

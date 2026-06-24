@@ -25,7 +25,7 @@ scalare a blocco senza virgolette o un commento. Niente si lamenta in fase di sc
 L'esplosione arriva in fase di lettura, di solito in CI o nel browser, dove lo stack trace
 punta al parser invece che alla template string che ha generato il file.
 
-Quindi: **non scrivere mai a mano un serializzatore YAML o di frontmatter.** Usa
+Quindi: non scrivere mai a mano un serializzatore YAML o di frontmatter. Usa
 [`yaml`](https://github.com/eemeli/yaml) (il pacchetto `eemeli/yaml`) e lascia che sia lui
 a mettere virgolette, fare l'escape e spezzare i valori al posto tuo.
 
@@ -234,8 +234,8 @@ const silentFail = (raw: string): Record<string, unknown> => {
 };
 ```
 
-Ognuno di questi ha lo stesso sintomo. Il file viene scritto con successo, senza errori in
-fase di scrittura. Più tardi la build o il parser a valle si strozza sull'output corrotto, e
+In ognuno di questi casi il file viene scritto con successo, senza errori in fase di
+scrittura. Più tardi la build o il parser a valle si strozza sull'output corrotto, e
 lo stack trace punta al parser invece che al serializzatore che ha prodotto i dati sbagliati.
 
 ## Come imporlo

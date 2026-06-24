@@ -27,8 +27,8 @@ opzionale.
 Le revisioni di fase sono il meccanismo che la fa rispettare. Una revisione è una pausa
 deliberata al confine tra le fasi (requisiti → design, design → task, task →
 implementazione) che verifica completezza e correttezza prima che inizi la fase
-successiva. Correggere una spec costa poco; correggere codice costruito su una spec
-sbagliata no.
+successiva. Correggere una spec costa la modifica di un paragrafo; correggere codice
+costruito su una spec sbagliata significa smontare l'implementazione e i suoi test.
 
 ## Perché conta
 

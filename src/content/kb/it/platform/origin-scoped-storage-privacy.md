@@ -54,7 +54,7 @@ serve una di queste cose:
 
 Nessuna di queste è neutra. Ognuna è una scelta ingegneristica deliberata per costruire
 visibilità tra siti, e ognuna cede un po' di privacy dell'utente per riuscirci. Il confine è
-l'impostazione predefinita corretta, non un baco da sconfiggere.
+l'impostazione predefinita corretta.
 
 ### Il caso d'uso del webring
 
@@ -167,8 +167,8 @@ ordinamento in termini delle sue proprietà di privacy:
 </p>
 ```
 
-Quel testo è accurato e conquista fiducia. La funzionalità non è azzoppata dal fatto di non
-poter tracciare le visite tra siti; rinunciare a tracciare è esattamente il punto.
+Quel testo è accurato e conquista fiducia. La funzionalità funziona bene senza tracciare le
+visite tra siti, cosa che non ha mai avuto lo scopo di fare.
 
 ### Quando lo stato tra siti serve davvero
 
@@ -187,7 +187,7 @@ La distinzione:
   all'account; l'utente può visualizzarli, esportarli e cancellarli.
 
 Il caso del webring non richiede né giustifica un backend autenticato. L'intenzione di clic
-per ogni origin basta, ed è la scelta giusta.
+per ogni origin basta.
 
 ## Anti-pattern
 

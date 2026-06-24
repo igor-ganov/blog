@@ -22,8 +22,8 @@ Cambia il test id nel componente e si sposta solo una delle due stringhe. Se sei
 fortunato il test si rompe a runtime; se non lo sei, nessuno tocca il componente e la
 discrepanza resta lì inosservata. Te ne accorgi in CI, non nell'editor.
 
-La correzione è meccanica. Metti la stringa una volta sola, in un file di costanti accanto
-al componente, e fai in modo che sia il componente sia il test la importino. Ora non può
+La correzione è mettere la stringa una volta sola, in un file di costanti accanto
+al componente, e fare in modo che sia il componente sia il test la importino. Ora non può
 più divergere.
 
 ## Perché conta

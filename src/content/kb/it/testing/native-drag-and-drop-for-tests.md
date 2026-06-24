@@ -228,4 +228,4 @@ stesso principio delle strategie di attesa in
 [attese event-driven](/principles/testing/event-driven-no-timeouts): un test non deve dipendere
 dal timing, da servizi esterni o da qualsiasi altro input non deterministico. Il fallback
 da tastiera della board è stato aggiunto per accessibilità, e fa anche da secondo vettore
-di test a costo zero.
+di test.

@@ -22,14 +22,14 @@ updated: 2026-06-10
 
 Una funzione che valida restituisce un `boolean`. Calcola se l'input rispetta una certa
 forma, poi butta via la risposta. Chi la chiama resta in mano lo stesso valore non
-tipizzato di partenza, quindi per usarlo come il tipo atteso deve fare un cast. Il cast non
-è verificato. Afferma la forma esatta che il validatore ha appena controllato, ma niente nel
-compilatore lega tra loro questi due fatti. Ti si crede sulla parola.
+tipizzato di partenza, quindi per usarlo come il tipo atteso deve fare un cast. Quel cast
+afferma la forma esatta che il validatore ha appena controllato, ma niente nel compilatore
+lega tra loro questi due fatti, quindi resta non verificato.
 
-Una funzione che fa il parsing restituisce il valore tipizzato o un errore. Il controllo di
-conformità e l'assegnazione del tipo sono la stessa operazione, quindi non c'è alcun cast.
-Il codice a valle riceve un valore che ha già il tipo preciso. Non ricontrolla mai, e non
-può dimenticarsi di controllare.
+Una funzione che fa il parsing restituisce invece il valore tipizzato o un errore. Il
+controllo di conformità e l'assegnazione del tipo sono la stessa operazione, quindi non c'è
+alcun cast. Il codice a valle riceve un valore che ha già il tipo preciso, e non può
+dimenticarsi di ricontrollare.
 
 L'espressione viene dal saggio del 2019 di Alexis King "Parse, don't validate". In questo
 codebase la pratica poggia su Effect.Schema e su guard a runtime scritte in punti di
@@ -201,10 +201,10 @@ const applyDiscount = (raw: unknown): number => {
 const order: Order = JSON.parse(localStorage.getItem('order')!); // cast + no check
 ```
 
-Ognuno di questi ha lo stesso difetto. Input non tipizzato raggiunge codice che lo dà per
-tipizzato, e il compilatore non ha mai controllato quell'assunzione. Quando l'input non
-corrisponde, l'errore salta fuori lontano dal punto in cui il valore non tipizzato è entrato
-la prima volta.
+In ognuno di questi casi input non tipizzato raggiunge codice che lo dà per tipizzato, e il
+compilatore non ha mai controllato quell'assunzione. Quando l'input non corrisponde,
+l'errore salta fuori lontano dal punto in cui il valore non tipizzato è entrato la prima
+volta.
 
 ## Applicazione automatica
 

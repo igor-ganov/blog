@@ -22,9 +22,9 @@ updated: 2026-06-10
 
 ## Perché conta
 
-Il sistema di tipi di TypeScript copre ogni riga di codice che riesce a vedere. Quello che non vede è tutto ciò che arriva dalla rete, esce da `localStorage`, viene passato come argomento da CLI o atterra in un webhook di terze parti. In quei punti d'ingresso il valore a runtime è `unknown`, e il riflesso è scacciarlo con un cast: `const config = JSON.parse(raw) as Config`. Lo squiggle rosso sparisce, e hai piantato una bugia. L'annotazione promette `Config` mentre il valore reale potrebbe essere qualunque cosa.
+Il sistema di tipi di TypeScript copre ogni riga di codice che riesce a vedere. Quello che non vede è tutto ciò che arriva dalla rete, esce da `localStorage`, viene passato come argomento da CLI o atterra in un webhook di terze parti. In quei punti d'ingresso il valore a runtime è `unknown`, e il riflesso è scacciarlo con un cast: `const config = JSON.parse(raw) as Config`. Lo squiggle rosso sparisce, ma ora l'annotazione promette `Config` mentre il valore reale potrebbe essere qualunque cosa.
 
-Quella bugia tende a viaggiare. Sopravvive finché non raggiunge una funzione che dipende da una forma precisa, e a quel punto il fallimento è lontanissimo dal cast sbagliato. Lo stack trace punta al posto sbagliato, e la causa vera resta nascosta.
+Quella falsa promessa tende a viaggiare. Sopravvive finché non raggiunge una funzione che dipende da una forma precisa, e a quel punto il fallimento è lontano dal cast sbagliato. Lo stack trace punta al posto sbagliato e la causa vera resta nascosta.
 
 Quindi valida una volta, al bordo. Analizza il valore sconosciuto trasformandolo in uno tipizzato, oppure fallisci rumorosamente con un errore esplicito. Superato quell'unico checkpoint, ogni funzione interna riceve un tipo di cui può davvero fidarsi, senza cast, senza `typeof` difensivi sparsi qua e là, e senza quelle catene di `as unknown as T`.
 

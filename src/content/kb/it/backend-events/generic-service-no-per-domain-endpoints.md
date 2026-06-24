@@ -245,9 +245,8 @@ type ChangeEvent = {
 // Consumer: find orders by tenant → find events by orderId → two queries, no index coverage
 ```
 
-Il pattern dell'endpoint su misura accoppia l'infrastruttura a ogni modifica di dominio. Spingere
-la logica di dominio dentro il servizio trasforma l'infrastruttura in un servizio di funzionalità. E lo storage
-normalizzato butta via la garanzia della singola query, trascinando di nuovo l'aggregazione dentro ogni lettura.
+Ognuno di questi casi trascina conoscenza di dominio in un'infrastruttura che doveva restare
+agnostica rispetto al dominio, e lo storage normalizzato butta via anche la garanzia della singola query.
 
 ## Vedi anche
 

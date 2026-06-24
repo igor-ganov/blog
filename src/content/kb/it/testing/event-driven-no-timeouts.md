@@ -37,12 +37,12 @@ l'evento senza indugio. Se non lo fa, aggiusti l'app, non l'attesa.
 
 ## Perché conta
 
-Lo standard qui precede la suite di test e non si piega: **l'app deve aprirsi e
-rispondere in meno di un secondo, senza eccezioni** (uno strumento UI desktop,
+Lo standard qui precede la suite di test e non si piega: l'app deve aprirsi e
+rispondere in meno di un secondo, senza eccezioni (uno strumento UI desktop,
 2026-03-12). Tutto il resto discende da questo. Niente timeout di inattività come
 segnale di completamento, niente retry dei test, e l'asticella di accettazione è che
-**esegui i test tre volte e se anche un solo run fallisce, il codice è rotto e va
-riscritto.** Timeout e retry sono stampelle che mascherano codice rotto.
+esegui i test tre volte e se anche un solo run fallisce, il codice è rotto e va
+riscritto. Timeout e retry sono stampelle che mascherano codice rotto.
 
 Ecco il fallimento concreto che ha insegnato la disciplina. Nel pannello di
 amministrazione, un `BrowserContext` di test appena creato va in corsa contro il ciclo
@@ -55,7 +55,7 @@ il vero segnale di stabilizzazione: un predicato sullo stato del ciclo di vita d
 un elemento ancora stabile. Vedi [attendere che il service worker si stabilizzi](/principles/testing/wait-for-service-worker-settle).
 
 C'è una trappola di secondo ordine che abbiamo scoperto più tardi (2026-06-12).
-**`networkidle` è un timeout travestito.** Si risolve dopo 500ms di silenzio di rete,
+`networkidle` è un timeout travestito: si risolve dopo 500ms di silenzio di rete,
 quindi ogni chiamata paga mezzo secondo fisso anche quando la pagina si è stabilizzata
 all'istante, e una pagina può essere network-idle mentre la cosa che ti interessa davvero
 è ancora a metà del volo. Lo stesso vale per qualsiasi stato di caricamento "idle" usato
@@ -92,7 +92,7 @@ Quando un test è davvero instabile, il manuale è investigativo, non cosmetico:
    l'azione a mano e osserva console e rete. Abilita il throttling.
 2. Se funziona sotto throttling e non riesci a riprodurre il fallimento, il test
    attendeva l'evento sbagliato — riscrivilo perché scatti su un evento del DOM diverso e
-   corretto. **Non un timeout.**
+   corretto, non su un timeout.
 3. Se è davvero instabile in certi scenari, l'applicazione ha una race condition. Risolvi
    la causa alla radice. Se l'architettura non può garantire un comportamento
    deterministico, l'architettura è sbagliata — rifattorizzala.
@@ -118,12 +118,12 @@ if (browserName === 'webkit') await page.waitForTimeout(300);
 Esegui le suite con `--reporter=list` durante lo sviluppo e `--reporter=json` per leggere
 le tracce quando qualcosa è instabile. L'esclusione programmatica dei test è vietata —
 puoi eseguire un sottoinsieme mentre sviluppi, ma l'unica definizione di verde è un
-**passaggio completo e stabile con zero retry, tre run di fila.** Un test instabile o
+passaggio completo e stabile con zero retry, tre run di fila. Un test instabile o
 saltato è un test fallito.
 
 ## Vedi anche
 
-Tutto questo si riconduce a una sola preferenza: sistemi deterministici al posto di
-trucchi probabilistici. Lo stesso standard (risposta entro un secondo, niente timeout di
+Tutto questo si riconduce al preferire sistemi deterministici ai trucchi
+probabilistici. Lo stesso standard (risposta entro un secondo, niente timeout di
 inattività, niente retry, eseguilo tre volte) è ciò che [niente retry, niente flake](/principles/testing/no-retries-no-flakes)
 rende esplicito.

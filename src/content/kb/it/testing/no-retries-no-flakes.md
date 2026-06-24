@@ -24,8 +24,8 @@ CI passi al verde, e la race condition che stava nascondendo finisce dritta in p
 `retries: 2` in `playwright.config.ts` non è un'impostazione di affidabilità. Permette a una
 suite che fallisce di dichiararsi promossa.
 
-La regola è brutale. **Configura zero retry, esegui la suite tre volte di fila, e se anche un
-solo run fallisce il codice è rotto.** Un test che ha bisogno di una seconda possibilità sta
+Quindi la regola è configurare zero retry, eseguire la suite tre volte di fila e considerare il
+codice rotto se anche un solo run fallisce. Un test che ha bisogno di una seconda possibilità sta
 già segnalando un difetto reale, e il retry non fa che coprire il segnale.
 
 ## Perché conta
@@ -50,8 +50,8 @@ Lo standard di ingegneria è altrettanto diretto (2026-06-02):
 - Niente hack specifici per browser. Se Chromium passa e WebKit no, l'app si comporta in modo
   diverso su WebKit e quella differenza è il bug.
 
-Lo standard del ciclo di sviluppo lo codifica come gate sulla PR: **i test flaky o saltati non
-sono ammessi.** Una PR che porta con sé un `test.skip`, o un test parcheggiato nella lista di
+Lo standard del ciclo di sviluppo lo codifica come gate sulla PR: i test flaky o saltati non
+sono ammessi. Una PR che porta con sé un `test.skip`, o un test parcheggiato nella lista di
 esclusione via grep, non è pronta per il merge, per quanto completa sia la funzionalità.
 
 ## Come applicarlo

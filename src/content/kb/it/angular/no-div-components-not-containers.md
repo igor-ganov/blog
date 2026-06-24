@@ -37,9 +37,9 @@ fase 7 si chiamava "Component Cleanup". L'obiettivo era dichiarato senza giri di
 pulizia avevamo componenti che in realtà erano sezioni di pagina travestite da componente.
 Prendi `UserCardComponent`, il cui template era `<div class="card"><div
 class="card__header">...`; qualsiasi genitore che volesse sovrascrivere uno stile doveva
-prima imparare il layout interno. L'accoppiamento andava in entrambe le direzioni. I
-template facevano trapelare la struttura verso i genitori, e i genitori facevano trapelare
-le assunzioni sul padding verso il basso attraverso selettori CSS profondi.
+prima imparare il layout interno. L'accoppiamento andava in entrambe le direzioni: il
+template esponeva la sua struttura ai genitori, e i genitori si appoggiavano su assunzioni
+sul padding raggiunte attraverso selettori CSS profondi.
 
 Rimuovere ogni `<div>` ha forzato due risultati:
 
@@ -275,8 +275,7 @@ template: `<div class="ticket-status-badge">{{ status() }}</div>`
 Questi pattern condividono un sintomo. I template dei genitori si rompono quando il `<div>`
 interno viene ristrutturato, perché il CSS del genitore faceva riferimento a `.card
 .card__header` e quel percorso non esiste più. Stilizzare tramite `:host` taglia
-l'accoppiamento, dato che il genitore può toccare `app-user-card` solo come una scatola
-nera.
+l'accoppiamento, dato che il genitore può riferirsi a `app-user-card` solo dall'esterno.
 
 ## Applicazione forzata
 

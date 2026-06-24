@@ -20,15 +20,15 @@ Tre default di GitHub Actions sono sbagliati dal punto di vista della sicurezza,
 nessuno di essi ti salta all'occhio finché un audit o un incidente non lo trascina
 alla luce:
 
-1. **Il `GITHUB_TOKEN` ambientale punta a una concessione ampia** (dipende
+1. Il `GITHUB_TOKEN` ambientale punta di default a una concessione ampia (dipende
    dall'impostazione di org/repo, e storicamente significava lettura/scrittura).
    Ogni step lo eredita, incluso il codice dentro una action compromessa o una
    dipendenza transitiva malevola che gira durante `bun install`.
-2. **I tag sono mutabili.** `uses: some-org/some-action@v4` viene risolto di nuovo
+2. I tag sono mutabili. `uses: some-org/some-action@v4` viene risolto di nuovo
    a ogni esecuzione. Basta dirottare l'account di un maintainer, ripuntare il tag,
    e il deploy successivo esegue il codice dell'attaccante seduto proprio accanto a
    `CLOUDFLARE_API_TOKEN`.
-3. **Lo `env` a livello di job consegna i secret a ogni step.** Sugli eventi
+3. Lo `env` a livello di job consegna i secret a ogni step. Sugli eventi
    `pull_request` quel job esegue codice scritto nella PR. GitHub di default
    nasconde i secret alle PR da fork, ma le PR dallo stesso repo e le impostazioni
    allentate scavalcano entrambe quella protezione.

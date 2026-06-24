@@ -112,4 +112,5 @@ scrivere l'handler invece che dopo, e il resto è venuto da sé.
 Apri [@secret_manager_bot](https://t.me/secret_manager_bot), mandagli un valore,
 condividi il link. Il codice è su [GitHub](https://github.com/igor-ganov/secret-manager):
 Bun, grammY, TypeScript strict senza vie di fuga, e la stessa divisione ports-and-adapters
-che questo post descrive. È piccolo di proposito, e la disciplina vive negli angoli.
+che questo post descrive. È piccolo di proposito, e gran parte della cura è andata nei casi
+limite.

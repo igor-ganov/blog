@@ -16,14 +16,15 @@ order: 7
 updated: 2026-06-10
 ---
 
-Una "best practice" senza attribuzione è solo un'opinione travestita. Senza una fonte non
+Una "best practice" senza attribuzione è soltanto un'asserzione. Senza una fonte non
 puoi giudicare quanto sia vecchia l'affermazione, da quale contesto provenga o se si
 applichi alla situazione che hai davanti. La ricerca dietro una decisione di progettazione
 fa parte della decisione. Registra cosa si sapeva quando la scelta è stata fatta, dove
 guardare quando le circostanze cambiano e quali prove la renderebbero invalida.
 
 Questa knowledge base segue la regola che documenta. Ogni articolo porta un blocco
-`sources` con nome del progetto, data e nota. Quel blocco è provenienza, non decorazione.
+`sources` con nome del progetto, data e nota. Quel blocco registra da dove proviene ogni
+affermazione.
 
 ## Perché conta
 
@@ -38,11 +39,11 @@ event-sourced ma non in quelli CRUD, oppure l'indicazione vera e propria di Vaug
 in _Implementing Domain-Driven Design_ (2013). Stesso testo, applicabilità del tutto
 diversa. Una citazione ti dice quale dei quattro stai leggendo.
 
-**Menu di alternative.** Presentare tre opzioni e chiedere al lettore di scegliere è comodo
-per chi scrive e inutile per chi legge, perché trasferisce il lavoro decisionale senza
-trasferire la ricerca. Una proposta forte (una sola opzione, con il ragionamento) batte una
-rassegna. Il lettore può comunque rifiutarla e chiedere alternative, che è una
-conversazione diversa da "ecco tre opzioni, decidi tu".
+**Menu di alternative.** Presentare tre opzioni e chiedere al lettore di scegliere sposta il
+lavoro decisionale sul lettore senza dargli la ricerca che gli permetterebbe di decidere
+bene. Una proposta forte (una sola opzione, con il ragionamento) è meglio di una rassegna.
+Il lettore può comunque rifiutarla e chiedere alternative, che è una conversazione diversa
+da "ecco tre opzioni, decidi tu".
 
 **Dare la colpa alle persone.** Una critica che nomina una persona ("lo sviluppatore
 precedente ha fatto una scelta sbagliata") non ti dà nulla su cui agire e mette tutti sulla
@@ -100,7 +101,7 @@ this repo's angular/signals-resource-compute article.
 ```
 
 Il lettore può non essere d'accordo e chiedere alternative, e va bene. Il default resta una
-singola raccomandazione forte invece di un buffet.
+singola raccomandazione forte.
 
 ### Critica i sistemi, non le persone
 

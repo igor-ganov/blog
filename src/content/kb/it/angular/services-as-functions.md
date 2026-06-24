@@ -232,10 +232,10 @@ export class FilterStore {
 // Fix: separate filters = this._filters.asReadonly() and setFilters = (f) => this._filters.set(f)
 ```
 
-Questi pattern producono gli stessi sintomi all'infinito. Finisci per allestire `TestBed`
-per una logica che non ha nessuna dipendenza da Angular. Lo stato viene mutato da qualsiasi
-punto senza un percorso di scrittura rintracciabile. Le regole di dominio marciscono dentro
-il livello dei servizi, dove nessun altro può riutilizzarle.
+Questi pattern producono gli stessi sintomi: allestisci `TestBed` per una logica che non ha
+nessuna dipendenza da Angular, lo stato viene mutato da qualsiasi punto senza un percorso di
+scrittura rintracciabile, e le regole di dominio restano bloccate nel livello dei servizi,
+dove nessun altro può riutilizzarle.
 
 ## Vedi anche
 

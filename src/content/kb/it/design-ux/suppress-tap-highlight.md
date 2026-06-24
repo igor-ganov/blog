@@ -20,12 +20,12 @@ updated: 2026-06-11
 Tocca un link o un pulsante qualsiasi su un browser WebKit mobile e, di default, viene
 disegnato un riquadro traslucido sopra l'elemento per tutto il tempo in cui tieni il dito
 premuto. Il colore arriva dalla piattaforma, non da te: di solito un rettangolo blu o
-grigio che ignora il tuo border radius e si ritaglia sul box dell'elemento. Niente
-qualifica un'interfaccia come "pagina web" anziché "app" altrettanto in fretta, e scatta
-su ogni controllo che hai: link di navigazione, card, icon button, tutti quanti.
+grigio che ignora il tuo border radius e si ritaglia sul box dell'elemento. È un chiaro
+segnale che l'interfaccia è una pagina web e non un'app, e scatta su ogni controllo che
+hai: link di navigazione, card, icon button, tutti quanti.
 
-La soluzione è una singola dichiarazione ereditata. La parte più difficile sono le due
-cose che *non* devi fare mentre la applichi.
+La soluzione è una singola dichiarazione ereditata, ma mentre la applichi devi anche
+evitare due errori.
 
 ## Perché conta
 
@@ -35,7 +35,7 @@ stile hover, un focus ring e una trasformazione `:active`, e il flash si piazzav
 tutto questo e ne vanificava il lavoro. L'elemento sembrava fatto a mano fino al momento
 in cui lo toccavi, quando la piattaforma timbrava il suo default sopra il resto.
 
-`-webkit-tap-highlight-color` è la proprietà che lo disegna. È **ereditata**, ed è
+`-webkit-tap-highlight-color` è la proprietà che lo disegna. È ereditata, ed è
 proprio questo che ti permette di sistemarlo in modo pulito. Impostala una volta sulla
 radice e ogni discendente eredita il valore, compreso il contenuto dei custom element con
 shadow DOM, dato che le proprietà ereditate attraversano il confine. Una riga rimuove il

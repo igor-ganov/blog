@@ -21,15 +21,15 @@ order: 1
 updated: 2026-05-09
 ---
 
-Un catch vuoto è la riga di codice più costosa che puoi scrivere, perché diventa
-invisibile esattamente nel momento in cui ti serve. `.catch(() => {})` non gestisce un
-errore. Cancella la prova che ne sia avvenuto uno. Il guasto è comunque successo, e ora
-nessun log, nessuna notifica e nessun test lo vedrà mai. Su una SPA di amministrazione
-contenuti è andata proprio così: i gestori catch silenziosi erano la **ragione
-strutturale** per cui un'intera classe di regressioni sul salvataggio in produzione è
-rimasta invisibile finché un umano non si è accorto, a mano, che non si salvava niente.
+Un catch vuoto diventa invisibile esattamente nel momento in cui ti serve.
+`.catch(() => {})` non gestisce un errore; cancella la prova che ne sia avvenuto uno. Il
+guasto è comunque successo, e ora nessun log, nessuna notifica e nessun test lo vedrà
+mai. Su una SPA di amministrazione contenuti è andata proprio così: i gestori catch
+silenziosi erano la ragione per cui un'intera classe di regressioni sul salvataggio in
+produzione è rimasta invisibile finché un umano non si è accorto, a mano, che non si
+salvava niente.
 
-La regola: **non inghiottire mai un errore in silenzio.** `try/catch` vuoti, `.catch(() => {})`,
+Quindi: non inghiottire mai un errore in silenzio. `try/catch` vuoti, `.catch(() => {})`,
 `.catch(() => undefined)` e `.then(onOk, () => {})` sono tutti vietati.
 
 ## Perché conta
@@ -47,7 +47,7 @@ A parte questo, il livello RBAC (org-membership `PUT`, team `PUT`, invite `POST`
 risposto con un 4xx**. Il gestore non controllava mai `res.ok`, quindi fabbricava un
 successo, la UI si aggiornava e mostrava il vecchio stato. I salvataggi non facevano
 nulla in silenzio, e nessuno se ne accorgeva finché non passavano ore di tentativi. Un
-successo fabbricato è solo un errore inghiottito che ti sorride in faccia.
+successo fabbricato è solo un altro errore inghiottito.
 
 Il costo è lo stesso in entrambi i casi. Il guasto è reale, ma affiora come un sintomo
 confuso lontano dalla causa, di solito solo dopo che un umano se ne accorge. Lo paghi in
