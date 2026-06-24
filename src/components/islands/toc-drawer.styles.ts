@@ -51,9 +51,13 @@ export const tocDrawerStyles = css`
     }
     .toggle {
       position: fixed;
-      /* Bottom-LEFT: the bottom-right corner belongs to the flying menu trigger, so
-         the two floating buttons never overlap. */
-      inset: auto auto var(--space-5) var(--space-5);
+      /* Bottom-LEFT: the bottom-right corner belongs to the flying menu trigger. When
+         the user drags that menu to the bottom-left too, menu-corner-sync raises
+         --toc-fab-bottom so this button lifts clear of it. */
+      left: var(--space-5);
+      bottom: var(--toc-fab-bottom, var(--space-5));
+      right: auto;
+      top: auto;
       z-index: 45;
       display: inline-flex;
       align-items: center;

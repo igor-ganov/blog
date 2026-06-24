@@ -38,29 +38,41 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
         `data-theme` drives the colours. */}
     <script is:inline>
       (function () {
-        var root = document.documentElement;
         var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
         function known(value) {
           return value === 'light' || value === 'dark' || value === 'system';
         }
-        function applyTheme() {
+        function resolve() {
           try {
             var stored = localStorage.getItem('theme');
             var pref = known(stored) ? stored : 'system';
             var dark = pref === 'dark' || (pref === 'system' && darkQuery.matches);
-            root.dataset.themePref = pref;
-            root.dataset.theme = dark ? 'dark' : 'light';
+            return { pref: pref, theme: dark ? 'dark' : 'light' };
           } catch (error) {
-            root.dataset.themePref = 'system';
-            root.dataset.theme = 'light';
+            return { pref: 'system', theme: 'light' };
           }
         }
-        applyTheme();
+        function applyTo(root) {
+          var r = resolve();
+          root.dataset.themePref = r.pref;
+          root.dataset.theme = r.theme;
+        }
+        applyTo(document.documentElement);
         if (!window.__themeBound) {
           window.__themeBound = true;
-          document.addEventListener('astro:after-swap', applyTheme);
+          // Paint the INCOMING document with the resolved theme before the view
+          // transition snapshots it — otherwise it swaps in with the static SSR
+          // data-theme and the transition flashes the light theme for a frame.
+          document.addEventListener('astro:before-swap', function (event) {
+            applyTo(event.newDocument.documentElement);
+          });
+          document.addEventListener('astro:after-swap', function () {
+            applyTo(document.documentElement);
+          });
           darkQuery.addEventListener('change', function () {
-            if (root.dataset.themePref === 'system') applyTheme();
+            if (document.documentElement.dataset.themePref === 'system') {
+              applyTo(document.documentElement);
+            }
           });
         }
       })();
