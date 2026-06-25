@@ -2,7 +2,7 @@
 title: Home
 description: Engineering practices taken from real project decisions, each with the reason it exists and where it came from.
 kicker: A knowledge base
-h1: How I build software, written down
+h1: "A developer's notes: how I build software"
 lede: "Every article below is one practice, taken from an actual project decision: the rule, why it exists, how to apply it, and what to avoid. When two decisions conflict the newer one wins, and each article says where it came from so you can check it."
 statPractices: Practices
 statCategories: Categories
