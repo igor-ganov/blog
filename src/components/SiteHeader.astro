@@ -52,7 +52,7 @@ const langs = locales.map((loc) => ({
         {
           nav.map((item) => (
             <li>
-              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+              <a href={item.href} data-astro-prefetch="viewport" aria-current={isActive(item.href) ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>
@@ -112,7 +112,7 @@ const langs = locales.map((loc) => ({
           {
             nav.map((item) => (
               <li>
-                <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                <a href={item.href} data-astro-prefetch="viewport" aria-current={isActive(item.href) ? 'page' : undefined}>
                   {item.label}
                 </a>
               </li>
