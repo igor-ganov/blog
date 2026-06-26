@@ -190,3 +190,28 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
     clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
   }
 }
+/* Navigation: a gentle slide+fade of the whole page (the `root` snapshot), so a
+   tap-to-navigate reads as motion instead of a frozen wait. Scoped away from the theme
+   toggle (which owns the `theme` type and its circular reveal) and off under reduced
+   motion. Animating `root` — not a named `main` — keeps the fixed-position islands
+   (the TOC drawer backdrop, reading-progress) painting above the sticky header. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(:active-view-transition-type(theme))::view-transition-old(root) {
+    animation: nav-fade-slide-out 0.2s ease both;
+  }
+  html:not(:active-view-transition-type(theme))::view-transition-new(root) {
+    animation: nav-fade-slide-in 0.24s ease both;
+  }
+}
+@keyframes nav-fade-slide-out {
+  to {
+    opacity: 0;
+    transform: translateX(-1.25rem);
+  }
+}
+@keyframes nav-fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+}
