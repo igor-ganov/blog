@@ -79,6 +79,11 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
     </script>
   </head>
   <body>
+    {/* A thin progress bar that appears the instant a navigation starts
+        (astro:before-preparation) and completes on page-load — immediate feedback
+        that a tap registered, instead of a frozen wait. Persisted across the swap so
+        it stays put while the page transitions. */}
+    <div id="nav-progress" transition:persist aria-hidden="true"></div>
     <a class="skip-link" href="#main">{ui.skipToContent}</a>
     <SiteHeader locale={locale} />
     <main id="main" class="wrap">
@@ -93,6 +98,38 @@ const fullTitle = `${title} · ${ui.titleSuffix}`;
           navigator.serviceWorker.register(swUrl).catch(function () {});
         });
       }
+    </script>
+    {/* Drive the navigation progress bar from ClientRouter's lifecycle. Bound once;
+        the listeners live on `document` and survive view-transition swaps. */}
+    <script is:inline>
+      (function () {
+        if (window.__navProgressBound) return;
+        window.__navProgressBound = true;
+        function bar() {
+          return document.getElementById('nav-progress');
+        }
+        function start() {
+          var el = bar();
+          if (!el) return;
+          // Reset instantly, then creep toward 90% so the motion reads as progress.
+          el.style.transition = 'none';
+          el.style.opacity = '1';
+          el.style.transform = 'scaleX(0)';
+          void el.offsetWidth;
+          el.style.transition = 'transform 8s cubic-bezier(0.1, 0.7, 0.1, 1)';
+          el.style.transform = 'scaleX(0.9)';
+        }
+        function done() {
+          var el = bar();
+          if (!el || el.style.opacity === '0') return;
+          el.style.transition = 'transform 0.2s ease, opacity 0.4s ease 0.15s';
+          el.style.transform = 'scaleX(1)';
+          el.style.opacity = '0';
+        }
+        document.addEventListener('astro:before-preparation', start);
+        document.addEventListener('astro:after-swap', done);
+        document.addEventListener('astro:page-load', done);
+      })();
     </script>
   </body>
 </html>
