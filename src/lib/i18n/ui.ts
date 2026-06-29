@@ -20,6 +20,7 @@ const chromeSchema = z.object({
     blog: z.string(),
     principles: z.string(),
     skills: z.string(),
+    apps: z.string(),
     about: z.string(),
   }),
   footer: z.object({ lede: z.string(), meta: z.string() }),

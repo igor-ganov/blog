@@ -8,6 +8,7 @@ nav:
   blog: Blog
   principles: Principles
   skills: Skills
+  apps: Apps
   about: About
 footer:
   lede: Engineering practices taken from real project decisions. When two conflict the newer one wins, and every claim says where it came from.
