@@ -1,0 +1,154 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { type Locale, defaultLocale, isLocale, locales, splitLocaleId } from '@/lib/i18n/locales';
+import { loadAppsPage } from '@/lib/i18n/load-page';
+
+export const getStaticPaths: GetStaticPaths = () => locales.map((lang) => ({ params: { lang } }));
+
+const param = String(Astro.params.lang ?? '');
+const locale: Locale = isLocale(param) ? param : defaultLocale;
+const page = await loadAppsPage(locale);
+
+const entries = (await getCollection('apps', (entry) => entry.data.draft === false))
+  .filter((entry) => splitLocaleId(entry.id).locale === locale)
+  .sort((a, b) => a.data.order - b.data.order);
+
+// Only pull in CodePen's embed script when a pen card is actually on the page.
+const hasPens = entries.some((entry) => entry.data.kind === 'pen' && entry.data.codepen);
+const penUrl = (id: string): string => `https://codepen.io/igor-ganov/pen/${id}`;
+---
+
+<BaseLayout title={page.heading} description={page.description} locale={locale}>
+  <header class="page-head">
+    <h1>{page.heading}</h1>
+    <p class="lede">{page.lede}</p>
+  </header>
+
+  <ul class="apps">
+    {
+      entries.map((entry) => {
+        const a = entry.data;
+        return (
+          <li class="card">
+            {a.kind === 'pen' && a.codepen && (
+              <p
+                class="codepen"
+                data-height="300"
+                data-default-tab="result"
+                data-slug-hash={a.codepen}
+                data-user="igor-ganov"
+                data-preview="true"
+              >
+                <a href={penUrl(a.codepen)}>{a.title}</a>
+              </p>
+            )}
+            <h2>{a.title}</h2>
+            <p class="blurb">{a.blurb}</p>
+            {a.stack.length > 0 && (
+              <ul class="stack" aria-hidden="true">
+                {a.stack.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+            )}
+            <div class="links">
+              {a.repo && (
+                <a class="link" href={a.repo} target="_blank" rel="noopener noreferrer">
+                  {page.codeLabel}
+                </a>
+              )}
+              {a.demo && (
+                <a class="link demo" href={a.demo} target="_blank" rel="noopener noreferrer">
+                  {page.demoLabel}
+                </a>
+              )}
+              {a.kind === 'pen' && a.codepen && (
+                <a class="link" href={penUrl(a.codepen)} target="_blank" rel="noopener noreferrer">
+                  {page.penLabel}
+                </a>
+              )}
+            </div>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  {hasPens && <script is:inline async src="https://cpwebassets.codepen.io/assets/embed/ei.js" />}
+
+  <style>
+    .page-head {
+      padding: var(--space-8) 0 var(--space-5);
+      max-width: 65ch;
+    }
+    .lede {
+      font-size: var(--step-1);
+      color: var(--text-muted);
+    }
+    .apps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+      gap: var(--space-4);
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-5);
+    }
+    .card h2 {
+      margin: 0;
+      font-size: var(--step-1);
+    }
+    .blurb {
+      margin: 0;
+      color: var(--text-muted);
+      flex: 1;
+    }
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .stack li {
+      font-size: var(--step--1);
+      color: var(--text-faint);
+      background: var(--bg-sunken);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.1em 0.6em;
+    }
+    .links {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-1);
+    }
+    .link {
+      font-size: var(--step--1);
+      font-weight: 600;
+      color: var(--link);
+      text-decoration: none;
+    }
+    .link:hover {
+      color: var(--link-hover);
+    }
+    .link.demo {
+      color: var(--accent);
+    }
+    .codepen {
+      margin: 0 0 var(--space-1);
+      min-height: 300px;
+    }
+  </style>
+</BaseLayout>

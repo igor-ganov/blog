@@ -72,4 +72,22 @@ const pages = defineCollection({
   schema: z.object({ title: z.string().optional(), description: z.string() }).catchall(z.string()),
 });
 
-export const collections = { kb, blog, pages };
+// Apps & demos: one Markdown file per project per locale. `kind` distinguishes a
+// repo/app card from a CodePen embed; `codepen` holds the pen id when kind=pen.
+const apps = defineCollection({
+  loader: glob({ pattern: ['**/*.md', '!**/README.md'], base: './src/content/apps' }),
+  schema: z.object({
+    title: z.string(),
+    blurb: z.string(),
+    kind: z.enum(['app', 'pen']).default('app'),
+    repo: z.string().optional(),
+    demo: z.string().optional(),
+    codepen: z.string().optional(),
+    stack: z.array(z.string()).default([]),
+    date: isoDate,
+    order: z.number().default(100),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { kb, blog, pages, apps };

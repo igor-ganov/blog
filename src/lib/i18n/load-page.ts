@@ -83,11 +83,23 @@ const skillsSchema = z.object({
   practicesWord: z.string(),
 });
 
+const appsPageSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  heading: z.string(),
+  lede: z.string(),
+  codeLabel: z.string(),
+  demoLabel: z.string(),
+  penLabel: z.string(),
+});
+
 export const loadHome = async (locale: Locale) => homeSchema.parse(await fetchPage(locale, 'home'));
 export const loadAbout = async (locale: Locale) =>
   aboutSchema.parse(await fetchPage(locale, 'about'));
 export const loadSkills = async (locale: Locale) =>
   skillsSchema.parse(await fetchPage(locale, 'skills'));
+export const loadAppsPage = async (locale: Locale) =>
+  appsPageSchema.parse(await fetchPage(locale, 'apps'));
 export const loadPrinciples = async (locale: Locale) =>
   indexSchema.parse(await fetchPage(locale, 'principles'));
 export const loadBlog = async (locale: Locale) =>
